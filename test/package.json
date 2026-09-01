@@ -4,12 +4,13 @@
   "description": "xeus-runner tests",
   "license": "BSD-3-Clause",
   "author": "Ian Thomas",
+  "type": "module",
   "main": "index.js",
   "private": true,
   "scripts": {
     "build": "tsc",
     "test": "npm run test:unit",
-    "test:unit": "jest"
+    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

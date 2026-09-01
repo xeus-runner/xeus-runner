@@ -28,15 +28,15 @@ describe('createKernelType', () => {
     const input = param[0];
     const output = param[1];
 
-    test(`${input}`, () => {
+    test(`should accept ${input}`, () => {
       expect(createKernelType(input)).toEqual(output);
     });
 
-    test(`x${input}`, () => {
+    test(`should accept x${input}`, () => {
       expect(createKernelType(`x${input}`)).toEqual(output);
     });
 
-    test(`xeus-${input}`, () => {
+    test(`should accept xeus-${input}`, () => {
       expect(createKernelType(`xeus-${input}`)).toEqual(output);
     });
   });

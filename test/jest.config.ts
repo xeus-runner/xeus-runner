@@ -1,15 +1,16 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
   testRegex: ['unit-tests/.*.test.ts$'],
+  extensionsToTreatAsEsm: ['.ts'],
   transform: {
     '^.+\\.ts$': [
       'ts-jest',
       {
+        useESM: true,
         tsconfig: {
-          module: 'commonjs',
+          module: 'esnext',
         },
       },
     ],

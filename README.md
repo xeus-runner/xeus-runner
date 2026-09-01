@@ -4,7 +4,7 @@ Run `xeus` WebAssembly kernels outside of JupyterLite in TypeScript/JavaScript p
 
 ## Build
 
-To build you need a recent-ish `nodejs`.
+To build you need a `nodejs >= 24`.
 
 ```bash
 npm install
