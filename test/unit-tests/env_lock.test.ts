@@ -1,8 +1,9 @@
-import { createEnvLock, DEFAULT_CHANNELS } from '../../src/env_lock';
+import { IXeusKernel } from '../../src/defs';
+import { createEnvLock } from '../../src/env_lock';
 
 describe('DEFAULT_CHANNELS', () => {
   test('should have at least two channels', () => {
-    expect(DEFAULT_CHANNELS.length).toBeGreaterThanOrEqual(2);
+    expect(IXeusKernel.DEFAULT_CHANNELS.length).toBeGreaterThanOrEqual(2);
   });
 });
 

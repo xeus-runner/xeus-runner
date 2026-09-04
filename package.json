@@ -27,10 +27,15 @@
     "prepack": "npm install && npm run build"
   },
   "dependencies": {
-    "@emscripten-forge/mambajs": "^0.22.0"
+    "@emscripten-forge/mambajs": "^0.22.0",
+    "@emscripten-forge/untarjs": "^5.3.3",
+    "@jupyterlite/xeus-core": "^5.0.0",
+    "@lumino/coreutils": "^2.2.3",
+    "@lumino/signaling": "^2.1.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.11",
+    "@jupyterlab/services": "^7.6.3",
     "copyfiles": "^2.4.1",
     "typescript": "^7.0.2"
   }

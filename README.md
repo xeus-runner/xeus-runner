@@ -20,6 +20,7 @@ To test, first build the project and then:
 ```bash
 cd test
 npm install
+npx playwright install chromium
 npm run build
 npm run test
 ```

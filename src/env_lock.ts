@@ -1,14 +1,10 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import { create } from '@emscripten-forge/mambajs';
 import type { ILogger as IMambaLogger } from '@emscripten-forge/mambajs-core';
+import { IXeusKernel } from './defs';
 
 // This will eventually be used elsewhere, not just here.
 export type ILogger = (text: string) => void;
-
-export const DEFAULT_CHANNELS: string[] = [
-  'https://prefix.dev/emscripten-forge-4x',
-  'https://prefix.dev/conda-forge',
-];
 
 /**
  * Create and return environment lock file containing a solved environment.
@@ -23,7 +19,7 @@ export async function createEnvLock(options: {
   logger?: ILogger;
 }): Promise<ILock> {
   const { logger, packages, pipPackages } = options;
-  const channels = options.channels ?? DEFAULT_CHANNELS;
+  const channels = options.channels ?? IXeusKernel.DEFAULT_CHANNELS;
 
   if (channels.length === 0) {
     throw new Error('No channels specified');
