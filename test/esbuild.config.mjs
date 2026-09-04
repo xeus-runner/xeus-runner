@@ -15,3 +15,9 @@ build({
   entryPoints: ['serve/*.ts'],
   ...commonOptions,
 }).catch(() => process.exit(1));
+
+// Also bundle webworkers.
+build({
+  entryPoints: ['../lib/impl/coincident_worker_impl.js'],
+  ...commonOptions,
+}).catch(() => process.exit(1));

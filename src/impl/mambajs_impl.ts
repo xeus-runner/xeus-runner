@@ -44,7 +44,9 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     (globalThis as any).exports = oldExports;
   }
 
-  protected abstract dynamicModuleImport(url: string): Promise<void>;
+  protected async dynamicModuleImport(url: string): Promise<void> {
+    return this.defaultDynamicModuleImport(url);
+  }
 
   get emscriptenMajorVersion(): number {
     return this._emscriptenMajorVersion;

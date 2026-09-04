@@ -2,7 +2,7 @@ import type { ILock } from '@emscripten-forge/mambajs';
 import type { KernelMessage } from '@jupyterlab/services';
 import { PromiseDelegate } from '@lumino/coreutils';
 import { type ISignal, Signal } from '@lumino/signaling';
-import { type IBridge, MainBridge } from './bridge';
+import { CoincidentWorkerBridge, type IBridge, MainBridge } from './bridge';
 import type { IXeusKernel } from './defs';
 import type { IXeusKernelImplOptions } from './impl';
 import { createKernelType, type IKernelType } from './kernel_type';
@@ -35,8 +35,12 @@ export class XeusKernel implements IXeusKernel {
     this.initialize(options); // Will set ready when done.
   }
 
-  protected createBridge(_options: IXeusKernel.IOptions): IBridge {
-    return new MainBridge();
+  protected createBridge(options: IXeusKernel.IOptions): IBridge {
+    if (options.worker) {
+      return new CoincidentWorkerBridge();
+    } else {
+      return new MainBridge();
+    }
   }
 
   protected createMessageHandler(): IMessageHandler {
