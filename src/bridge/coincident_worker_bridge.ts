@@ -1,6 +1,4 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import type { KernelMessage } from '@jupyterlab/services';
-import { PromiseDelegate } from '@lumino/coreutils';
 import coincident from 'coincident/main';
 import type { IXeusKernel } from '../defs';
 import type { ICoincidentWorkerKernel, IXeusKernelImplOptions } from '../impl';
