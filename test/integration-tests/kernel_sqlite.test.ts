@@ -6,8 +6,8 @@ test.describe('Sqlite kernel', () => {
     test(`worker: ${worker}`, async ({ page }) => {
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'sqlite', worker });
-        await kernel.execute('%CREATE mydb.db mydb');
-        const executeReturn = await kernel.execute('SELECT sqlite_version()');
+        await kernel.execute({ code: '%CREATE mydb.db mydb' });
+        const executeReturn = await kernel.execute({ code: 'SELECT sqlite_version()' });
         kernel.dispose();
         const { isDisposed, isWorker } = kernel;
         return { executeReturn, isWorker, isDisposed };

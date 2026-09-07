@@ -7,7 +7,7 @@ test.describe('R kernel', () => {
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'r', worker });
         const code = 'x <- "Hello from R!"\nprint(x)';
-        const executeReturn = await kernel.execute(code);
+        const executeReturn = await kernel.execute({ code });
         kernel.dispose();
         const { isDisposed, isWorker } = kernel;
         return { executeReturn, isWorker, isDisposed };

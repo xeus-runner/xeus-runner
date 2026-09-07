@@ -69,13 +69,13 @@ export class XeusKernel implements IXeusKernel {
     return await this._bridge.envLock();
   }
 
-  async execute(code: string): Promise<IXeusKernel.IExecuteReturn> {
+  async execute(options: IXeusKernel.IExecuteOptions): Promise<IXeusKernel.IExecuteReturn> {
     const requestId = this._nextRequestId();
 
     const msg: KernelMessage.IExecuteRequestMsg = {
       channel: 'shell',
       content: {
-        code,
+        code: options.code,
       },
       header: {
         msg_type: 'execute_request',

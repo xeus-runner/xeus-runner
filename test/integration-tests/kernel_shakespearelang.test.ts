@@ -98,7 +98,7 @@ Ophelia:
 
 [Exeunt]`;
 
-        const executeReturn = await kernel.execute(code);
+        const executeReturn = await kernel.execute({ code });
         kernel.dispose();
         const { isDisposed, isWorker } = kernel;
         return { executeReturn, isWorker, isDisposed };

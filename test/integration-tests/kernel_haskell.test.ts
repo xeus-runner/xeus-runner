@@ -7,7 +7,7 @@ test.describe('Haskell kernel', () => {
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'haskell', worker });
         const code = 'main :: IO ()\nmain = putStrLn "Hello from Haskell!"\nmain';
-        const executeReturn = await kernel.execute(code);
+        const executeReturn = await kernel.execute({ code });
         kernel.dispose();
         const { isDisposed, isWorker } = kernel;
         return { executeReturn, isWorker, isDisposed };

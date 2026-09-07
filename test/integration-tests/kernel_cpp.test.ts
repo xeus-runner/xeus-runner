@@ -8,7 +8,7 @@ test.describe('C++ kernel', () => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'cpp', worker });
         const code =
           '#include <iostream>\nint i = -23;\nstd::cout << "Hello from C++! " << i << std::endl;';
-        const executeReturn = await kernel.execute(code);
+        const executeReturn = await kernel.execute({ code });
         kernel.dispose();
         const { isDisposed, isWorker } = kernel;
         return { executeReturn, isWorker, isDisposed };

@@ -12,7 +12,7 @@ b = 0.5
 result = a + b
 print '(A, F6.2)', "Hello from LFortran, the sum is ", result
 `;
-        const executeReturn = await kernel.execute(code);
+        const executeReturn = await kernel.execute({ code });
         kernel.dispose();
         const { isDisposed, isWorker } = kernel;
         return { executeReturn, isWorker, isDisposed };

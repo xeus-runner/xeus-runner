@@ -23,9 +23,9 @@ export interface IXeusKernel {
    * Returns a promise that resolves when the execution is complete containing the text-only returns
    * from the kernel if they have not already been handled in some other way by an IMessageHandler.
    *
-   * @param code Code to execute, as string.
+   * @param options
    */
-  execute(code: string): Promise<IXeusKernel.IExecuteReturn>;
+  execute(options: IXeusKernel.IExecuteOptions): Promise<IXeusKernel.IExecuteReturn>;
 
   /**
    * Whether the kernel is disposed.
@@ -93,6 +93,16 @@ export namespace IXeusKernel {
      * Default is `xr`.
      */
     cssClassPrefix?: string;
+  }
+
+  /**
+   * Options passed to IXeusKernel.execute()
+   */
+  export interface IExecuteOptions {
+    /**
+     * Code to execute, as string.
+     */
+    code: string;
   }
 
   /**
