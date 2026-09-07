@@ -22,7 +22,13 @@
       },
       "preset": "recommended",
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useImportType": {
+          "level": "on",
+          "options": {
+            "style": "separatedType"
+          }
+        }
       },
       "suspicious": {
         "noControlCharactersInRegex": "off",

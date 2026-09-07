@@ -1,12 +1,16 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { KernelMessage } from '@jupyterlab/services';
 import { PromiseDelegate } from '@lumino/coreutils';
-import { type ISignal, Signal } from '@lumino/signaling';
-import { CoincidentWorkerBridge, type IBridge, MainBridge } from './bridge';
+import type { ISignal } from '@lumino/signaling';
+import { Signal } from '@lumino/signaling';
+import type { IBridge } from './bridge';
+import { CoincidentWorkerBridge, MainBridge } from './bridge';
 import type { IXeusKernel } from './defs';
 import type { IXeusKernelImplOptions } from './impl';
-import { createKernelType, type IKernelType } from './kernel_type';
-import { DOMMessageHandler, type IMessageHandler, TextMessageHandler } from './message_handler';
+import type { IKernelType } from './kernel_type';
+import { createKernelType } from './kernel_type';
+import type { IMessageHandler } from './message_handler';
+import { DOMMessageHandler, TextMessageHandler } from './message_handler';
 import { removeAnsiEscapeCodes } from './utils';
 
 export class XeusKernel implements IXeusKernel {

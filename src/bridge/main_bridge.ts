@@ -1,6 +1,7 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { IXeusKernel } from '../defs';
-import { type IXeusKernelImplOptions, MainXeusKernelImpl } from '../impl';
+import type { IXeusKernelImplOptions } from '../impl';
+import { MainXeusKernelImpl } from '../impl';
 import type { IBridge } from './bridge';
 
 /**
