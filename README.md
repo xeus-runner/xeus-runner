@@ -25,6 +25,17 @@ npm run build
 
 Output JavaScript is in the `lib` directory.
 
+## Examples
+
+To build and serve the examples locally, build the project and then:
+
+```bash
+cd examples
+npm install
+npm run build
+npm run serve
+```
+
 ## Testing
 
 To test, first build the project and then:

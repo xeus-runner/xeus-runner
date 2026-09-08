@@ -2,5 +2,9 @@ dist/
 lib/
 node_modules/
 tsconfig.tsbuildinfo
+
 test/package-lock.json
 test-results/
+
+examples/package-lock.json
+examples/tmp

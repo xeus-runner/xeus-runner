@@ -6,7 +6,7 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!dist", "!lib", "!test/dist"],
+    "includes": ["**", "!dist", "!lib", "!test/dist", "!examples/dist"],
     "maxSize": 104857600
   },
   "formatter": {
@@ -39,6 +39,11 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "single"
+    }
+  },
+  "html": {
+    "parser": {
+      "interpolation": true
     }
   },
   "assist": {

@@ -8,7 +8,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "build": "tsc && node esbuild.config.mjs",
+    "build": "tsc --noEmit && node esbuild.config.mjs",
     "postbuild": "npm run postbuild:copy-assets && npm run postbuild:rename-unpack",
     "postbuild:copy-assets": "copyfiles -u 1 \"assets/*\" dist",
     "postbuild:rename-unpack": "mv dist/unpack-*.wasm dist/unpack.wasm",
@@ -26,6 +26,7 @@
     "playwright": "^1.62.1",
     "static-handler": "^0.5.3",
     "ts-jest": "^29.4.12",
+    "typescript": "^7.0.2",
     "xeus-runner": "file:.."
   }
 }

@@ -1,0 +1,32 @@
+body {
+  background-color: aliceblue;
+}
+
+a {
+  padding-left: 0.25em;
+}
+
+div {
+  font-family: monospace;
+}
+
+.xr-code {
+  border: solid 1px gold;
+  background-color: ivory;
+  margin: 0.5em;
+  white-space: pre;
+}
+
+.xr-stdout {
+  border: solid 1px silver;
+  background-color: whitesmoke;
+  margin: 0.5em;
+  white-space: pre;
+}
+
+.xr-stderr {
+  border: solid 1px red;
+  background-color: #ffcccc;
+  margin: 0.5em;
+  white-space: pre;
+}

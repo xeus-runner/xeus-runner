@@ -1,0 +1,20 @@
+{
+  "name": "xeus-runner-examples",
+  "private": true,
+  "scripts": {
+    "build": "node create_examples.mjs && tsc --noEmit && node esbuild.config.mjs",
+    "postbuild": "npm run postbuild:copy-assets && npm run postbuild:rename-unpack",
+    "postbuild:copy-assets": "copyfiles -u 1 \"assets/*\" dist",
+    "postbuild:rename-unpack": "mv dist/unpack-*.wasm dist/unpack.wasm",
+    "serve": "npx static-handler --port 4500 dist/"
+  },
+  "dependencies": {
+    "xeus-runner": "file:.."
+  },
+  "devDependencies": {
+    "copyfiles": "^2.4.1",
+    "esbuild": "^0.28.2",
+    "static-handler": "^0.5.3",
+    "typescript": "^7.0.2"
+  }
+}
