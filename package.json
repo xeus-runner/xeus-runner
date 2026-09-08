@@ -20,8 +20,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && npm run build:copy-dts",
-    "build:copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
+    "build": "tsc",
     "lint": "npx @biomejs/biome check --write",
     "lint:check": "npx @biomejs/biome check",
     "prepack": "npm install && npm run build"
@@ -38,6 +37,6 @@
     "@biomejs/biome": "^2.5.11",
     "@jupyterlab/services": "^7.6.3",
     "copyfiles": "^2.4.1",
-    "typescript": "^7.0.2"
+    "typescript": "^6.0.3"
   }
 }
