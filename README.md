@@ -36,6 +36,11 @@ npm run build
 npm run serve
 ```
 
+Open a web browser and you can try out the various examples:
+
+- http://localhost:4500/ - served without cross-origin isolation headers
+- http://localhost:4501/ - served with cross-origin isolation headers
+
 ## Testing
 
 To test, first build the project and then:

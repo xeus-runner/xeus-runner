@@ -6,12 +6,15 @@
     "postbuild": "npm run postbuild:copy-assets && npm run postbuild:rename-unpack",
     "postbuild:copy-assets": "copyfiles -u 1 \"assets/*\" dist",
     "postbuild:rename-unpack": "mv dist/unpack-*.wasm dist/unpack.wasm",
-    "serve": "npx static-handler --port 4500 dist/"
+    "serve": "concurrently 'npm run serve:simple' 'npm run serve:cross-origin'",
+    "serve:simple": "npx static-handler --port 4500 dist/",
+    "serve:cross-origin": "npx static-handler --coi --port 4501 dist/"
   },
   "dependencies": {
     "xeus-runner": "file:.."
   },
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "copyfiles": "^2.4.1",
     "esbuild": "^0.28.2",
     "static-handler": "^0.5.3",
