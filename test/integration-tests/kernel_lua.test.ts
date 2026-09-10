@@ -3,7 +3,7 @@ import { test } from './test_utils';
 
 test.describe('Lua kernel', () => {
   [false, true].forEach(async (worker) => {
-    test(`worker: ${worker}`, async ({ page }) => {
+    test(`runs, worker: ${worker}`, async ({ page }) => {
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'lua', worker });
         const code = 'print("Hello from Lua!")';

@@ -169,6 +169,10 @@ export class XeusKernel implements IXeusKernel {
           if (!handled && 'text/html' in data) {
             handled = messageHandler.html(requestId, data['text/html']);
           }
+          if (!handled && 'image/png' in data) {
+            const buffer = `data:image/png;base64,${data['image/png']}`;
+            handled = messageHandler.image(requestId, buffer);
+          }
           if (!handled && 'text/plain' in data) {
             // Could be text/html too.
             const text = data['text/plain'];

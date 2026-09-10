@@ -7,6 +7,7 @@ import type { IXeusKernel } from './defs';
 export interface IMessageHandler {
   code(requestId: string, code: string): void;
   html(requestId: string, html: string): boolean;
+  image(requestId: string, buffer: string): boolean; // Assumes PNG, need to do more than this.
   stderr(requestId: string, text: string): void;
   stdout(requestId: string, text: string): void;
   toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn;
@@ -40,6 +41,14 @@ export class DOMMessageHandler implements IMessageHandler {
       return true;
     }
     return false;
+  }
+
+  image(requestId: string, buffer: string): boolean {
+    const div = this._createDiv(this._requestIdDiv(requestId), `${this.cssClassPrefix}-image`);
+    const image = new Image();
+    image.src = buffer;
+    div.appendChild(image);
+    return true;
   }
 
   stderr(requestId: string, text: string): void {
@@ -102,6 +111,10 @@ export class TextMessageHandler implements IMessageHandler {
   code(_requestId: string, _code: string) {}
 
   html(_requestId: string, _html: string): boolean {
+    return false;
+  }
+
+  image(_requestId: string, _buffer: string): boolean {
     return false;
   }
 
