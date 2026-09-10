@@ -166,6 +166,9 @@ export class XeusKernel implements IXeusKernel {
           let handled = false;
           // Only process one of the data types. Might be better if messageHandler advertises what
           // it accepts.
+          if (!handled && 'application/javascript' in data) {
+            handled = messageHandler.javascript(requestId, data['application/javascript']);
+          }
           if (!handled && 'text/html' in data) {
             handled = messageHandler.html(requestId, data['text/html']);
           }

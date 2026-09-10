@@ -8,6 +8,7 @@ export interface IMessageHandler {
   code(requestId: string, code: string): void;
   html(requestId: string, html: string): boolean;
   image(requestId: string, buffer: string): boolean; // Assumes PNG, need to do more than this.
+  javascript(requestId: string, jsCode: string): boolean;
   stderr(requestId: string, text: string): void;
   stdout(requestId: string, text: string): void;
   toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn;
@@ -48,6 +49,12 @@ export class DOMMessageHandler implements IMessageHandler {
     const image = new Image();
     image.src = buffer;
     div.appendChild(image);
+    return true;
+  }
+
+  javascript(_requestId: string, jsCode: string): boolean {
+    const func = new Function(jsCode);
+    func();
     return true;
   }
 
@@ -115,6 +122,10 @@ export class TextMessageHandler implements IMessageHandler {
   }
 
   image(_requestId: string, _buffer: string): boolean {
+    return false;
+  }
+
+  javascript(_requestId: string, _jsCode: string): boolean {
     return false;
   }
 

@@ -47,7 +47,7 @@ ggplot(data, aes(x = x, y = y)) +
       expect(await code.textContent()).toMatch(/^library\(ggplot2\)/);
       expect(code).toHaveAttribute('class', 'xr-code');
 
-      const childImages = page.locator('#target #execute-0 div.xr-image').locator('> *');
+      const childImages = page.locator('#target > #execute-0 > div.xr-image > *');
       expect(childImages).toHaveCount(1);
       expect(await childImages.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
