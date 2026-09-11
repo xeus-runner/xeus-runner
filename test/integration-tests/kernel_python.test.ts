@@ -138,5 +138,81 @@ show(layout)
       expect(children).toHaveCount(1);
       expect(children.nth(0)).toHaveAttribute('data-root-id');
     });
+
+    test(`supports async tasks, worker: ${worker}`, async ({ page }) => {
+      // Outputting to DOM as asyncio tasks continue after code cell has 'completed'.
+      await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'python',
+          parentElement: 'target',
+          showCode: true,
+          worker,
+        });
+
+        kernel.execute({
+          code: `import asyncio
+
+async def recv_send(event1, event2):
+    print('1) waiting for event1')
+    await event1.wait()
+    print('2) received event1')
+    await asyncio.sleep(0.5)
+    event2.set()
+    print('3) set event2, finished')
+
+event1 = asyncio.Event()
+event2 = asyncio.Event()
+waiter_task = asyncio.create_task(recv_send(event1, event2))`,
+        });
+
+        kernel.execute({
+          code: `async def send_recv(event1, event2):
+    print('a) waiting at start')
+    await asyncio.sleep(0.5)
+    event1.set()
+    print('b) set event1, waiting for event2')
+    await event2.wait()
+    print('c) finished')
+
+sender_task = asyncio.create_task(send_recv(event1, event2))`,
+        });
+
+        await kernel.execute({
+          code: `print(event1.is_set(), event2.is_set())
+await asyncio.gather(waiter_task, sender_task)
+print(event1.is_set(), event2.is_set())`,
+        });
+      }, worker);
+
+      // Code.
+      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+      const code0 = page.locator('#target > #execute-0 > #code-0');
+      expect(await code0.textContent()).toMatch(/^import asyncio/);
+      expect(code0).toHaveClass(/\bxr-code\b/);
+
+      expect(page.locator('#target > #execute-1')).toHaveClass(/\bxr-execute\b/);
+      const code1 = page.locator('#target > #execute-1 > #code-1');
+      expect(await code1.textContent()).toMatch(/^async def send_recv/);
+      expect(code1).toHaveClass(/\bxr-code\b/);
+
+      expect(page.locator('#target > #execute-2')).toHaveClass(/\bxr-execute\b/);
+      const code2 = page.locator('#target > #execute-2 > #code-2');
+      expect(await code2.textContent()).toMatch(/^print\(event1.is_set/);
+      expect(code2).toHaveClass(/\bxr-code\b/);
+
+      // Stdout.
+      const stdout0 = page.locator('#target > #execute-0 > div.xr-stdout');
+      expect(stdout0).toHaveText(
+        '1) waiting for event1\n2) received event1\n3) set event2, finished',
+      );
+
+      const stdout1 = page.locator('#target > #execute-1 > div.xr-stdout');
+      expect(stdout1).toHaveText(
+        'a) waiting at start\nb) set event1, waiting for event2\nc) finished',
+      );
+
+      const stdout2 = page.locator('#target > #execute-2 > div.xr-stdout');
+      expect(stdout2).toHaveText('False False\nTrue True');
+    });
   });
 });
