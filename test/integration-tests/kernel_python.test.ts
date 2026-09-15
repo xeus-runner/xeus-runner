@@ -19,8 +19,8 @@ test.describe('Python kernel', () => {
       expect(output.isDisposed).toBeTruthy();
     });
 
-    test(`creates images, worker: ${worker}`, async ({ page }) => {
-      // Matplotlib and IPython.display images.
+    test(`supports Matplotlib and IPython.display images, worker: ${worker}`, async ({ page }) => {
+      // Create PNG image MIME type.
       await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
@@ -66,8 +66,8 @@ display.Image(filename='/share/jupyter/kernels/xpython/logo-64x64.png')`,
       expect(await childImages1.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
 
-    test(`creates html and javascript, worker: ${worker}`, async ({ page }) => {
-      // Bokeh plot.
+    test(`supports Bokeh plot, worker: ${worker}`, async ({ page }) => {
+      // Outputs html and javascript MIME types.
       await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
@@ -213,6 +213,58 @@ print(event1.is_set(), event2.is_set())`,
 
       const stdout2 = page.locator('#target > #execute-2 > div.xr-stdout');
       expect(stdout2).toHaveText('False False\nTrue True');
+    });
+
+    test(`supports Datashader and Numba, worker: ${worker}`, async ({ page }) => {
+      // Output html MIME type containing image.
+      await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'python',
+          packages: ['datashader', 'pillow'],
+          parentElement: 'target',
+          showCode: true,
+          worker,
+        });
+        await kernel.execute({
+          code: `from colorcet import bgy
+import datashader as ds
+import datashader.transfer_functions as tf
+import pandas as pd
+import numpy as np
+
+n = 10000
+rng = np.random.default_rng(9842)
+image_size = 400
+
+dists = {cat: pd.DataFrame(dict([('x', np.random.normal(x, s, n)),
+                                 ('y', np.random.normal(y, s, n)),
+                                 ('val', val),
+                                 ('cat', cat)]))
+         for x,  y,  s,  val, cat in
+         [(  2,  2, 0.03, 10, "d1"),
+          (  2, -2, 0.10, 20, "d2"),
+          ( -2, -2, 0.50, 30, "d3"),
+          ( -2,  2, 1.00, 40, "d4"),
+          (  0,  0, 3.00, 50, "d5")] }
+
+df = pd.concat(dists, ignore_index=True)
+df["cat"] = df["cat"].astype("category")
+cvs = ds.Canvas(plot_width=image_size, plot_height=image_size)
+tf.shade(cvs.points(df, 'x', 'y'), cmap=bgy)
+`,
+        });
+      }, worker);
+
+      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+
+      const code = page.locator('#target > #execute-0 > #code-0');
+      expect(await code.textContent()).toMatch(/^from colorcet import bgy/);
+      expect(code).toHaveClass(/\bxr-code\b/);
+
+      // Output html containing image.
+      const children = page.locator('#target > #execute-0 > div.xr-html > *');
+      expect(children).toHaveCount(1);
+      expect(await children.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
   });
 });
