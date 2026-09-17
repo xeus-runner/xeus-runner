@@ -1,25 +1,28 @@
 import { expect } from '@playwright/test';
-import { test } from './test_utils';
+import { test, workerCoiOptions } from './test_utils';
 
 test.describe('Python kernel', () => {
-  [false, true].forEach(async (worker) => {
-    test(`runs, worker: ${worker}`, async ({ page }) => {
+  workerCoiOptions.forEach(({ worker, coi }) => {
+    test(`runs, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'python', worker });
         const code = 'a = -47; print("Hello from Python!", a)';
         const executeReturn = await kernel.execute({ code });
         kernel.dispose();
         const { isDisposed, isWorker } = kernel;
-        return { executeReturn, isWorker, isDisposed };
+        return { executeReturn, isWorker, isDisposed, coi: crossOriginIsolated };
       }, worker);
 
       expect(output.executeReturn.stdout).toBe('Hello from Python! -47\n');
       expect(output.executeReturn.stderr).toBeUndefined();
       expect(output.isWorker).toEqual(worker);
       expect(output.isDisposed).toBeTruthy();
+      expect(output.coi).toEqual(coi);
     });
 
-    test(`supports Matplotlib and IPython.display images, worker: ${worker}`, async ({ page }) => {
+    test(`supports Matplotlib and IPython.display images, worker: ${worker}, coi: ${coi}`, async ({
+      page,
+    }) => {
       // Create PNG image MIME type.
       await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
@@ -66,7 +69,7 @@ display.Image(filename='/share/jupyter/kernels/xpython/logo-64x64.png')`,
       expect(await childImages1.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
 
-    test(`supports Bokeh plot, worker: ${worker}`, async ({ page }) => {
+    test(`supports Bokeh plot, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       // Outputs html and javascript MIME types.
       await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
@@ -139,7 +142,7 @@ show(layout)
       expect(children.nth(0)).toHaveAttribute('data-root-id');
     });
 
-    test(`supports async tasks, worker: ${worker}`, async ({ page }) => {
+    test(`supports async tasks, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       // Outputting to DOM as asyncio tasks continue after code cell has 'completed'.
       await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
@@ -215,7 +218,7 @@ print(event1.is_set(), event2.is_set())`,
       expect(stdout2).toHaveText('False False\nTrue True');
     });
 
-    test(`supports Datashader and Numba, worker: ${worker}`, async ({ page }) => {
+    test(`supports Datashader and Numba, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       // Output html MIME type containing image.
       await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
