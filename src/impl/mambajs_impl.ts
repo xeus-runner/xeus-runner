@@ -81,7 +81,12 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     } else {
       const { channels } = options;
       const packages = options.packages ?? [];
-      this._envLock = await createEnvLock({ packages: [kernelPackageName, ...packages], channels });
+      const pipPackages = options.pipPackages ?? [];
+      this._envLock = await createEnvLock({
+        packages: [kernelPackageName, ...packages],
+        pipPackages,
+        channels,
+      });
     }
 
     console.debug('==> envLock', this._envLock);

@@ -26,7 +26,7 @@
     "prepack": "npm install && npm run build"
   },
   "dependencies": {
-    "@emscripten-forge/mambajs": "^0.22.0",
+    "@emscripten-forge/mambajs": "^0.23.0",
     "@emscripten-forge/untarjs": "^5.3.3",
     "@jupyterlite/xeus-core": "^5.0.0",
     "@lumino/coreutils": "^2.2.3",

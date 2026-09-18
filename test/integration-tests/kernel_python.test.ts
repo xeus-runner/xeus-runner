@@ -21,6 +21,41 @@ test.describe('Python kernel', () => {
     });
 
     testWithCoi(
+      `supports pyemscripten wheels from PyPI, worker: ${worker}, coi: ${coi}`,
+      { coi },
+      async ({ page }) => {
+        const output = await page.evaluate(async (worker) => {
+          const kernel = new (globalThis as any).XeusKernel({
+            type: 'python',
+            packages: ['numpy'],
+            pipPackages: ['contourpy'],
+            worker,
+          });
+          const code = `from contourpy import contour_generator
+
+cg = contour_generator(z=[[1,2],[3,4]])
+cg.filled(2.5, 3.5)`;
+          const executeReturn = await kernel.execute({ code });
+          kernel.dispose();
+          const { isDisposed, isWorker } = kernel;
+          return { executeReturn, isWorker, isDisposed, coi: crossOriginIsolated };
+        }, worker);
+
+        expect(output.executeReturn.stdout).toBe(`([array([[0.  , 1.  ],
+         [0.  , 0.75],
+         [1.  , 0.25],
+         [1.  , 0.75],
+         [0.5 , 1.  ],
+         [0.  , 1.  ]])],
+ [array([0, 6], dtype=uint32)])`);
+        expect(output.executeReturn.stderr).toBeUndefined();
+        expect(output.isWorker).toEqual(worker);
+        expect(output.isDisposed).toBeTruthy();
+        expect(output.coi).toEqual(coi);
+      },
+    );
+
+    testWithCoi(
       `supports Matplotlib and IPython.display images, worker: ${worker}, coi: ${coi}`,
       { coi },
       async ({ page }) => {

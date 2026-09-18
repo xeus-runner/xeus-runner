@@ -63,6 +63,12 @@ export namespace IXeusKernel {
     packages?: string[];
 
     /**
+     * List of PyPI packages to install, can include version specifiers.
+     * Ignored if `envLock` is specified.
+     */
+    pipPackages?: string[];
+
+    /**
      * Channels to obtain packages from.
      * If unspecified uses `DEFAULT_CHANNELS`, ignored if `envLock` is specified.
      */

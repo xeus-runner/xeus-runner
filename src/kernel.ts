@@ -104,7 +104,7 @@ export class XeusKernel implements IXeusKernel {
   }
 
   protected async initialize(options: IXeusKernel.IOptions) {
-    const { channels, envLock, packages, untarjsBaseUrl } = options;
+    const { channels, envLock, packages, pipPackages, untarjsBaseUrl } = options;
 
     if (envLock !== undefined) {
       if (options.channels !== undefined) {
@@ -113,6 +113,9 @@ export class XeusKernel implements IXeusKernel {
       if (options.packages !== undefined) {
         console.warn("Ignoring 'packages' as using 'envLock'");
       }
+      if (options.pipPackages !== undefined) {
+        console.warn("Ignoring 'pipPackages' as using 'envLock'");
+      }
     }
 
     const implOptions: IXeusKernelImplOptions = {
@@ -120,6 +123,7 @@ export class XeusKernel implements IXeusKernel {
       envLock,
       channels,
       packages,
+      pipPackages,
       baseUrl: '',
       untarjsBaseUrl,
       kernelId: 'unique',
