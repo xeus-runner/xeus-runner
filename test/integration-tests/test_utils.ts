@@ -23,22 +23,10 @@ export const workerCoiOptionsAll = [
 
 export const test = base.extend({
   page: async ({ page }, use) => {
-    await page.goto('http://localhost:4500/');
     await use(page);
   },
 });
 
-export function testWithCoi(
-  name: string,
-  opts: { coi?: boolean },
-  fn: (args: { page: Page }) => any,
-): void {
-  base(name, async ({ page }) => {
-    await page.goto(`http://localhost:${opts.coi ? 4501 : 4500}/`);
-    await fn({ page });
-  });
-}
-
-export namespace testWithCoi {
-  export const skip = base.skip;
+export async function coiNavigate(page: Page, opts: { coi?: boolean }): Promise<void> {
+  await page.goto(`http://localhost:${opts.coi ? 4501 : 4500}/`);
 }

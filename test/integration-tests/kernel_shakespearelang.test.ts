@@ -1,9 +1,10 @@
 import { expect } from '@playwright/test';
-import { test, testWithCoi, workerCoiOptions } from './test_utils';
+import { coiNavigate, test, workerCoiOptions } from './test_utils';
 
 test.describe('Shakespearelang kernel', () => {
   workerCoiOptions.forEach(({ worker, coi }) => {
-    testWithCoi(`runs, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
+    test(`runs, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      await coiNavigate(page, { coi });
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'shakespearelang', worker });
         const code = `Do Not Adieu, a play in two acts.
