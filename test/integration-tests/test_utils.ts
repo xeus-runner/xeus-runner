@@ -40,6 +40,5 @@ export function testWithCoi(
 }
 
 export namespace testWithCoi {
-  export const describe = base.describe;
   export const skip = base.skip;
 }

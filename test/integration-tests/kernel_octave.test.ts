@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
-import { testWithCoi, workerCoiOptions } from './test_utils';
+import { test, testWithCoi, workerCoiOptions } from './test_utils';
 
-testWithCoi.describe('Octave kernel', () => {
+test.describe('Octave kernel', () => {
   workerCoiOptions.forEach(({ worker, coi }) => {
     testWithCoi(`runs, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
       const output = await page.evaluate(async (worker) => {

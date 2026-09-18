@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
-import { testWithCoi, workerCoiOptionsAll } from './test_utils';
+import { test, testWithCoi, workerCoiOptionsAll } from './test_utils';
 
-testWithCoi.describe('Kernel', () => {
+test.describe('Kernel', () => {
   workerCoiOptionsAll.forEach(({ worker, coi }) => {
     testWithCoi(
       `uses worker and coi correctly, worker: ${worker}, coi: ${coi}`,
