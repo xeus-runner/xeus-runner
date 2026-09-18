@@ -1,9 +1,9 @@
 import { expect } from '@playwright/test';
-import { test, workerCoiOptions } from './test_utils';
+import { testWithCoi, workerCoiOptions } from './test_utils';
 
-test.describe('R kernel', () => {
+testWithCoi.describe('R kernel', () => {
   workerCoiOptions.forEach(({ worker, coi }) => {
-    test(`runs, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
+    testWithCoi(`runs, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'r', worker });
         const code = 'x <- "Hello from R!"\nprint(x)';
@@ -20,8 +20,8 @@ test.describe('R kernel', () => {
       expect(output.coi).toEqual(coi);
     });
 
-    test(`creates images, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
-      await page.evaluate(async (worker) => {
+    testWithCoi(`creates images, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
+      const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'r',
           packages: ['r-ggplot2'],
@@ -40,7 +40,11 @@ ggplot(data, aes(x = x, y = y)) +
   labs(title = "Example ggplot2 plot") +
   theme_minimal()`,
         });
+        return [kernel.isWorker, crossOriginIsolated];
       }, worker);
+
+      expect(output[0]).toEqual(worker);
+      expect(output[1]).toEqual(coi);
 
       expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
 

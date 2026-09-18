@@ -1,9 +1,9 @@
 import { expect } from '@playwright/test';
-import { test, workerCoiOptions } from './test_utils';
+import { testWithCoi, workerCoiOptions } from './test_utils';
 
-test.describe('C++ kernel', () => {
+testWithCoi.describe('C++ kernel', () => {
   workerCoiOptions.forEach(({ worker, coi }) => {
-    test(`runs, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
+    testWithCoi(`runs, worker: ${worker}, coi: ${coi}`, { coi }, async ({ page }) => {
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({ type: 'cpp', worker });
         const code =

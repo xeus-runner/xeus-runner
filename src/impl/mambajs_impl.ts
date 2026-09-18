@@ -84,6 +84,8 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       this._envLock = await createEnvLock({ packages: [kernelPackageName, ...packages], channels });
     }
 
+    console.debug("==> envLock", this._envLock);
+
     if (kernelPackageName === 'xeus-python') {
       this._pythonVersion = getPythonVersion(this._envLock);
       console.debug('==> python version', this._pythonVersion);
