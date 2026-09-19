@@ -1,5 +1,5 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import coincident from 'coincident/main';
+import coincident from 'coincident/window/main';
 import type { IXeusKernel } from '../defs';
 import type { ICoincidentWorkerKernel, IXeusKernelImplOptions } from '../impl';
 import { WorkerBridge } from './worker_bridge';

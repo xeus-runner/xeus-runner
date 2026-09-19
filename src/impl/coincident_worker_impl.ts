@@ -1,5 +1,5 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import coincident from 'coincident/worker';
+import coincident from 'coincident/window/worker';
 import type { IXeusKernelImplOptions } from './options';
 import { WorkerXeusKernelImpl } from './worker_impl';
 
@@ -31,6 +31,12 @@ class CoincidentWorkerXeusKernelImpl extends WorkerXeusKernelImpl {
 
 const coincidentWorker = await coincident();
 const proxy = coincidentWorker.proxy as ICoincidentWorkerKernel;
+
+const { window } = coincidentWorker;
+if (globalThis.crossOriginIsolated && window) {
+  // Patch window proxy onto globalThis so that e.g. pyjs can access it from within web worker.
+  (globalThis as any).window = window;
+}
 
 const worker = new CoincidentWorkerXeusKernelImpl();
 worker.initProxy(proxy);

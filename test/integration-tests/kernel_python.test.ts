@@ -326,5 +326,48 @@ tf.shade(cvs.points(df, 'x', 'y'), cmap=bgy)
       expect(children).toHaveCount(1);
       expect(await children.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
+
+    test(`supports pyjs modifying DOM, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      test.skip(worker && !coi, 'Skip if worker without coi');
+
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'python',
+          packages: ['pyjs'],
+          parentElement: 'target',
+          showCode: true,
+          worker,
+        });
+        await kernel.execute({
+          code: `from pyjs.js import window
+
+document = window.document
+
+div = document.createElement("div")
+div.textContent = "This <div> is created by Python code using pyjs from {{ workerName }}"
+div.setAttribute("style", "color: yellow; background-color: indigo; padding: 1em; font-size: 2em")
+div.classList = "pyjs"
+
+document.getElementById("target").append(div)`,
+        });
+        return { isWorker: kernel.isWorker, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.isWorker).toEqual(worker);
+      expect(output.coi).toEqual(coi);
+
+      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+
+      const code = page.locator('#target > #execute-0 > #code-0');
+      expect(await code.textContent()).toMatch(/^from pyjs.js import window/);
+      expect(code).toHaveClass(/\bxr-code\b/);
+
+      const children = page.locator('#target > div.pyjs');
+      expect(children).toHaveCount(1);
+      const child = children.nth(0);
+      expect(await child.textContent()).toMatch(/^This <div> is created by Python code using pyjs/);
+      expect(child).toHaveAttribute('style');
+    });
   });
 });

@@ -22,9 +22,10 @@ const distDir = join(rootDir, 'dist');
 const tmpDir = join(rootDir, 'tmp');
 const templateDir = join(rootDir, 'templates');
 const titleRegex = /^\/\/\s+:title:\s+(.+)$/m;
+const noteRegex = /^\/\/\s+:note:\s+(.+)$/m;
 const workerRegex = /^\s*(\/\/\s+:worker:)\s*$/m;
 
-const workerTitles = {
+const workerNames = {
   main: 'main thread',
   worker: 'web worker',
 };
@@ -59,6 +60,7 @@ for (const file of tsFiles) {
   const source = readFileSync(join(templateDir, file), 'utf8');
 
   const title = source.match(titleRegex)?.[1] ?? name;
+  const note = source.match(noteRegex)?.[1];
   if (!workerRegex.test(source)) {
     throw new Error(`Abort as no :worker: in ${file} template`);
   }
@@ -68,11 +70,11 @@ for (const file of tsFiles) {
   if (!Object.hasOwn(allByLanguage, language)) {
     allByLanguage[language] = [];
   }
-  allByLanguage[language].push({ name, title, workerTypes });
+  allByLanguage[language].push({ name, note, title, workerTypes });
 
   for (const workerType of workerTypes) {
     const nameWorker = `${name}_${workerType}`;
-    const titleWorker = `${title} in ${workerTitles[workerType]}`;
+    const titleWorker = `${title} in ${workerNames[workerType]}`;
     const html = htmlTemplate
       .replaceAll('{{ title }}', titleWorker)
       .replaceAll('{{ name }}', nameWorker)
@@ -81,7 +83,10 @@ for (const file of tsFiles) {
     writeFileSync(htmlFilename, html);
 
     const tsFilename = join(tmpDir, `${nameWorker}.ts`);
-    writeFileSync(tsFilename, source.replace(workerRegex, `worker: ${workerType === 'worker'}`));
+    const ts = source
+      .replace(workerRegex, `worker: ${workerType === 'worker'}`)
+      .replaceAll('{{ workerName }}', workerNames[workerType]);
+    writeFileSync(tsFilename, ts);
   }
 }
 
@@ -103,11 +108,16 @@ for (const language of Object.keys(allByLanguage)) {
   index.write(`    <li>${languageText(language)}\n`);
   index.write('      <ul>\n');
   for (const example of allByLanguage[language]) {
-    const { workerTypes, name } = example;
+    const { workerTypes, name, note } = example;
     const links = workerTypes
-      .map((w) => `<a href="${name}_${w}.html">${workerTitles[w]}</a>`)
+      .map((w) => `<a href="${name}_${w}.html">${workerNames[w]}</a>`)
       .join('');
-    index.write(`        <li>${example.title}:${links}</li>\n`);
+    let line = `        <li>${example.title}`;
+    if (note !== undefined) {
+      line = `${line} (${note})`;
+    }
+    line = `${line}:${links}</li>\n`;
+    index.write(line);
   }
   index.write('      </ul>\n');
   index.write('    </li>\n');
