@@ -21,7 +21,7 @@ import type { IXeusKernelImplOptions } from './options';
  * Xeus kernel implementation that uses mambajs to obtain packages.
  */
 export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
-  protected async defaultDynamicModuleImport(url: string) {
+  protected async dynamicModuleImport(url: string) {
     // Dynamic module import in the main UI thread that is equivalent to `importScripts(url)`
     // in a web worker. Care is needed to set up `globalThis.createXeusModule` in the way that
     // the base kernel impl classes expect it to be. Some of the details here depend on how the
@@ -42,10 +42,6 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
 
     (globalThis as any).module = oldModule;
     (globalThis as any).exports = oldExports;
-  }
-
-  protected async dynamicModuleImport(url: string): Promise<void> {
-    return this.defaultDynamicModuleImport(url);
   }
 
   get emscriptenMajorVersion(): number {

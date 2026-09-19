@@ -1,12 +1,12 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import coincident from 'coincident/window/worker';
 import type { IXeusKernelImplOptions } from './options';
-import { WorkerXeusKernelImpl } from './worker_impl';
+import { WebWorkerXeusKernelImpl } from './web_worker_impl';
 
 /**
  * Coincident web worker as seen from main UI thread.
  */
-export interface ICoincidentWorkerKernel {
+export interface ICoincidentWebWorkerKernel {
   envLock(): Promise<ILock | undefined>;
   initialize(options: IXeusKernelImplOptions): Promise<void>;
   onmessage: (event: any) => void;
@@ -17,8 +17,8 @@ export interface ICoincidentWorkerKernel {
  * Kernel implementation that runs in a web worker and use coincident for communication with main
  * thread.
  */
-class CoincidentWorkerXeusKernelImpl extends WorkerXeusKernelImpl {
-  initProxy(proxy: ICoincidentWorkerKernel): void {
+class CoincidentWebWorkerXeusKernelImpl extends WebWorkerXeusKernelImpl {
+  initProxy(proxy: ICoincidentWebWorkerKernel): void {
     // Functions in web worker that are called from main thread.
     proxy.envLock = this.envLock.bind(this);
     proxy.initialize = this.initialize.bind(this);
@@ -30,7 +30,7 @@ class CoincidentWorkerXeusKernelImpl extends WorkerXeusKernelImpl {
 }
 
 const coincidentWorker = await coincident();
-const proxy = coincidentWorker.proxy as ICoincidentWorkerKernel;
+const proxy = coincidentWorker.proxy as ICoincidentWebWorkerKernel;
 
 const { window } = coincidentWorker;
 if (globalThis.crossOriginIsolated && window) {
@@ -38,5 +38,5 @@ if (globalThis.crossOriginIsolated && window) {
   (globalThis as any).window = window;
 }
 
-const worker = new CoincidentWorkerXeusKernelImpl();
+const worker = new CoincidentWebWorkerXeusKernelImpl();
 worker.initProxy(proxy);

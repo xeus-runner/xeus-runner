@@ -1,18 +1,18 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import coincident from 'coincident/window/main';
 import type { IXeusKernel } from '../defs';
-import type { ICoincidentWorkerKernel, IXeusKernelImplOptions } from '../impl';
-import { WorkerBridge } from './worker_bridge';
+import type { ICoincidentWebWorkerKernel, IXeusKernelImplOptions } from '../impl';
+import { WebWorkerBridge } from './web_worker_bridge';
 
 /**
  * Bridge to kernel implementation in web worker using coincident for communication between threads.
  */
-export class CoincidentWorkerBridge extends WorkerBridge {
+export class CoincidentWebWorkerBridge extends WebWorkerBridge {
   protected createWorker(_options: IXeusKernelImplOptions): Worker {
     const { Worker: patchedWorker } = coincident();
     const originalWorker = globalThis.Worker;
     globalThis.Worker = patchedWorker;
-    const worker = new Worker(new URL('./coincident_worker_impl.js', import.meta.url));
+    const worker = new Worker(new URL('./coincident_web_worker_impl.js', import.meta.url));
     globalThis.Worker = originalWorker;
     return worker;
   }
@@ -32,7 +32,7 @@ export class CoincidentWorkerBridge extends WorkerBridge {
   ): Promise<void> {
     const { worker } = this;
     worker.onmessage = (event: MessageEvent) => onMessage(event.data);
-    this._remoteKernel = (worker as any).proxy as ICoincidentWorkerKernel;
+    this._remoteKernel = (worker as any).proxy as ICoincidentWebWorkerKernel;
 
     return this._remoteKernel.initialize(options);
   }
@@ -44,5 +44,5 @@ export class CoincidentWorkerBridge extends WorkerBridge {
     await this._remoteKernel.processMessage(msg);
   }
 
-  private _remoteKernel?: ICoincidentWorkerKernel;
+  private _remoteKernel?: ICoincidentWebWorkerKernel;
 }

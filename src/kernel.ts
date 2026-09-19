@@ -4,7 +4,7 @@ import { PromiseDelegate } from '@lumino/coreutils';
 import type { ISignal } from '@lumino/signaling';
 import { Signal } from '@lumino/signaling';
 import type { IBridge } from './bridge';
-import { CoincidentWorkerBridge, MainBridge } from './bridge';
+import { BridgeFactory } from './bridge';
 import type { IXeusKernel } from './defs';
 import type { IXeusKernelImplOptions } from './impl';
 import type { IKernelType } from './kernel_type';
@@ -40,11 +40,7 @@ export class XeusKernel implements IXeusKernel {
   }
 
   protected createBridge(options: IXeusKernel.IOptions): IBridge {
-    if (options.worker) {
-      return new CoincidentWorkerBridge();
-    } else {
-      return new MainBridge();
-    }
+    return new BridgeFactory().createBridge(options);
   }
 
   protected createMessageHandler(): IMessageHandler {

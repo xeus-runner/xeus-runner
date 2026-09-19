@@ -18,6 +18,6 @@ build({
 
 // Also bundle webworkers.
 build({
-  entryPoints: ['../lib/impl/coincident_worker_impl.js'],
+  entryPoints: ['../lib/impl/coincident_web_worker_impl.js'],
   ...commonOptions,
 }).catch(() => process.exit(1));

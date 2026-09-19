@@ -6,7 +6,7 @@ import type { IBridge } from './bridge';
 /**
  * Bridge to kernel implementation running in a web worker.
  */
-export abstract class WorkerBridge implements IBridge {
+export abstract class WebWorkerBridge implements IBridge {
   protected abstract createWorker(options: IXeusKernelImplOptions): Worker;
 
   dispose(): void {
