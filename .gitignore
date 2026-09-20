@@ -3,8 +3,10 @@ lib/
 node_modules/
 tsconfig.tsbuildinfo
 
-test/package-lock.json
-test-results/
+docs/_build/
 
 examples/package-lock.json
 examples/tmp
+
+test/package-lock.json
+test-results/

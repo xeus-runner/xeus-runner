@@ -1,0 +1,3 @@
+{
+  "exclude": ["**/coincident.d.ts"]
+}

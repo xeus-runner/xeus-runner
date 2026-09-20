@@ -52,3 +52,14 @@ npx playwright install chromium
 npm run build
 npm run test
 ```
+
+## Documentation
+
+To build the documentation:
+
+```bash
+cd docs
+micromamba create -f docs-environment
+micromamba activate xeus-runner-docs
+make html
+```
