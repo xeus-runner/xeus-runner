@@ -38,5 +38,5 @@ export abstract class WebWorkerBridge implements IBridge {
     return this._worker;
   }
 
-  private _worker?: Worker;
+  protected _worker?: Worker;
 }
