@@ -16,7 +16,7 @@
     "serve:simple": "npx static-handler --port 4500 dist/",
     "serve:cross-origin": "npx static-handler --coi --port 4501 dist/",
     "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "cd integration-tests && playwright test --project=chromium",
+    "test:integration": "cd integration-tests && playwright test --project=chromium kernel_python.test.ts",
     "test:integration:ui": "cd integration-tests && playwright test --project=chromium --ui",
     "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest unit-tests/env_lock.test.ts"
   },

@@ -75,6 +75,12 @@ export namespace IXeusKernel {
     channels?: string[];
 
     /**
+     * Target platform of the environment, default is `emscripten-wasm32`.
+     * Ignored if `envLock` is specified.
+     */
+    platform?: Platform;
+
+    /**
      * Whether to use web worker or not, default is `false`.
      */
     worker?: boolean;
@@ -121,6 +127,11 @@ export namespace IXeusKernel {
   }
 
   export type IOnMessage = (msg: any) => void;
+
+  /**
+   * Supported target platforms.
+   */
+  export type Platform = 'emscripten-wasm32' | 'emscripten-wasm64';
 
   /**
    * Default channels for packages.

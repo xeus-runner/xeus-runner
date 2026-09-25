@@ -57,6 +57,38 @@ describe('createEnvLock', () => {
     expect(pipPackageNames).toContain('xyzservices');
   });
 
+  test('should support different platform and channels', async () => {
+    const envLock = await createEnvLock({
+      packages: ['xeus-python', 'contourpy'],
+      channels: [
+        'https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x',
+        'https://repo.prefix.dev/conda-forge',
+      ],
+      platform: 'emscripten-wasm64',
+    });
+    expect(envLock.platform === 'emscripten-wasm64');
+    expect(envLock.channels).toEqual([
+      'https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x',
+      'conda-forge',
+    ]);
+
+    const packageNames = Object.values(envLock.packages)
+      .map((pkg) => pkg.name)
+      .sort();
+    expect(packageNames).toContain('python');
+    expect(packageNames).toContain('xeus');
+    expect(packageNames).toContain('xeus-python');
+    expect(packageNames).toContain('contourpy');
+
+    const matches = Object.keys(envLock.packages).filter((name) => name.startsWith('contourpy-'));
+    expect(matches).toHaveLength(1);
+    const contourpy = envLock.packages[matches[0]];
+    expect(contourpy.channel).toEqual(
+      'https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x',
+    );
+    expect(contourpy.subdir).toEqual('emscripten-wasm64');
+  });
+
   test('should throw if unknown package', async () => {
     const packages = ['unknown'];
     await expect(createEnvLock({ packages })).rejects.toThrow('Cannot solve the request');

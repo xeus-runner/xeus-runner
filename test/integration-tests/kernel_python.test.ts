@@ -21,6 +21,43 @@ test.describe('Python kernel', () => {
       expect(output.coi).toEqual(coi);
     });
 
+    test(`supports different channel and platforms, worker: ${worker}, coi: ${coi}`, async ({
+      page,
+    }) => {
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'python',
+          packages: ['contourpy'],
+          channels: [
+            'https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x',
+            'https://repo.prefix.dev/conda-forge',
+          ],
+          platform: 'emscripten-wasm64',
+          worker,
+        });
+        const code0 = `from contourpy import contour_generator
+cg = contour_generator(z=[[1,2],[3,4]])
+cg.lines(2.5)`;
+        const executeReturn0 = await kernel.execute({ code: code0 });
+        const code1 = `import platform as p
+print(p.system(), p.machine(), p.release())`;
+        const executeReturn1 = await kernel.execute({ code: code1 });
+        kernel.dispose();
+        const { isDisposed, isWorker } = kernel;
+        return { executeReturn0, executeReturn1, isWorker, isDisposed, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.executeReturn0.stdout).toBe(`[array([[0.  , 0.75],
+        [1.  , 0.25]])]`);
+      expect(output.executeReturn0.stderr).toBeUndefined();
+      expect(output.executeReturn1.stdout).toBe('Emscripten wasm64 6.0.8\n');
+      expect(output.executeReturn1.stderr).toBeUndefined();
+      expect(output.isWorker).toEqual(worker);
+      expect(output.isDisposed).toBeTruthy();
+      expect(output.coi).toEqual(coi);
+    });
+
     test(`supports pyemscripten wheels from PyPI, worker: ${worker}, coi: ${coi}`, async ({
       page,
     }) => {

@@ -16,9 +16,10 @@ export async function createEnvLock(options: {
   channels?: string[];
   packages: string[];
   pipPackages?: string[];
+  platform?: IXeusKernel.Platform;
   logger?: ILogger;
 }): Promise<ILock> {
-  const { logger, packages, pipPackages } = options;
+  const { logger, packages, pipPackages, platform } = options;
   const channels = options.channels ?? IXeusKernel.DEFAULT_CHANNELS;
 
   if (channels.length === 0) {
@@ -60,5 +61,9 @@ export async function createEnvLock(options: {
   }
 
   // Create environment from YAML definition
-  return await create({ yml, logger: mambaLogger });
+  return await create({
+    yml,
+    platform,
+    logger: mambaLogger,
+  });
 }
