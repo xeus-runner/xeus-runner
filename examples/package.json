@@ -3,9 +3,9 @@
   "private": true,
   "scripts": {
     "build": "node create_examples.mjs && tsc --noEmit && node esbuild.config.mjs",
-    "postbuild": "npm run postbuild:copy-assets && npm run postbuild:rename-unpack",
+    "postbuild": "npm run postbuild:copy-assets && npm run postbuild:copy-dist",
     "postbuild:copy-assets": "copyfiles -u 1 \"assets/*\" dist",
-    "postbuild:rename-unpack": "mv dist/unpack-*.wasm dist/unpack.wasm",
+    "postbuild:copy-dist": "copyfiles -f \"../dist/*_web_worker_impl.js\" ../dist/unpack.wasm dist",
     "serve": "concurrently 'npm run serve:simple' 'npm run serve:cross-origin'",
     "serve:simple": "npx static-handler --port 4500 dist/",
     "serve:cross-origin": "npx static-handler --coi --port 4501 dist/"

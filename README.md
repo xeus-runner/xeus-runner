@@ -2,6 +2,23 @@
 
 Run `xeus` WebAssembly kernels outside of JupyterLite in TypeScript/JavaScript projects.
 
+Simple example that runs in a HTML page:
+
+```ts
+import { XeusKernel } from 'xeus-runner';
+
+const kernel = new XeusKernel({
+  type: 'python',
+  packages: ['numpy'],
+  parentElement: 'target',
+  showCode: true,
+  worker: true
+});
+kernel.execute({ code: `import numpy as np
+print("Hello from Python!")
+np.sqrt(2.0)` });
+```
+
 ## Kernel languages supported
 
 - xeus-cpp

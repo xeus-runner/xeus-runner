@@ -15,12 +15,14 @@
   "files": [
     "lib/**/*.{d.ts,js,js.map}",
     "src/**/*.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "dist/**/*.{js,js.map,wasm}"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:dist",
+    "build:dist": "node esbuild.config.mjs",
     "lint": "npx @biomejs/biome check --write",
     "lint:check": "npx @biomejs/biome check",
     "prepack": "npm install && npm run build"
@@ -38,6 +40,7 @@
     "@biomejs/biome": "^2.5.11",
     "@jupyterlab/services": "^7.6.3",
     "copyfiles": "^2.4.1",
+    "esbuild": "^0.28.2",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3"
   }

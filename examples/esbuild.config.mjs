@@ -7,20 +7,11 @@ const commonOptions = {
   sourcemap: false,
   minify: false,
   loader: {
-    '.wasm': 'file',
+    '.wasm': 'empty',
   },
 };
 
 build({
   entryPoints: ['tmp/*.ts'],
-  ...commonOptions,
-}).catch(() => process.exit(1));
-
-// Also bundle webworkers.
-build({
-  entryPoints: [
-    '../lib/impl/coincident_web_worker_impl.js',
-    '../lib/impl/comlink_web_worker_impl.js',
-  ],
   ...commonOptions,
 }).catch(() => process.exit(1));
