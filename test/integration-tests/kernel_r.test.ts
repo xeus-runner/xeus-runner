@@ -21,6 +21,30 @@ test.describe('R kernel', () => {
       expect(output.coi).toEqual(coi);
     });
 
+    test(`supports stdin, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      test.skip(!(worker && coi), 'Only runs in coi-enabled worker');
+      await coiNavigate(page, { coi });
+      await page.evaluate(async (worker) => {
+        const g = globalThis as any;
+        const kernel = new g.XeusKernel({ type: 'r', parentElement: 'target', worker });
+        // Do not await the cell containing stdin request.
+        kernel.execute({ code: 'name <- readline("What is your name?")' });
+        g.kernel = kernel;
+      }, worker);
+
+      const input = page.locator('div.xr-execute > div.xr-stdin > input').first();
+      await input.fill('Alice');
+      await input.press('Enter');
+
+      await page.evaluate(async () => {
+        await (globalThis as any).kernel.execute({ code: 'name' });
+      });
+
+      const stdout = page.locator('div.xr-execute > div.xr-stdout#stdout-1');
+      expect(stdout).toHaveCount(1);
+      expect(await stdout.first().textContent()).toMatch(/Alice/);
+    });
+
     test(`creates images, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       await coiNavigate(page, { coi });
       const output = await page.evaluate(async (worker) => {

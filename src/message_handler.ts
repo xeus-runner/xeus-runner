@@ -12,6 +12,7 @@ export interface IMessageHandler {
   image(requestId: string, buffer: string): boolean; // Assumes PNG, need to do more than this.
   javascript(requestId: string, jsCode: string): boolean;
   stderr(requestId: string, text: string): void;
+  stdin(requestId: string, prompt: string, password: boolean): Promise<string | undefined>;
   stdout(requestId: string, text: string): void;
   toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn;
 }
@@ -86,6 +87,30 @@ export class DOMMessageHandler implements IMessageHandler {
     }
   }
 
+  async stdin(requestId: string, prompt: string, password: boolean): Promise<string | undefined> {
+    const div = this._createDiv(this._requestIdDiv(requestId), `${this.cssClassPrefix}-stdin`);
+    if (prompt.length > 0) {
+      const promptNode = document.createElement('div');
+      promptNode.textContent = prompt;
+      div.appendChild(promptNode);
+    }
+    const input = document.createElement('input');
+    if (password) {
+      input.type = 'password';
+    }
+    div.appendChild(input);
+    input.focus();
+
+    return new Promise<string | undefined>((resolve) => {
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          input.disabled = true;
+          resolve(input.value);
+        }
+      });
+    });
+  }
+
   stdout(requestId: string, text: string): void {
     if (text.length > 0) {
       const div = this._getOrCreateDiv(
@@ -158,6 +183,14 @@ export class TextMessageHandler implements IMessageHandler {
       }
       this._stdouts.set(requestId, text);
     }
+  }
+
+  async stdin(
+    _requestId: string,
+    _prompt: string,
+    _password: boolean,
+  ): Promise<string | undefined> {
+    return undefined;
   }
 
   stdout(requestId: string, text: string): void {

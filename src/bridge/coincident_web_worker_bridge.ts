@@ -1,4 +1,6 @@
 import type { ILock } from '@emscripten-forge/mambajs';
+import type { KernelMessage } from '@jupyterlab/services';
+import { PromiseDelegate } from '@lumino/coreutils';
 import coincident from 'coincident/window/main';
 import type { IXeusKernel } from '../defs';
 import type { ICoincidentWebWorkerKernel, IXeusKernelImplOptions } from '../impl';
@@ -44,6 +46,16 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
     worker.onmessage = (event: MessageEvent) => onMessage(event.data);
     this._remoteKernel = (worker as any).proxy as ICoincidentWebWorkerKernel;
 
+    // Stdin request is synchronous from the web worker's point of view, blocking until the reply is
+    // received. From the UI thread's point of view it is async.
+    (this._remoteKernel.processStdinRequest as any) = async (
+      inputRequest: KernelMessage.IInputRequestMsg,
+    ): Promise<KernelMessage.IInputReplyMsg> => {
+      onMessage(inputRequest);
+      this.inputDelegate = new PromiseDelegate<KernelMessage.IInputReplyMsg>();
+      return await this.inputDelegate.promise;
+    };
+
     return this._remoteKernel.initialize(options);
   }
 
@@ -51,8 +63,18 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
     if (this._remoteKernel === undefined) {
       throw new Error('Remote kernel does not exist');
     }
-    await this._remoteKernel.processMessage(msg);
+
+    if (msg.msg?.header?.msg_type === 'input_reply') {
+      if (msg.msg?.content) {
+        this.inputDelegate.resolve(msg.msg);
+      } else {
+        this.inputDelegate.reject('Failed to get input_reply from stdin');
+      }
+    } else {
+      await this._remoteKernel.processMessage(msg);
+    }
   }
 
   private _remoteKernel?: ICoincidentWebWorkerKernel;
+  protected inputDelegate = new PromiseDelegate<KernelMessage.IInputReplyMsg>();
 }

@@ -1,4 +1,5 @@
 import type { ILock } from '@emscripten-forge/mambajs';
+import type { KernelMessage } from '@jupyterlab/services';
 import coincident from 'coincident/window/worker';
 import type { IXeusKernelImplOptions } from './options';
 import { WebWorkerXeusKernelImpl } from './web_worker_impl';
@@ -11,6 +12,12 @@ export interface ICoincidentWebWorkerKernel {
   initialize(options: IXeusKernelImplOptions): Promise<void>;
   onmessage: (event: any) => void;
   processMessage: (msg: any) => Promise<void>;
+
+  /**
+   * Process stdin request, blocking until the reply is received.
+   * This is sync for the web worker, async for the UI thread.
+   */
+  processStdinRequest(inputRequest: KernelMessage.IInputRequestMsg): KernelMessage.IInputReplyMsg;
 }
 
 /**
@@ -18,6 +25,12 @@ export interface ICoincidentWebWorkerKernel {
  * thread.
  */
 class CoincidentWebWorkerXeusKernelImpl extends WebWorkerXeusKernelImpl {
+  protected initializeStdin(_baseUrl: string, _browsingContextId: string): void {
+    (globalThis as any).get_stdin = (
+      inputRequest: KernelMessage.IInputRequestMsg,
+    ): KernelMessage.IInputReplyMsg => proxy.processStdinRequest(inputRequest);
+  }
+
   initProxy(proxy: ICoincidentWebWorkerKernel): void {
     // Functions in web worker that are called from main thread.
     proxy.envLock = this.envLock.bind(this);

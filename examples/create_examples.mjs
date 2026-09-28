@@ -23,6 +23,8 @@ const tmpDir = join(rootDir, 'tmp');
 const templateDir = join(rootDir, 'templates');
 const titleRegex = /^\/\/\s+:title:\s+(.+)$/m;
 const noteRegex = /^\/\/\s+:note:\s+(.+)$/m;
+const notMainRegex = /^\/\/\s+:not-main:\s+$/m;
+const notWorkerRegex = /^\/\/\s+:not-worker:\s+$/m;
 const workerRegex = /^\s*(\/\/\s+:worker:)\s*$/m;
 
 const workerNames = {
@@ -61,11 +63,20 @@ for (const file of tsFiles) {
 
   const title = source.match(titleRegex)?.[1] ?? name;
   const note = source.match(noteRegex)?.[1];
+  const notMain = notMainRegex.test(source);
+  const notWorker = notWorkerRegex.test(source);
+
   if (!workerRegex.test(source)) {
     throw new Error(`Abort as no :worker: in ${file} template`);
   }
 
-  const workerTypes = ['main', 'worker'];
+  const workerTypes = [];
+  if (!notMain) {
+    workerTypes.push('main');
+  }
+  if (!notWorker) {
+    workerTypes.push('worker');
+  }
 
   if (!Object.hasOwn(allByLanguage, language)) {
     allByLanguage[language] = [];

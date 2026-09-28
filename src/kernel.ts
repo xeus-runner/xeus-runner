@@ -1,6 +1,6 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { KernelMessage } from '@jupyterlab/services';
-import { PromiseDelegate } from '@lumino/coreutils';
+import { PromiseDelegate, UUID } from '@lumino/coreutils';
 import type { ISignal } from '@lumino/signaling';
 import { Signal } from '@lumino/signaling';
 import type { IBridge } from './bridge';
@@ -217,6 +217,10 @@ export class XeusKernel implements IXeusKernel {
       }
     }
 
+    if (channel === 'stdin') {
+      this._handleStdin(msg);
+    }
+
     if (msgType === 'status') {
       if (content.execution_state === 'busy') {
         this._latestRequestId = requestId;
@@ -238,7 +242,7 @@ export class XeusKernel implements IXeusKernel {
     await this.ready;
 
     if (msg.header.msg_type === 'input_reply') {
-      // Not implemented.
+      await this._bridge.sendMessage({ msg });
     } else {
       const { msg_id } = msg.header;
       const executeDelegate = new PromiseDelegate<void>();
@@ -246,6 +250,34 @@ export class XeusKernel implements IXeusKernel {
       await this._bridge.sendMessage({ msg });
       await executeDelegate.promise;
     }
+  }
+
+  private async _handleStdin(inputRequest: KernelMessage.IInputRequestMsg): Promise<void> {
+    const requestId = inputRequest.parent_header?.msg_id;
+    const { password, prompt } = inputRequest.content;
+    const value = await this._messageHandler.stdin(requestId, prompt, password);
+
+    const content: KernelMessage.IInputReply | KernelMessage.IReplyAbortContent =
+      value !== undefined ? { status: 'ok', value } : { status: 'abort' };
+
+    const { header } = inputRequest;
+    const reply: KernelMessage.IInputReplyMsg = {
+      parent_header: header,
+      content: content,
+      channel: 'stdin',
+      header: {
+        date: '',
+        msg_id: UUID.uuid4(),
+        msg_type: 'input_reply',
+        session: header.session,
+        username: header.username,
+        version: header.version,
+      },
+      metadata: {},
+      buffers: [],
+    };
+    // Send input_reply message to kernel implementation in normal way.
+    this.sendMessage(reply);
   }
 
   private _nextRequestId(): string {
