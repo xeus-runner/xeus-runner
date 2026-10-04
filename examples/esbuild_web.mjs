@@ -1,7 +1,9 @@
 import { build } from 'esbuild';
 
+const outdir = 'dist_web';
+
 const commonOptions = {
-  outdir: 'dist',
+  outdir,
   bundle: true,
   format: 'esm',
   sourcemap: false,
@@ -12,6 +14,6 @@ const commonOptions = {
 };
 
 build({
-  entryPoints: ['serve/*.ts'],
+  entryPoints: ['tmp_web/*.ts'],
   ...commonOptions,
 }).catch(() => process.exit(1));

@@ -1,5 +1,5 @@
 /**
- * Build self-contained ESM bundles in dist/ suitable for uploading to a CDN.
+ * Build self-contained ESM bundles in dist_web/ suitable for uploading to a CDN.
  * The web worker bundles must be in the same directory as the main bundle as they are loaded
  * relative to it using `new URL('./<name>.js', import.meta.url)`.
  */
@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { build } from 'esbuild';
 
-const outdir = 'dist';
+const outdir = 'dist_web';
 
 await build({
   entryPoints: {

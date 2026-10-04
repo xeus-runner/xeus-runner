@@ -1,7 +1,7 @@
 {
   "name": "xeus-runner",
   "version": "0.0.1",
-  "description": "Run xeus WebAssembly kernels in TypeScript/JavaScript projects outside of JupyterLite",
+  "description": "Run xeus WebAssembly kernels in TypeScript/JavaScript outside of JupyterLite",
   "homepage": "https://github.com/xeus-runner/xeus-runner#readme",
   "license": "BSD-3-Clause",
   "author": "Ian Thomas",
@@ -16,13 +16,14 @@
     "lib/**/*.{d.ts,js,js.map}",
     "src/**/*.ts",
     "src/**/*.d.ts",
-    "dist/**/*.{js,js.map,wasm}"
+    "dist_node/**/*.{js,js.map,wasm}",
+    "dist_web/**/*.{js,js.map,wasm}"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && npm run build:dist",
-    "build:dist": "node esbuild.config.mjs",
+    "build": "tsc && npm run build:dist_web",
+    "build:dist_web": "node esbuild_web.mjs",
     "lint": "npx @biomejs/biome check --write",
     "lint:check": "npx @biomejs/biome check",
     "prepack": "npm install && npm run build"

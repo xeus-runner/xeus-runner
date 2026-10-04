@@ -18,8 +18,8 @@ import {
 import { join } from 'node:path';
 
 const rootDir = import.meta.dirname;
-const distDir = join(rootDir, 'dist');
-const tmpDir = join(rootDir, 'tmp');
+const distDir = join(rootDir, 'dist_web');
+const tmpDir = join(rootDir, 'tmp_web');
 const templateDir = join(rootDir, 'templates');
 const titleRegex = /^\/\/\s+:title:\s+(.+)$/m;
 const noteRegex = /^\/\/\s+:note:\s+(.+)$/m;
