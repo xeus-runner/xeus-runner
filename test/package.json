@@ -15,6 +15,7 @@
     "serve": "concurrently 'npm run serve:simple' 'npm run serve:cross-origin'",
     "serve:simple": "npx static-handler --port 4500 dist_web/",
     "serve:cross-origin": "npx static-handler --coi --port 4501 dist_web/",
+    "show_cache": "ls .pkg_cache",
     "test": "npm run test:unit && npm run test:integration",
     "test:integration": "cd integration-tests && playwright test --project=chromium",
     "test:integration:ui": "cd integration-tests && playwright test --project=chromium --ui",

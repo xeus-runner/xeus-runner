@@ -9,4 +9,5 @@ examples/package-lock.json
 examples/tmp_web
 
 test/package-lock.json
+test/.pkg_cache/
 test-results/

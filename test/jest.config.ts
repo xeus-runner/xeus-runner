@@ -11,6 +11,7 @@ const config: Config = {
         useESM: true,
         tsconfig: {
           module: 'esnext',
+          allowImportingTsExtensions: false,
         },
       },
     ],

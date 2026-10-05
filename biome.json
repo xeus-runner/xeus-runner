@@ -6,7 +6,7 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/lib", "!**/tmp"],
+    "includes": ["**", "!**/dist_web", "!**/lib", "!**/tmp_web"],
     "maxSize": 104857600
   },
   "formatter": {

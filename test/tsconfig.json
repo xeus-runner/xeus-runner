@@ -1,8 +1,9 @@
 {
   "extends": "../tsconfig",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "rootDir": "../",
     "types": ["node", "jest"]
   },
-  "include": ["serve/*", "integration-tests/*", "unit-tests/*", "../src/**/*"]
+  "include": ["pkg_cache.ts", "serve/*", "integration-tests/*", "unit-tests/*", "../src/**/*"]
 }
