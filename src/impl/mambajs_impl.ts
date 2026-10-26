@@ -112,6 +112,9 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
 
     const binRegex = /^bin\/[\w-]+\.(js|wasm|data)$/;
     const kernelSpecRegex = /^share\/jupyter\/kernels\/[^/]+\/kernel.json$/;
+
+    // Kernels need some shared libraries, so identify and cache all found in the environment.
+    // Alternatively could identify exactly which are required from the kernel package.
     const soRegex = /[\w-]+\.so(\.\d+)*$/;
 
     await Promise.all(
@@ -214,12 +217,14 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       });
     }
 
-    await loadSharedLibs({
-      sharedLibs: this._installedData!.sharedLibs,
-      prefix: '/',
-      Module: this.Module,
-      logger: console,
-    });
+    if (!this.isWorker) {
+      await loadSharedLibs({
+        sharedLibs: this._installedData!.sharedLibs,
+        prefix: '/',
+        Module: this.Module,
+        logger: console,
+      });
+    }
   }
 
   protected async initializeModule(options: IXeusKernelImplOptions): Promise<void> {
