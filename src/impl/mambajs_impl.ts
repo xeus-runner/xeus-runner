@@ -191,25 +191,6 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       Module: this.Module,
       untarjs: this._untarjs,
     });
-
-    if (globalThis.crossOriginIsolated && this._pythonVersion !== undefined) {
-      // The pyodide-http package adds extra code if crossOriginIsolated is true that creates a
-      // web worker and SharedArrayBuffer which causes our kernel initialisation to fail and is also
-      // an unnecessary use of resources. So patch out the crossOriginIsolated code.
-      const { FS } = this.Module;
-      // get correct python version, can probably get it from elsewhere?
-      const version = `${this._pythonVersion[0]}.${this._pythonVersion[1]}`;
-      const filename = `/lib/python${version}/site-packages/pyodide_http/_streaming.py`;
-      if (FS.isFile(FS.stat(filename).mode)) {
-        const contents = FS.readFile(filename, { encoding: 'utf8' });
-        const newContents = contents.replace(
-          'from js import crossOriginIsolated',
-          'crossOriginIsolated = False',
-        );
-        FS.writeFile(filename, newContents);
-        console.log('==> applied patch to file', filename);
-      }
-    }
   }
 
   protected async initializeInterpreter(options: IXeusKernelImplOptions): Promise<void> {
