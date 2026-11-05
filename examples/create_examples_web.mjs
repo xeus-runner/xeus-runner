@@ -121,7 +121,7 @@ for (const language of Object.keys(allByLanguage)) {
   for (const example of allByLanguage[language]) {
     const { workerTypes, name, note } = example;
     const links = workerTypes
-      .map((w) => `<a href="${name}_${w}.html">${workerNames[w]}</a>`)
+      .map((w) => ` <a href="${name}_${w}.html">${workerNames[w]}</a>`)
       .join('');
     let line = `        <li>${example.title}`;
     if (note !== undefined) {

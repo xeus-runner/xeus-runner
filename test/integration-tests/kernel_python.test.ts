@@ -187,8 +187,10 @@ display.Image(filename='/share/jupyter/kernels/xpython/logo-64x64.png')`,
 output_notebook()`,
         });
 
-        // Wait for BokehJS, this should not be necessary.
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Wait for BokehJS and all of its plugins to finish loading.
+        while ((window as any)._bokeh_is_loading !== 0) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
 
         await kernel.execute({
           code: `from bokeh.layouts import layout

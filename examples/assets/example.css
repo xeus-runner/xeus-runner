@@ -2,10 +2,6 @@ body {
   background-color: aliceblue;
 }
 
-a {
-  padding-left: 0.25em;
-}
-
 .xr-code {
   border: solid 1px gold;
   background-color: ivory;

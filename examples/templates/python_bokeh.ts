@@ -15,6 +15,11 @@ await kernel.execute({
 output_notebook()`,
 });
 
+// Wait for BokehJS and all of its plugins to finish loading.
+while ((window as any)._bokeh_is_loading !== 0) {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+}
+
 const code = `from bokeh.layouts import layout
 from bokeh.models import Div, RangeSlider, Spinner
 from bokeh.plotting import figure, show
