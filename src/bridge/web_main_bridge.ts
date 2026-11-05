@@ -2,6 +2,7 @@ import type { ILock } from '@emscripten-forge/mambajs';
 import type { IXeusKernel } from '../defs';
 import type { IXeusKernelImplOptions } from '../impl';
 import { WebMainXeusKernelImpl } from '../impl';
+import type { ILogger } from '../logger';
 import type { IBridge } from './bridge';
 
 /**
@@ -19,9 +20,10 @@ export class WebMainBridge implements IBridge {
   async initialize(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     (globalThis as any).postMessage = onMessage;
-    return this._impl.initialize(options);
+    return this._impl.initialize(options, logCallback);
   }
 
   async sendMessage(msg: any): Promise<void> {

@@ -1,6 +1,8 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { IXeusWorkerKernel } from '@jupyterlite/xeus-core';
 import { expose } from 'comlink';
+import type { ILogger } from '../logger';
+import type { IXeusKernelImplOptions } from './options';
 import { WebWorkerXeusKernelImpl } from './web_worker_impl';
 
 /**
@@ -9,6 +11,7 @@ import { WebWorkerXeusKernelImpl } from './web_worker_impl';
  */
 export interface IComlinkWebWorkerKernel extends IXeusWorkerKernel {
   envLock(): Promise<ILock | undefined>;
+  initialize(options: IXeusKernelImplOptions, logCallback?: ILogger.ILogCallback): Promise<void>;
 }
 
 class ComlinkWebWorkerXeusKernelImpl extends WebWorkerXeusKernelImpl {}

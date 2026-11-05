@@ -1,8 +1,9 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { Remote } from 'comlink';
-import { wrap } from 'comlink';
+import { proxy, wrap } from 'comlink';
 import type { IXeusKernel } from '../defs';
 import type { IComlinkWebWorkerKernel, IXeusKernelImplOptions } from '../impl';
+import type { ILogger } from '../logger';
 import { WebWorkerBridge } from './web_worker_bridge';
 
 /**
@@ -25,6 +26,7 @@ export class ComlinkWebWorkerBridge extends WebWorkerBridge {
   protected async initWorker(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     const { worker } = this;
 
@@ -32,7 +34,7 @@ export class ComlinkWebWorkerBridge extends WebWorkerBridge {
     worker.onmessage = (event) => onMessage(event.data);
 
     this._remoteKernel = wrap(worker) as Remote<IComlinkWebWorkerKernel>;
-    return this._remoteKernel.initialize(options);
+    return this._remoteKernel.initialize(options, logCallback ? proxy(logCallback) : undefined);
   }
 
   async sendMessage(msg: any): Promise<void> {

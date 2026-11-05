@@ -1,5 +1,6 @@
 import { IXeusKernel } from '../../src/defs';
 import { createEnvLock } from '../../src/env_lock';
+import type { ILogger } from '../../src/logger';
 
 describe('DEFAULT_CHANNELS', () => {
   test('should have at least two channels', () => {
@@ -115,11 +116,13 @@ describe('createEnvLock', () => {
 
   test('should write to logger', async () => {
     const LOG: string[] = [];
-    function customLogger(text: string): void {
-      LOG.push(text);
+    class TestLogger implements ILogger {
+      log(_level: ILogger.Level, ...msg: any[]): void {
+        LOG.push(msg.join(' '));
+      }
     }
 
-    const logger = customLogger;
+    const logger = new TestLogger();
     await createEnvLock({ packages: ['xeus-python'], logger });
 
     expect(LOG[0]).toMatch(/^mambajs /);

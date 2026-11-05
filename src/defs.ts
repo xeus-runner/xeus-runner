@@ -1,6 +1,7 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { ISignal } from '@lumino/signaling';
 import type { IKernelType } from './kernel_type';
+import type { ILogger } from './logger';
 
 export interface IXeusKernel {
   /**
@@ -105,6 +106,11 @@ export namespace IXeusKernel {
      * Default is `xr`.
      */
     cssClassPrefix?: string;
+
+    /**
+     * Logger for kernel initialisation and execution.
+     */
+    logger?: ILogger;
   }
 
   /**

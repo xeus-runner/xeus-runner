@@ -9,17 +9,24 @@ import type { IXeusKernel } from './defs';
 import type { IXeusKernelImplOptions } from './impl';
 import type { IKernelType } from './kernel_type';
 import { createKernelType } from './kernel_type';
+import { ConsoleLogger, ILogger } from './logger';
 import type { IMessageHandler } from './message_handler';
 import { DOMMessageHandler, TextMessageHandler } from './message_handler';
 import { removeAnsiEscapeCodes } from './utils';
 
 export class XeusKernel implements IXeusKernel {
   constructor(options: IXeusKernel.IOptions) {
-    const { cssClassPrefix, parentElement, showCode, type, worker } = options;
+    const { cssClassPrefix, logger, parentElement, showCode, type, worker } = options;
     this._isWorker = worker ?? false;
 
-    console.debug('==> XeusKernel isWorker', this._isWorker);
-    console.debug('==> XeusKernel crossOriginIsolated', globalThis.crossOriginIsolated);
+    this._logger = logger ?? new ConsoleLogger('>>>');
+
+    this._log(ILogger.Level.Debug, 'XeusKernel isWorker', this._isWorker);
+    this._log(
+      ILogger.Level.Debug,
+      'XeusKernel crossOriginIsolated',
+      globalThis.crossOriginIsolated,
+    );
 
     this._kernelType = typeof type === 'string' ? createKernelType(type) : type;
 
@@ -104,16 +111,16 @@ export class XeusKernel implements IXeusKernel {
 
     if (envLock !== undefined) {
       if (options.channels !== undefined) {
-        console.warn("Ignoring 'channels' as using 'envLock'");
+        this._log(ILogger.Level.Warning, "Ignoring 'channels' as using 'envLock'");
       }
       if (options.packages !== undefined) {
-        console.warn("Ignoring 'packages' as using 'envLock'");
+        this._log(ILogger.Level.Warning, "Ignoring 'packages' as using 'envLock'");
       }
       if (options.pipPackages !== undefined) {
-        console.warn("Ignoring 'pipPackages' as using 'envLock'");
+        this._log(ILogger.Level.Warning, "Ignoring 'pipPackages' as using 'envLock'");
       }
       if (options.platform !== undefined) {
-        console.warn("Ignoring 'platform' as using 'envLock'");
+        this._log(ILogger.Level.Warning, "Ignoring 'platform' as using 'envLock'");
       }
     }
 
@@ -132,7 +139,11 @@ export class XeusKernel implements IXeusKernel {
       browsingContextId: '',
     };
     this._bridge
-      .initialize(implOptions, this.receiveMessage.bind(this))
+      .initialize(
+        implOptions,
+        this.receiveMessage.bind(this),
+        this._logger !== undefined ? this._log.bind(this) : undefined,
+      )
       .then(this._ready.resolve.bind(this._ready));
   }
 
@@ -154,7 +165,7 @@ export class XeusKernel implements IXeusKernel {
   protected receiveMessage(msg: any) {
     // Don't like using lastParentMsgId, but _stream messages do not have a parent_header.
     const requestId: string | undefined = msg.parent_header?.msg_id ?? this._latestRequestId;
-    console.debug('==> processWorkerMessage', msg, requestId);
+    this._log(ILogger.Level.Debug, 'processWorkerMessage', msg, requestId);
     const { channel, content, header } = msg;
     const msgType = header?.msg_type;
     const messageHandler = this._messageHandler;
@@ -280,12 +291,19 @@ export class XeusKernel implements IXeusKernel {
     this.sendMessage(reply);
   }
 
+  private _log(level: ILogger.Level, ...msg: any[]): void {
+    if (this._logger !== undefined) {
+      this._logger.log(level, ...msg);
+    }
+  }
+
   private _nextRequestId(): string {
     this._requestIndex++;
     return `${this._requestIndex}`;
   }
 
   private _kernelType: IKernelType;
+  private _logger?: ILogger;
   private _parentElement?: Element;
   private _cssClassPrefix: string;
   private _showCode: boolean;

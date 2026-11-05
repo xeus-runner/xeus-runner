@@ -1,6 +1,7 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { IXeusKernel } from '../defs';
 import type { IXeusKernelImplOptions } from '../impl';
+import type { ILogger } from '../logger';
 
 /**
  * Bridge from XeusKernel to kernel implementation (impl), encapsulating communication between the
@@ -23,8 +24,13 @@ export interface IBridge {
    *
    * @param options Options to initialize the impl.
    * @param onMessage Handler for messages sent from the impl to the XeusKernel.
+   * @param logCallback Optional callback for logging from the impl.
    */
-  initialize(options: IXeusKernelImplOptions, onMessage: IXeusKernel.IOnMessage): Promise<void>;
+  initialize(
+    options: IXeusKernelImplOptions,
+    onMessage: IXeusKernel.IOnMessage,
+    logCallback?: ILogger.ILogCallback,
+  ): Promise<void>;
 
   /**
    * Send message to kernel impl.

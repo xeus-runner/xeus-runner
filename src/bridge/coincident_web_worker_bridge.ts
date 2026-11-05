@@ -4,6 +4,7 @@ import { PromiseDelegate } from '@lumino/coreutils';
 import coincident from 'coincident/window/main';
 import type { IXeusKernel } from '../defs';
 import type { ICoincidentWebWorkerKernel, IXeusKernelImplOptions } from '../impl';
+import type { ILogger } from '../logger';
 import { WebWorkerBridge } from './web_worker_bridge';
 
 /**
@@ -26,6 +27,7 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
   override async initialize(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     const { Worker: patchedWorker } = coincident();
     const originalWorker = globalThis.Worker;
@@ -35,12 +37,13 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
     } finally {
       globalThis.Worker = originalWorker;
     }
-    return this.initWorker(options, onMessage);
+    return this.initWorker(options, onMessage, logCallback);
   }
 
   protected async initWorker(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     const { worker } = this;
     worker.onmessage = (event: MessageEvent) => onMessage(event.data);
@@ -56,7 +59,11 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
       return await this.inputDelegate.promise;
     };
 
-    return this._remoteKernel.initialize(options);
+    if (logCallback !== undefined) {
+      this._remoteKernel.log = logCallback;
+    }
+
+    return this._remoteKernel.initialize(options, logCallback !== undefined);
   }
 
   async sendMessage(msg: any): Promise<void> {

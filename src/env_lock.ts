@@ -2,9 +2,7 @@ import type { ILock } from '@emscripten-forge/mambajs';
 import { create } from '@emscripten-forge/mambajs';
 import type { ILogger as IMambaLogger } from '@emscripten-forge/mambajs-core';
 import { IXeusKernel } from './defs';
-
-// This will eventually be used elsewhere, not just here.
-export type ILogger = (text: string) => void;
+import { ILogger } from './logger';
 
 /**
  * Create and return environment lock file containing a solved environment.
@@ -49,14 +47,10 @@ export async function createEnvLock(options: {
 
   let mambaLogger: IMambaLogger | undefined;
   if (logger !== undefined) {
-    function toLogger(...msg: any[]): void {
-      logger!(msg.map((s) => `${s}`).join(' '));
-    }
-
     mambaLogger = {
-      log: (...msg) => toLogger(msg),
-      warn: (...msg) => toLogger(msg),
-      error: (...msg) => toLogger(msg),
+      log: (...msg) => logger.log(ILogger.Level.Info, ...msg),
+      warn: (...msg) => logger.log(ILogger.Level.Warning, ...msg),
+      error: (...msg) => logger.log(ILogger.Level.Error, ...msg),
     };
   }
 

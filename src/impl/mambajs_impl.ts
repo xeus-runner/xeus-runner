@@ -14,6 +14,7 @@ import type { FilesData, IUnpackJSAPI } from '@emscripten-forge/untarjs';
 import { fetchByteArray, initUntarJS } from '@emscripten-forge/untarjs';
 import { XeusRemoteKernelBase } from '@jupyterlite/xeus-core';
 import { createEnvLock } from '../env_lock';
+import { ILogger } from '../logger';
 import { indexOfBytes } from '../utils';
 import type { IXeusKernelImplOptions } from './options';
 
@@ -35,7 +36,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     (globalThis as any).module = Module;
     (globalThis as any).exports = {};
 
-    console.debug('==> importing kernel');
+    this._log(ILogger.Level.Info, 'importing kernel');
     await import(url); // Need async lock here.
 
     (globalThis as any).createXeusModule = (Module as any).exports;
@@ -52,11 +53,16 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     return this._envLock;
   }
 
-  override async initialize(options: IXeusKernelImplOptions): Promise<void> {
+  override async initialize(
+    options: IXeusKernelImplOptions,
+    logCallback?: ILogger.ILogCallback,
+  ): Promise<void> {
+    this._logCallback = logCallback;
+
     // Need to determine kernelSpec to add to the options that are passed to base class
     // initialize function, so need to solve for and obtain emscripten-forge packages before
     // calling super.initialize.
-    console.debug('==> IXeusKernelImplOptions', options);
+    this._log(ILogger.Level.Debug, 'IXeusKernelImplOptions', options);
 
     const { envLock, kernelType, untarjsBaseUrl } = options;
     const { packageName: kernelPackageName, specName: kernelSpecName } = kernelType;
@@ -64,7 +70,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     const unpackWasmUrl = untarjsBaseUrl
       ? new URL('unpack.wasm', untarjsBaseUrl).href
       : 'unpack.wasm';
-    console.debug('==> unpackWasmUrl', unpackWasmUrl);
+    this._log(ILogger.Level.Debug, 'unpackWasmUrl', unpackWasmUrl);
     const locateWasm = () => unpackWasmUrl;
     this._untarjs = await initUntarJS(locateWasm);
     if (this._untarjs === undefined) {
@@ -72,7 +78,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     }
 
     if (envLock !== undefined) {
-      console.debug('==> using supplied envLock');
+      this._log(ILogger.Level.Debug, 'using supplied envLock');
       this._envLock = envLock;
     } else {
       const { channels, platform } = options;
@@ -86,11 +92,11 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       });
     }
 
-    console.debug('==> envLock', this._envLock);
+    this._log(ILogger.Level.Debug, 'envLock', this._envLock);
 
     if (kernelPackageName === 'xeus-python') {
       this._pythonVersion = getPythonVersion(this._envLock);
-      console.debug('==> python version', this._pythonVersion);
+      this._log(ILogger.Level.Debug, 'python version', this._pythonVersion);
     }
 
     let kernelSpec: any;
@@ -158,12 +164,12 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     if (kernelSpec === undefined) {
       throw new Error('No kernelSpec found');
     }
-    console.debug('==> kernelSpec path', kernelSpecPath);
-    console.debug('==> kernelSpec', kernelSpec);
+    this._log(ILogger.Level.Debug, 'kernelSpec path', kernelSpecPath);
+    this._log(ILogger.Level.Debug, 'kernelSpec', kernelSpec);
 
     // Add kernelSpec to options before as it is needed in super.initialize
     options.kernelSpec = kernelSpec;
-    console.debug('==> emscriptenMajorVersion', this._emscriptenMajorVersion);
+    this._log(ILogger.Level.Debug, 'emscriptenMajorVersion', this._emscriptenMajorVersion);
 
     // blobCache is full, so patch fetch to use it.
     this.patchFetch();
@@ -252,8 +258,14 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     // Not implemented.
   }
 
+  protected _log(level: ILogger.Level, ...msg: any[]): void {
+    if (this._logCallback !== undefined) {
+      this._logCallback(level, ...msg);
+    }
+  }
+
   protected maybePatchJs(name: string, array: Uint8Array): Uint8Array {
-    console.debug('==> maybePatch', name);
+    this._log(ILogger.Level.Debug, 'maybePatch', name);
     // Export extra symbols from kernel JS modules.  Should be upstreamed.
     if (
       name.endsWith('/xlua.js') ||
@@ -271,7 +283,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
         patched.set(array.subarray(0, index));
         patched.set(insert, index);
         patched.set(array.subarray(index), index + insert.length);
-        console.debug('==> patched', name);
+        this._log(ILogger.Level.Info, 'patched', name);
         return patched;
       }
     }
@@ -289,9 +301,9 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
   }
 
   protected patchFetch() {
-    console.debug('==> patching fetch');
+    this._log(ILogger.Level.Info, 'patching fetch');
     (globalThis as any)._originalFetch = globalThis.fetch;
-    globalThis.fetch = this.patchedFetch.bind(globalThis, this._blobCache);
+    globalThis.fetch = this.patchedFetch.bind(this, this._blobCache);
   }
 
   protected async patchedFetch(
@@ -302,7 +314,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     const urlBasename = urlStr.split('/').pop() ?? urlStr;
     const blob = blobCache.get(urlBasename);
     if (blob !== undefined) {
-      console.debug('==> patched fetch', urlStr);
+      this._log(ILogger.Level.Debug, 'patched fetch', urlStr);
       const blobUrl = URL.createObjectURL(blob);
       const response = await (globalThis as any)._originalFetch!(blobUrl);
       // Each blob is only needed once, so delete it after use.
@@ -312,7 +324,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       return response;
     }
 
-    console.debug('==> normal fetch', urlStr);
+    this._log(ILogger.Level.Debug, 'normal fetch', urlStr);
     return await (globalThis as any)._originalFetch!(url);
   }
 
@@ -321,7 +333,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
   }
 
   protected unpatchFetch() {
-    console.debug('==> unpatching fetch');
+    this._log(ILogger.Level.Info, 'unpatching fetch');
     globalThis.fetch = (globalThis as any)._originalFetch;
     delete (globalThis as any)._originalFetch;
   }
@@ -330,6 +342,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
   protected _emscriptenMajorVersion: number = 0;
   protected _envLock?: ILock;
   protected _installedData?: IInstalledData;
+  private _logCallback?: ILogger.ILogCallback;
   protected _pythonVersion?: number[];
   protected _untarjs?: IUnpackJSAPI;
 }
