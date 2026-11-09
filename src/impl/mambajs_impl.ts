@@ -12,6 +12,7 @@ import type {
 import { computePackageUrl, getPythonVersion } from '@emscripten-forge/mambajs-core';
 import type { FilesData, IUnpackJSAPI } from '@emscripten-forge/untarjs';
 import { fetchByteArray, initUntarJS } from '@emscripten-forge/untarjs';
+import type { IXeusWorkerLogger } from '@jupyterlite/xeus-core';
 import { XeusRemoteKernelBase } from '@jupyterlite/xeus-core';
 import { createEnvLock } from '../env_lock';
 import { ILogger } from '../logger';
@@ -225,6 +226,16 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
         logger: console,
       });
     }
+  }
+
+  protected override initializeLogger(_options: IXeusKernelImplOptions): IXeusWorkerLogger {
+    // Override kernel logger that forwards to this._log.
+    return {
+      log: (...msg: any[]) => this._log(ILogger.Level.Info, ...msg),
+      warn: (...msg: any[]) => this._log(ILogger.Level.Warning, ...msg),
+      error: (...msg: any[]) => this._log(ILogger.Level.Error, ...msg),
+      executionCount: 0,
+    };
   }
 
   protected async initializeModule(options: IXeusKernelImplOptions): Promise<void> {
