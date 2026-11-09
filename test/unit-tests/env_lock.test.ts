@@ -63,7 +63,7 @@ describe('createEnvLock', () => {
       packages: ['xeus-python', 'contourpy'],
       channels: [
         'https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x',
-        'https://repo.prefix.dev/conda-forge',
+        'https://prefix.dev/conda-forge',
       ],
       platform: 'emscripten-wasm64',
     });

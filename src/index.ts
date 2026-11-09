@@ -5,3 +5,4 @@ export { IXeusKernelImplOptions } from './impl';
 export { XeusKernel } from './kernel';
 export { createKernelType, IKernelType } from './kernel_type';
 export * from './logger';
+export { IMessageHandler } from './message_handler';
