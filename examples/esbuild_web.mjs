@@ -11,6 +11,8 @@ const commonOptions = {
   loader: {
     '.wasm': 'empty',
   },
+  external: ['fs', 'crypto'],
+  alias: { path: 'path-browserify' },
 };
 
 build({

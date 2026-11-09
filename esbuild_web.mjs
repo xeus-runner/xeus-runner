@@ -23,6 +23,8 @@ await build({
   sourcemap: true,
   // unpack.wasm is located at runtime via untarjsBaseUrl, so copy it rather than emit a hashed file.
   loader: { '.wasm': 'empty' },
+  external: ['fs', 'crypto'],
+  alias: { path: 'path-browserify' },
 });
 
 const require = createRequire(import.meta.url);
