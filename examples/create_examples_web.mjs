@@ -25,7 +25,7 @@ const titleRegex = /^\/\/\s+:title:\s+(.+)$/m;
 const noteRegex = /^\/\/\s+:note:\s+(.+)$/m;
 const notMainRegex = /^\/\/\s+:not-main:\s+$/m;
 const notWorkerRegex = /^\/\/\s+:not-worker:\s+$/m;
-const workerRegex = /^\s*(\/\/\s+:worker:)\s*$/m;
+const workerRegex = /^( *)\/\/\s+:worker:\s*$/m;
 
 const workerNames = {
   main: 'main thread',
@@ -95,7 +95,7 @@ for (const file of tsFiles) {
 
     const tsFilename = join(tmpDir, `${nameWorker}.ts`);
     const ts = source
-      .replace(workerRegex, `worker: ${workerType === 'worker'}`)
+      .replace(workerRegex, `$1worker: ${workerType === 'worker'}`)
       .replaceAll('{{ workerName }}', workerNames[workerType]);
     writeFileSync(tsFilename, ts);
   }
