@@ -50,4 +50,20 @@ describe('Python kernel', () => {
     expect(kernel.isWorker).toEqual(worker);
     expect(kernel.isDisposed).toBeTruthy();
   });
+
+  it.each([false, true])('accepts envLock, worker: %s', async (worker) => {
+    const kernel0 = new XeusKernel({ type: 'python', packages: ['numpy'], worker });
+    const envLock = await kernel0.envLock();
+    kernel0.dispose();
+
+    const kernel1 = new XeusKernel({ type: 'python', envLock, worker });
+    const executeReturn = await kernel1.execute({ code: 'import numpy; print(numpy.__name__)' });
+    const envLock1 = await kernel1.envLock();
+    kernel1.dispose();
+
+    expect(executeReturn.stdout).toBe('numpy\n');
+    expect(executeReturn.stderr).toBeUndefined();
+    expect(envLock1).toEqual(envLock);
+    expect(kernel1.isWorker).toEqual(worker);
+  });
 });

@@ -21,6 +21,28 @@ test.describe('Python kernel', () => {
       expect(output.coi).toEqual(coi);
     });
 
+    test(`accepts envLock, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const XeusKernel = (globalThis as any).XeusKernel;
+        const kernel0 = new XeusKernel({ type: 'python', packages: ['numpy'], worker });
+        const envLock = await kernel0.envLock();
+        kernel0.dispose();
+
+        const kernel1 = new XeusKernel({ type: 'python', envLock, worker });
+        const executeReturn = await kernel1.execute({ code: 'import numpy; print(numpy.__name__)' });
+        const envLock1 = await kernel1.envLock();
+        kernel1.dispose();
+        return { executeReturn, envLock, envLock1, isWorker: kernel1.isWorker, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.executeReturn.stdout).toBe('numpy\n');
+      expect(output.executeReturn.stderr).toBeUndefined();
+      expect(output.envLock1).toEqual(output.envLock);
+      expect(output.isWorker).toEqual(worker);
+      expect(output.coi).toEqual(coi);
+    });
+
     test(`supports stdin, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       test.skip(!(worker && coi), 'Only runs in coi-enabled worker');
       await coiNavigate(page, { coi });
