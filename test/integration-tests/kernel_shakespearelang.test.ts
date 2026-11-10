@@ -6,7 +6,11 @@ test.describe('Shakespearelang kernel', () => {
     test(`runs, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       await coiNavigate(page, { coi });
       const output = await page.evaluate(async (worker) => {
-        const kernel = new (globalThis as any).XeusKernel({ type: 'shakespearelang', worker });
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'shakespearelang',
+          worker,
+          channels: ['standard-4x'], // Temporary
+        });
         const code = `Do Not Adieu, a play in two acts.
 
 Romeo, a young man with a remarkable patience.

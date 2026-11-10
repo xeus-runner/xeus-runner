@@ -1,8 +1,15 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import { create } from '@emscripten-forge/mambajs';
 import type { ILogger as IMambaLogger } from '@emscripten-forge/mambajs-core';
-import { IXeusKernel } from './defs';
+import type { IXeusKernel } from './defs';
 import { ILogger } from './logger';
+
+// Standard channel aliases, 'standard' currently points to 'standard-6x'.
+const STANDARD_CHANNELS: { [alias: string]: string[] } = {
+  'standard-4x': ['https://prefix.dev/emscripten-forge/4x', 'conda-forge'],
+  'standard-6x': ['https://prefix.dev/emscripten-forge/6x', 'conda-forge'],
+};
+STANDARD_CHANNELS['standard'] = STANDARD_CHANNELS['standard-6x'];
 
 /**
  * Create and return environment lock file containing a solved environment.
@@ -18,7 +25,9 @@ export async function createEnvLock(options: {
   logger?: ILogger;
 }): Promise<ILock> {
   const { logger, packages, pipPackages, platform } = options;
-  const channels = options.channels ?? IXeusKernel.DEFAULT_CHANNELS;
+  const channels = (options.channels ?? ['standard']).flatMap(
+    (channel) => STANDARD_CHANNELS[channel] ?? channel,
+  );
 
   if (channels.length === 0) {
     throw new Error('No channels specified');

@@ -41,22 +41,16 @@ test.describe('Python kernel', () => {
       });
 
       const stdout = page.locator('div.xr-execute > div.xr-stdout#stdout-1');
-      expect(stdout).toHaveCount(1);
+      await expect(stdout).toHaveCount(1);
       expect(await stdout.first().textContent()).toBe('Name is Alice\n');
     });
 
-    test(`supports different channel and platforms, worker: ${worker}, coi: ${coi}`, async ({
-      page,
-    }) => {
+    test(`supports different platform, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       await coiNavigate(page, { coi });
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
           packages: ['contourpy'],
-          channels: [
-            'https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x',
-            'https://prefix.dev/conda-forge',
-          ],
           platform: 'emscripten-wasm64',
           worker,
         });
@@ -76,6 +70,37 @@ print(p.system(), p.machine(), p.release())`;
         [1.  , 0.25]])]`);
       expect(output.executeReturn0.stderr).toBeUndefined();
       expect(output.executeReturn1.stdout).toBe('Emscripten wasm64 6.0.8\n');
+      expect(output.executeReturn1.stderr).toBeUndefined();
+      expect(output.isWorker).toEqual(worker);
+      expect(output.isDisposed).toBeTruthy();
+      expect(output.coi).toEqual(coi);
+    });
+
+    test(`supports different channels, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'python',
+          packages: ['contourpy'],
+          channels: ['standard-4x'],
+          worker,
+        });
+        const code0 = `from contourpy import contour_generator
+cg = contour_generator(z=[[1,2],[3,4]])
+cg.lines(2.5)`;
+        const executeReturn0 = await kernel.execute({ code: code0 });
+        const code1 = `import platform as p
+print(p.system(), p.machine(), p.release())`;
+        const executeReturn1 = await kernel.execute({ code: code1 });
+        kernel.dispose();
+        const { isDisposed, isWorker } = kernel;
+        return { executeReturn0, executeReturn1, isWorker, isDisposed, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.executeReturn0.stdout).toBe(`[array([[0.  , 0.75],
+        [1.  , 0.25]])]`);
+      expect(output.executeReturn0.stderr).toBeUndefined();
+      expect(output.executeReturn1.stdout).toBe('Emscripten wasm32 4.0.9\n');
       expect(output.executeReturn1.stderr).toBeUndefined();
       expect(output.isWorker).toEqual(worker);
       expect(output.isDisposed).toBeTruthy();
@@ -124,7 +149,7 @@ cg.filled(2.5, 3.5)`;
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
-          packages: ['matplotlib<3.11'],
+          packages: ['matplotlib'],
           parentElement: 'target',
           showCode: true,
           worker,
@@ -146,27 +171,27 @@ display.Image(filename='/share/jupyter/kernels/xpython/logo-64x64.png')`,
       expect(output[1]).toEqual(coi);
 
       // First execute.
-      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
 
       const code0 = page.locator('#target > #execute-0 > #code-0');
       expect(await code0.textContent()).toMatch(/^import matplotlib\.pyplot as plt/);
-      expect(code0).toHaveClass(/\bxr-code\b/);
+      await expect(code0).toHaveClass(/\bxr-code\b/);
 
       // Matplotlib image.
       const childImages0 = page.locator('#target > #execute-0 > div.xr-image > *');
-      expect(childImages0).toHaveCount(1);
+      await expect(childImages0).toHaveCount(1);
       expect(await childImages0.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
 
       // Second execute.
-      expect(page.locator('#target > #execute-1')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-1')).toHaveClass(/\bxr-execute\b/);
 
       const code1 = page.locator('#target > #execute-1 > #code-1');
       expect(await code1.textContent()).toMatch(/^from IPython import display/);
-      expect(code1).toHaveClass(/\bxr-code\b/);
+      await expect(code1).toHaveClass(/\bxr-code\b/);
 
       // IPython image.
       const childImages1 = page.locator('#target > #execute-1 > div.xr-image > *');
-      expect(childImages1).toHaveCount(1);
+      await expect(childImages1).toHaveCount(1);
       expect(await childImages1.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
 
@@ -226,28 +251,31 @@ show(layout)
       await page.locator('#target > #execute-1 > div.xr-html > *').waitFor();
 
       // First execute.
-      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
 
       const code0 = page.locator('#target > #execute-0 > #code-0');
       expect(await code0.textContent()).toMatch(/^from bokeh.io import output_notebook/);
-      expect(code0).toHaveClass(/\bxr-code\b/);
+      await expect(code0).toHaveClass(/\bxr-code\b/);
 
       // Bokeh logo image and text.
       const logo = page.locator('#target > #execute-0 > div.xr-html > div');
-      expect(logo.locator('> a.bk-notebook-logo')).toHaveAttribute('href', 'https://bokeh.org');
-      expect(logo.locator('> span')).toHaveText(/^BokehJS .* successfully loaded.$/);
+      await expect(logo.locator('> a.bk-notebook-logo')).toHaveAttribute(
+        'href',
+        'https://bokeh.org',
+      );
+      await expect(logo.locator('> span')).toHaveText(/^BokehJS .* successfully loaded.$/);
 
       // Second execute.
-      expect(page.locator('#target > #execute-1')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-1')).toHaveClass(/\bxr-execute\b/);
 
       const code1 = page.locator('#target > #execute-1 > #code-1');
       expect(await code1.textContent()).toMatch(/^from bokeh.layouts import layout/);
-      expect(code1).toHaveClass(/\bxr-code\b/);
+      await expect(code1).toHaveClass(/\bxr-code\b/);
 
       // Bokeh plot.
       const children = page.locator('#target > #execute-1 > div.xr-html > *');
-      expect(children).toHaveCount(1);
-      expect(children.nth(0)).toHaveAttribute('data-root-id');
+      await expect(children).toHaveCount(1);
+      await expect(children.nth(0)).toHaveAttribute('data-root-id');
     });
 
     test(`supports async tasks, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
@@ -301,34 +329,34 @@ print(event1.is_set(), event2.is_set())`,
       expect(output[1]).toEqual(coi);
 
       // Code.
-      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
       const code0 = page.locator('#target > #execute-0 > #code-0');
       expect(await code0.textContent()).toMatch(/^import asyncio/);
-      expect(code0).toHaveClass(/\bxr-code\b/);
+      await expect(code0).toHaveClass(/\bxr-code\b/);
 
-      expect(page.locator('#target > #execute-1')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-1')).toHaveClass(/\bxr-execute\b/);
       const code1 = page.locator('#target > #execute-1 > #code-1');
       expect(await code1.textContent()).toMatch(/^async def send_recv/);
-      expect(code1).toHaveClass(/\bxr-code\b/);
+      await expect(code1).toHaveClass(/\bxr-code\b/);
 
-      expect(page.locator('#target > #execute-2')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-2')).toHaveClass(/\bxr-execute\b/);
       const code2 = page.locator('#target > #execute-2 > #code-2');
       expect(await code2.textContent()).toMatch(/^print\(event1.is_set/);
-      expect(code2).toHaveClass(/\bxr-code\b/);
+      await expect(code2).toHaveClass(/\bxr-code\b/);
 
       // Stdout.
       const stdout0 = page.locator('#target > #execute-0 > div.xr-stdout');
-      expect(stdout0).toHaveText(
+      await expect(stdout0).toHaveText(
         '1) waiting for event1\n2) received event1\n3) set event2, finished',
       );
 
       const stdout1 = page.locator('#target > #execute-1 > div.xr-stdout');
-      expect(stdout1).toHaveText(
+      await expect(stdout1).toHaveText(
         'a) waiting at start\nb) set event1, waiting for event2\nc) finished',
       );
 
       const stdout2 = page.locator('#target > #execute-2 > div.xr-stdout');
-      expect(stdout2).toHaveText('False False\nTrue True');
+      await expect(stdout2).toHaveText('False False\nTrue True');
     });
 
     test(`supports Datashader and Numba, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
@@ -339,6 +367,7 @@ print(event1.is_set(), event2.is_set())`,
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
+          channels: ['standard-4x'], // Temporary
           packages: ['datashader', 'pillow'],
           parentElement: 'target',
           showCode: true,
@@ -378,15 +407,15 @@ tf.shade(cvs.points(df, 'x', 'y'), cmap=bgy)
       expect(output[0]).toEqual(worker);
       expect(output[1]).toEqual(coi);
 
-      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
 
       const code = page.locator('#target > #execute-0 > #code-0');
       expect(await code.textContent()).toMatch(/^from colorcet import bgy/);
-      expect(code).toHaveClass(/\bxr-code\b/);
+      await expect(code).toHaveClass(/\bxr-code\b/);
 
       // Output html containing image.
       const children = page.locator('#target > #execute-0 > div.xr-html > *');
-      expect(children).toHaveCount(1);
+      await expect(children).toHaveCount(1);
       expect(await children.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
 
@@ -420,17 +449,17 @@ document.getElementById("target").append(div)`,
       expect(output.isWorker).toEqual(worker);
       expect(output.coi).toEqual(coi);
 
-      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
 
       const code = page.locator('#target > #execute-0 > #code-0');
       expect(await code.textContent()).toMatch(/^from pyjs.js import window/);
-      expect(code).toHaveClass(/\bxr-code\b/);
+      await expect(code).toHaveClass(/\bxr-code\b/);
 
       const children = page.locator('#target > div.pyjs');
-      expect(children).toHaveCount(1);
+      await expect(children).toHaveCount(1);
       const child = children.nth(0);
       expect(await child.textContent()).toMatch(/^This <div> is created by Python code using pyjs/);
-      expect(child).toHaveAttribute('style');
+      await expect(child).toHaveAttribute('style');
     });
   });
 });

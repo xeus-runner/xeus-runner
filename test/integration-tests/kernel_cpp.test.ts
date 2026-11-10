@@ -6,7 +6,11 @@ test.describe('C++ kernel', () => {
     test(`runs, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       await coiNavigate(page, { coi });
       const output = await page.evaluate(async (worker) => {
-        const kernel = new (globalThis as any).XeusKernel({ type: 'cpp', worker });
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'cpp',
+          worker,
+          channels: ['standard-4x'], // Temporary
+        });
         const code =
           '#include <iostream>\nint i = -23;\nstd::cout << "Hello from C++! " << i << std::endl;';
         const executeReturn = await kernel.execute({ code });
@@ -27,7 +31,12 @@ test.describe('C++ kernel', () => {
       await coiNavigate(page, { coi });
       await page.evaluate(async (worker) => {
         const g = globalThis as any;
-        const kernel = new g.XeusKernel({ type: 'cpp', parentElement: 'target', worker });
+        const kernel = new g.XeusKernel({
+          type: 'cpp',
+          channels: ['standard-4x'], // Temporary
+          parentElement: 'target',
+          worker,
+        });
         const code = `#include <iostream>
 #include <string>
 
@@ -50,7 +59,7 @@ std::cin >> name`;
       });
 
       const stdout = page.locator('div.xr-execute > div.xr-stdout#stdout-1');
-      expect(stdout).toHaveCount(1);
+      await expect(stdout).toHaveCount(1);
       expect(await stdout.first().textContent()).toBe('Name is Alice\n');
     });
   });

@@ -41,7 +41,7 @@ test.describe('R kernel', () => {
       });
 
       const stdout = page.locator('div.xr-execute > div.xr-stdout#stdout-1');
-      expect(stdout).toHaveCount(1);
+      await expect(stdout).toHaveCount(1);
       expect(await stdout.first().textContent()).toMatch(/Alice/);
     });
 
@@ -72,14 +72,14 @@ ggplot(data, aes(x = x, y = y)) +
       expect(output[0]).toEqual(worker);
       expect(output[1]).toEqual(coi);
 
-      expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
+      await expect(page.locator('#target > #execute-0')).toHaveClass(/\bxr-execute\b/);
 
       const code = page.locator('#target > #execute-0 > #code-0');
       expect(await code.textContent()).toMatch(/^library\(ggplot2\)/);
-      expect(code).toHaveClass(/\bxr-code\b/);
+      await expect(code).toHaveClass(/\bxr-code\b/);
 
       const childImages = page.locator('#target > #execute-0 > div.xr-image > *');
-      expect(childImages).toHaveCount(1);
+      await expect(childImages).toHaveCount(1);
       expect(await childImages.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
   });

@@ -70,8 +70,16 @@ export namespace IXeusKernel {
     pipPackages?: string[];
 
     /**
-     * Channels to obtain packages from.
-     * If unspecified uses `DEFAULT_CHANNELS`, ignored if `envLock` is specified.
+     * Channels to obtain packages from such as 'https://prefix.dev/emscripten-forge/6x'
+     * or 'conda-forge'.
+     * Also accepts the following aliases:
+     *
+     * - 'standard' to use the latest stable emscripten-forge channel, currently 'standard-6x'.
+     * - 'standard-4x' to use the emscripten-forge channel built using emscripten version 4.
+     * - 'standard-6x' to use the emscripten-forge channel built using emscripten version 6.
+     *
+     * If unspecified uses 'standard'.
+     * Ignored if `envLock` is specified.
      */
     channels?: string[];
 
@@ -138,12 +146,4 @@ export namespace IXeusKernel {
    * Supported target platforms.
    */
   export type Platform = 'emscripten-wasm32' | 'emscripten-wasm64';
-
-  /**
-   * Default channels for packages.
-   */
-  export const DEFAULT_CHANNELS: string[] = [
-    'https://prefix.dev/emscripten-forge-4x',
-    'https://prefix.dev/conda-forge',
-  ];
 }

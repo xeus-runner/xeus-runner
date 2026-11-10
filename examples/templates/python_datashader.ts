@@ -5,6 +5,7 @@ import { XeusKernel } from 'xeus-runner';
 const kernel = new XeusKernel({
   type: 'python',
   packages: ['datashader', 'pillow'],
+  channels: ['standard-4x'], // Until numba for 6x is available
   parentElement: 'target',
   showCode: true,
   // :worker:

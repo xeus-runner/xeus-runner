@@ -4,7 +4,7 @@ import { XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
-  packages: ['matplotlib<3.11'],
+  packages: ['matplotlib'],
   parentElement: 'target',
   showCode: true,
   // :worker:
