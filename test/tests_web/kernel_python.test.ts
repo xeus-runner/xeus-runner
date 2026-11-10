@@ -30,10 +30,18 @@ test.describe('Python kernel', () => {
         kernel0.dispose();
 
         const kernel1 = new XeusKernel({ type: 'python', envLock, worker });
-        const executeReturn = await kernel1.execute({ code: 'import numpy; print(numpy.__name__)' });
+        const executeReturn = await kernel1.execute({
+          code: 'import numpy; print(numpy.__name__)',
+        });
         const envLock1 = await kernel1.envLock();
         kernel1.dispose();
-        return { executeReturn, envLock, envLock1, isWorker: kernel1.isWorker, coi: crossOriginIsolated };
+        return {
+          executeReturn,
+          envLock,
+          envLock1,
+          isWorker: kernel1.isWorker,
+          coi: crossOriginIsolated,
+        };
       }, worker);
 
       expect(output.executeReturn.stdout).toBe('numpy\n');
