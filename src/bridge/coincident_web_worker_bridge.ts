@@ -12,7 +12,9 @@ import { WebWorkerBridge } from './web_worker_bridge';
  */
 export class CoincidentWebWorkerBridge extends WebWorkerBridge {
   protected createWorker(_options: IXeusKernelImplOptions): Worker {
-    return new Worker(new URL('./coincident_web_worker_impl.js', import.meta.url));
+    return new Worker(new URL('./coincident_web_worker_impl.js', import.meta.url), {
+      type: 'module',
+    });
   }
 
   override dispose(): void {
@@ -27,6 +29,7 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
   override async initialize(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    onError: IXeusKernel.IOnError,
     logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     const { Worker: patchedWorker } = coincident();
@@ -37,6 +40,7 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
     } finally {
       globalThis.Worker = originalWorker;
     }
+    this.handleWorkerErrors(onError);
     return this.initWorker(options, onMessage, logCallback);
   }
 

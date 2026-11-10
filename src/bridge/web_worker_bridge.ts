@@ -20,10 +20,16 @@ export abstract class WebWorkerBridge implements IBridge {
   async initialize(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    onError: IXeusKernel.IOnError,
     logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     this._worker = this.createWorker(options);
+    this.handleWorkerErrors(onError);
     return this.initWorker(options, onMessage, logCallback);
+  }
+
+  protected handleWorkerErrors(onError?: IXeusKernel.IOnError): void {
+    this.worker.onerror = (event: ErrorEvent) => onError?.(new Error(event.message));
   }
 
   protected abstract initWorker(

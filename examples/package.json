@@ -1,11 +1,10 @@
 {
   "name": "xeus-runner-examples",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "node create_examples_web.mjs && tsc --noEmit && node esbuild_web.mjs",
-    "postbuild": "npm run postbuild:copy-assets && npm run postbuild:copy-dist",
-    "postbuild:copy-assets": "copyfiles -u 1 \"assets/*\" dist_web",
-    "postbuild:copy-dist": "copyfiles -f \"../dist_web/*_web_worker_impl.js\" ../dist_web/unpack.wasm dist_web",
+    "prebuild": "node create_examples_node.mjs && node create_examples_web.mjs",
+    "build": "tsc --noEmit && node esbuild_node.mjs && node esbuild_web.mjs",
     "serve": "concurrently 'npm run serve:simple' 'npm run serve:cross-origin'",
     "serve:simple": "npx static-handler --port 4500 dist_web/",
     "serve:cross-origin": "npx static-handler --coi --port 4501 dist_web/"

@@ -2,7 +2,9 @@ import type { Config } from 'jest';
 
 const config: Config = {
   testEnvironment: 'node',
-  testRegex: ['unit-tests/.*.test.ts$'],
+  testEnvironmentOptions: { globalsCleanup: 'off' },
+  testRegex: ['tests_unit/.*.test.ts$', 'tests_node/.*.test.ts$'],
+  testTimeout: 120_000,
   extensionsToTreatAsEsm: ['.ts'],
   transform: {
     '^.+\\.ts$': [

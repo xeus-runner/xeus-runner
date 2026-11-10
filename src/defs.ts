@@ -2,6 +2,7 @@ import type { ILock } from '@emscripten-forge/mambajs';
 import type { ISignal } from '@lumino/signaling';
 import type { IKernelType } from './kernel_type';
 import type { ILogger } from './logger';
+import type { IMessageHandler } from './message_handler';
 
 export interface IXeusKernel {
   /**
@@ -95,7 +96,9 @@ export namespace IXeusKernel {
     worker?: boolean;
 
     /**
-     * Base URL to obtain the untarjs `unpack.wasm` file.
+     * Base URL to obtain the untarjs `unpack.wasm` file. Default is the URL of the xeus-runner
+     * module, which is correct for the `dist_node` and `dist_web` bundles as they contain
+     * `unpack.wasm`. If bundling `lib` yourself then set this to wherever `unpack.wasm` is served.
      */
     untarjsBaseUrl?: string;
 
@@ -119,6 +122,11 @@ export namespace IXeusKernel {
      * Logger for kernel initialisation and execution.
      */
     logger?: ILogger;
+
+    /**
+     * Handler for messages from the kernel. If not specified a default handler is created.
+     */
+    messageHandler?: IMessageHandler;
   }
 
   /**
@@ -139,6 +147,8 @@ export namespace IXeusKernel {
     stdout?: string;
     stderr?: string;
   }
+
+  export type IOnError = (err: Error) => void;
 
   export type IOnMessage = (msg: any) => void;
 

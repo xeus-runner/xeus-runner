@@ -1,21 +1,7 @@
 import { PromiseDelegate } from '@lumino/coreutils';
-import { CodeMirrorNs } from './code_mirror';
-import type { IXeusKernel } from './defs';
-
-/**
- * Handles messages received from a kernel, in a simpler format that the full Jupyter messaging
- * protocol.
- */
-export interface IMessageHandler {
-  code(requestId: string, code: string): void;
-  html(requestId: string, html: string): boolean;
-  image(requestId: string, buffer: string): boolean; // Assumes PNG, need to do more than this.
-  javascript(requestId: string, jsCode: string): boolean;
-  stderr(requestId: string, text: string): void;
-  stdin(requestId: string, prompt: string, password: boolean): Promise<string | undefined>;
-  stdout(requestId: string, text: string): void;
-  toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn;
-}
+import { CodeMirrorNs } from '../code_mirror';
+import type { IXeusKernel } from '../defs';
+import type { IMessageHandler } from './message_handler';
 
 /**
  * Writes messages received from kernel to new div elements added to the DOM.
@@ -156,63 +142,4 @@ export class DOMMessageHandler implements IMessageHandler {
   private _wantCodeMirror: boolean;
   private _codeMirrorInitialising = false;
   private _initCodeMirrorDelegate = new PromiseDelegate<void>();
-}
-/**
- * Handles text-only messages from the kernel, returning then via `toExecuteReturn`.
- */
-export class TextMessageHandler implements IMessageHandler {
-  code(_requestId: string, _code: string) {}
-
-  html(_requestId: string, _html: string): boolean {
-    return false;
-  }
-
-  image(_requestId: string, _buffer: string): boolean {
-    return false;
-  }
-
-  javascript(_requestId: string, _jsCode: string): boolean {
-    return false;
-  }
-
-  stderr(requestId: string, text: string): void {
-    if (text.length > 0) {
-      const prev = this._stderrs.get(requestId);
-      if (prev !== undefined) {
-        text = prev + text;
-      }
-      this._stdouts.set(requestId, text);
-    }
-  }
-
-  async stdin(
-    _requestId: string,
-    _prompt: string,
-    _password: boolean,
-  ): Promise<string | undefined> {
-    return undefined;
-  }
-
-  stdout(requestId: string, text: string): void {
-    if (text.length > 0) {
-      const prev = this._stdouts.get(requestId);
-      if (prev !== undefined) {
-        text = prev + text;
-      }
-      this._stdouts.set(requestId, text);
-    }
-  }
-
-  toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn {
-    const stderr = this._stderrs.get(requestId);
-    this._stderrs.delete(requestId);
-
-    const stdout = this._stdouts.get(requestId);
-    this._stdouts.delete(requestId);
-
-    return { stderr, stdout };
-  }
-
-  private _stderrs = new Map<string, string>();
-  private _stdouts = new Map<string, string>();
 }

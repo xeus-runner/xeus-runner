@@ -10,6 +10,8 @@ import type { IBridge } from './bridge';
  */
 export class WebMainBridge implements IBridge {
   dispose(): void {
+    // Restore global changed in initialize.
+    (globalThis as any).postMessage = this._oldPostMessage;
     (this._impl as any) = null;
   }
 
@@ -20,8 +22,10 @@ export class WebMainBridge implements IBridge {
   async initialize(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    _onError: IXeusKernel.IOnError,
     logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
+    this._oldPostMessage = (globalThis as any).postMessage;
     (globalThis as any).postMessage = onMessage;
     return this._impl.initialize(options, logCallback);
   }
@@ -31,4 +35,5 @@ export class WebMainBridge implements IBridge {
   }
 
   private _impl: WebMainXeusKernelImpl = new WebMainXeusKernelImpl();
+  private _oldPostMessage?: any;
 }

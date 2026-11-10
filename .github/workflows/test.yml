@@ -31,7 +31,7 @@ jobs:
           npm run lint:check
 
   build:
-    name: Build and test
+    name: Build
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -46,15 +46,77 @@ jobs:
           create-args: >-
             nodejs=24
 
-      - name: Build
+      - name: Build xeus-runner
         run: |
           npm install
           npm run build
 
-      - name: Test
+      - name: Typecheck tests
         working-directory: test
         run: |
           npm install
-          npm run build
-          npx playwright install chromium
-          npm run test
+          npm run typecheck
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-output
+          path: |
+            lib/
+            dist_node/
+            dist_web/
+
+  test:
+    name: Test ${{ matrix.type }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [unit, node, web]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install mamba
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          environment-name: test-env
+          cache-environment: true
+          create-args: >-
+            nodejs=24
+
+      - name: Download build output
+        uses: actions/download-artifact@v8
+        with:
+          name: build-output
+
+      - name: Install dependencies
+        run: |
+          npm install
+          cd test
+          npm install
+
+      # Package archives never change for a given filename, so accumulate them across runs.
+      - name: Cache packages
+        if: matrix.type != 'unit'
+        uses: actions/cache@v6
+        with:
+          path: test/.pkg_cache
+          key: pkg-cache-${{ matrix.type }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            pkg-cache-${{ matrix.type }}-
+
+      - name: Build web tests
+        if: matrix.type == 'web'
+        working-directory: test
+        run: npm run build:web
+
+      - name: Install playwright
+        if: matrix.type == 'web'
+        working-directory: test
+        run: npx playwright install chromium
+
+      - name: Test
+        working-directory: test
+        run: npm run test:${{ matrix.type }}

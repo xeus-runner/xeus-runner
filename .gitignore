@@ -1,3 +1,4 @@
+dist_node/
 dist_web/
 lib/
 node_modules/
@@ -6,6 +7,7 @@ tsconfig.tsbuildinfo
 docs/_build/
 
 examples/package-lock.json
+examples/tmp_node
 examples/tmp_web
 
 test/package-lock.json

@@ -16,34 +16,46 @@ import type { IXeusWorkerLogger } from '@jupyterlite/xeus-core';
 import { XeusRemoteKernelBase } from '@jupyterlite/xeus-core';
 import { createEnvLock } from '../env_lock';
 import { ILogger } from '../logger';
-import { indexOfBytes } from '../utils';
+import { indexOfBytes, isNode } from '../utils';
 import type { IXeusKernelImplOptions } from './options';
 
 /**
  * Xeus kernel implementation that uses mambajs to obtain packages.
  */
 export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
-  protected async dynamicModuleImport(url: string) {
+  abstract dynamicModuleImportFromBlob(blob: Blob): Promise<void>;
+
+  protected async dynamicModuleImportFromUrl(url: string) {
     // Dynamic module import in the main UI thread that is equivalent to `importScripts(url)`
     // in a web worker. Care is needed to set up `globalThis.createXeusModule` in the way that
     // the base kernel impl classes expect it to be. Some of the details here depend on how the
     // emscripten-compiled `xpython.js` (and similar) set up their exports, so it may well change
     // with different emscripten flags and/or version.
 
-    const oldModule = (globalThis as any).module;
-    const oldExports = (globalThis as any).exports;
+    const g = globalThis as any;
+
+    const oldExports = g.exports;
+    const oldModule = g.module;
+    const oldPostMessage = g.postMessage;
 
     const Module = {};
-    (globalThis as any).module = Module;
-    (globalThis as any).exports = {};
+    g.module = Module;
+    g.exports = {};
 
     this._log(ILogger.Level.Info, 'importing kernel');
     await import(url); // Need async lock here.
 
-    (globalThis as any).createXeusModule = (Module as any).exports;
+    g.createXeusModule = (Module as any).exports;
 
-    (globalThis as any).module = oldModule;
-    (globalThis as any).exports = oldExports;
+    if (g.exports !== oldExports) {
+      g.exports = oldExports;
+    }
+    if (g.module !== oldModule) {
+      g.module = oldModule;
+    }
+    if (g.postMessage !== oldPostMessage) {
+      g.postMessage = oldPostMessage;
+    }
   }
 
   get emscriptenMajorVersion(): number {
@@ -71,7 +83,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     const unpackWasmUrl = untarjsBaseUrl
       ? new URL('unpack.wasm', untarjsBaseUrl).href
       : 'unpack.wasm';
-    this._log(ILogger.Level.Debug, 'unpackWasmUrl', unpackWasmUrl);
+    this._log(ILogger.Level.Debug, 'unpackWasmUrl', unpackWasmUrl.slice(0, 70));
     const locateWasm = () => unpackWasmUrl;
     this._untarjs = await initUntarJS(locateWasm);
     if (this._untarjs === undefined) {
@@ -214,7 +226,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
         pythonVersion: this._pythonVersion,
         prefix: '/',
         Module: this.Module,
-        verbose: true,
+        verbose: false,
       });
     }
 
@@ -255,9 +267,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       throw new Error(`Cannot find cached ${jsName}`);
     }
 
-    const blobUrl = URL.createObjectURL(jsBlob);
-    await this.dynamicModuleImport(blobUrl);
-    URL.revokeObjectURL(blobUrl);
+    await this.dynamicModuleImportFromBlob(jsBlob);
   }
 
   protected initializeStdin(_baseUrl: string, _browsingContextId: string): void {
@@ -283,17 +293,25 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
   protected maybePatchJs(name: string, array: Uint8Array): Uint8Array {
     this._log(ILogger.Level.Debug, 'maybePatch', name);
     // Export extra symbols from kernel JS modules.  Should be upstreamed.
-    if (
-      name.endsWith('/xlua.js') ||
-      name.endsWith('/xhaskell.js') ||
-      name.endsWith('/xlfortran.js')
-    ) {
+    // Also if using node need to add readAsync,
+    const needExports = ['bin/xlua.js', 'bin/xhaskell.js', 'bin/xlfortran.js'].includes(name);
+    const needReadAsync = name.startsWith('bin/') && isNode();
+    if (needExports || needReadAsync) {
       const encoder = new TextEncoder();
       const find = encoder.encode('Module["FS"]=FS;') as Uint8Array;
       let index = indexOfBytes(array, find);
       if (index >= 0) {
-        const toInsert = ['getDylinkMetadata', 'loadDynamicLibrary', 'LDSO'];
-        const insert = encoder.encode(toInsert.map((s) => `Module["${s}"]=${s};`).join(''));
+        let insertString = '';
+        if (needExports) {
+          const toInsert = ['getDylinkMetadata', 'loadDynamicLibrary', 'LDSO'];
+          insertString = toInsert.map((s) => `Module["${s}"]=${s};`).join('');
+        }
+        if (needReadAsync) {
+          insertString =
+            insertString +
+            'if(typeof readAsync==="undefined"){readAsync=async url=>{const response=await globalThis.fetch(url);if(response.ok){return response.arrayBuffer()}throw new Error(response.status+" : "+response.url)};}';
+        }
+        const insert = encoder.encode(insertString);
         const patched = new Uint8Array(array.length + insert.length);
         index += find.length;
         patched.set(array.subarray(0, index));
@@ -330,7 +348,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     const urlBasename = urlStr.split('/').pop() ?? urlStr;
     const blob = blobCache.get(urlBasename);
     if (blob !== undefined) {
-      this._log(ILogger.Level.Debug, 'patched fetch', urlStr);
+      this._log(ILogger.Level.Debug, 'patched fetch', urlStr.slice(0, 70));
       const blobUrl = URL.createObjectURL(blob);
       const response = await (globalThis as any)._originalFetch!(blobUrl);
       // Each blob is only needed once, so delete it after use.
@@ -340,7 +358,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       return response;
     }
 
-    this._log(ILogger.Level.Debug, 'normal fetch', urlStr);
+    this._log(ILogger.Level.Debug, 'normal fetch', urlStr.slice(0, 70));
     return await (globalThis as any)._originalFetch!(url);
   }
 

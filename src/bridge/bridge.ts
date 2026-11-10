@@ -25,10 +25,12 @@ export interface IBridge {
    * @param options Options to initialize the impl.
    * @param onMessage Handler for messages sent from the impl to the XeusKernel.
    * @param logCallback Optional callback for logging from the impl.
+   * @param onError Optional callback for errors from the impl, such as a worker crashing.
    */
   initialize(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
+    onError: IXeusKernel.IOnError,
     logCallback?: ILogger.ILogCallback,
   ): Promise<void>;
 

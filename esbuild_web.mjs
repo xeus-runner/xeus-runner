@@ -23,7 +23,8 @@ await build({
   sourcemap: true,
   // unpack.wasm is located at runtime via untarjsBaseUrl, so copy it rather than emit a hashed file.
   loader: { '.wasm': 'empty' },
-  external: ['fs', 'crypto'],
+  // Node built-ins are only used in code paths that do not run in the browser.
+  external: ['node:*', 'fs', 'crypto'],
   alias: { path: 'path-browserify' },
 });
 

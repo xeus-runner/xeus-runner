@@ -4,5 +4,10 @@ export { createEnvLock } from './env_lock';
 export { IXeusKernelImplOptions } from './impl';
 export { XeusKernel } from './kernel';
 export { createKernelType, IKernelType } from './kernel_type';
-export * from './logger';
-export { IMessageHandler } from './message_handler';
+export { ConsoleLogger, FileLogger, ILogger } from './logger';
+export {
+  DOMMessageHandler,
+  IMessageHandler,
+  StreamMessageHandler,
+  TextMessageHandler,
+} from './message_handler';

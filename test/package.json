@@ -8,18 +8,18 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "build": "tsc --noEmit && node esbuild_web.mjs",
-    "postbuild": "npm run postbuild:copy-assets && npm run postbuild:copy-dist",
-    "postbuild:copy-assets": "copyfiles -u 1 \"assets/*\" dist_web",
-    "postbuild:copy-dist": "copyfiles -f \"../dist_web/*_web_worker_impl.js\" ../dist_web/unpack.wasm dist_web",
+    "build": "npm run typecheck && npm run build:web",
+    "build:web": "node esbuild_web.mjs",
+    "typecheck": "tsc --noEmit",
     "serve": "concurrently 'npm run serve:simple' 'npm run serve:cross-origin'",
     "serve:simple": "npx static-handler --port 4500 dist_web/",
     "serve:cross-origin": "npx static-handler --coi --port 4501 dist_web/",
     "show_cache": "ls .pkg_cache",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "cd integration-tests && playwright test --project=chromium",
-    "test:integration:ui": "cd integration-tests && playwright test --project=chromium --ui",
-    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest unit-tests/env_lock.test.ts"
+    "test": "npm run test:unit && npm run test:node && npm run test:web",
+    "test:node": "NODE_OPTIONS='--experimental-vm-modules --import ./tests_node/fetch_preload.ts' sh -c 'jest \"${@:-tests_node}\"' --",
+    "test:web": "cd tests_web && playwright test --project=chromium",
+    "test:web:ui": "cd tests_web && playwright test --project=chromium --ui",
+    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest tests_unit/env_lock.test.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

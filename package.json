@@ -21,9 +21,16 @@
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "node": "./dist_node/xeus-runner.js",
+      "default": "./lib/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc && npm run build:dist_web",
-    "build:dist_web": "node esbuild_web.mjs",
+    "build": "tsc && node esbuild_node.mjs && node esbuild_web.mjs",
     "lint": "npx @biomejs/biome check --write",
     "lint:check": "npx @biomejs/biome check",
     "prepack": "npm install && npm run build"
@@ -41,8 +48,10 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.11",
     "@jupyterlab/services": "^7.6.3",
+    "@types/node": "^26.6.2",
     "copyfiles": "^2.4.1",
     "esbuild": "^0.28.2",
+    "path-browserify": "^1.0.1",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3"
   }

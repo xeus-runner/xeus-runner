@@ -12,6 +12,11 @@ export function indexOfBytes(haystack: Uint8Array, needle: Uint8Array): number {
   return -1;
 }
 
+export function isNode(): boolean {
+  const g = globalThis as any;
+  return typeof g.process !== 'undefined' && typeof g.process.versions?.node === 'string';
+}
+
 const ansiEscapeRegex = /\x1b\[[^m]*m/g;
 
 export function removeAnsiEscapeCodes(text: string): string {

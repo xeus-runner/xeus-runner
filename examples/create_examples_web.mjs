@@ -1,9 +1,9 @@
 /**
- * Create html files and JS bundles for the TS examples in `templates` directory.
+ * Create html files and JS bundles for the TS examples in `templates_web` directory.
  * Multiple examples are created for each .ts template file, one for each worker type.
- * For each example+worker a .html file is created in dist/ and a .ts file is created in tmp/ that
- * will be compiled and bundled (by esbuild after this script is finished) into a .js file in dist/
- * that is loaded by the .html file.
+ * For each example+worker a .html file is created in dist_web/ and a .ts file is created in
+ * tmp_web/ that will be compiled and bundled (by esbuild after this script is finished) into a .js
+ * file in dist/ that is loaded by the .html file.
  * Also dist/index.html is created with links to all of the examples.
  */
 
@@ -20,7 +20,7 @@ import { join } from 'node:path';
 const rootDir = import.meta.dirname;
 const distDir = join(rootDir, 'dist_web');
 const tmpDir = join(rootDir, 'tmp_web');
-const templateDir = join(rootDir, 'templates');
+const templateDir = join(rootDir, 'templates_web');
 const titleRegex = /^\/\/\s+:title:\s+(.+)$/m;
 const noteRegex = /^\/\/\s+:note:\s+(.+)$/m;
 const notMainRegex = /^\/\/\s+:not-main:\s+$/m;

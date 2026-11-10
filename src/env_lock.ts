@@ -9,7 +9,7 @@ const STANDARD_CHANNELS: { [alias: string]: string[] } = {
   'standard-4x': ['https://prefix.dev/emscripten-forge/4x', 'conda-forge'],
   'standard-6x': ['https://prefix.dev/emscripten-forge/6x', 'conda-forge'],
 };
-STANDARD_CHANNELS['standard'] = STANDARD_CHANNELS['standard-6x'];
+STANDARD_CHANNELS.standard = STANDARD_CHANNELS['standard-6x'];
 
 /**
  * Create and return environment lock file containing a solved environment.

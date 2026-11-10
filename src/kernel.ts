@@ -9,17 +9,22 @@ import type { IXeusKernel } from './defs';
 import type { IXeusKernelImplOptions } from './impl';
 import type { IKernelType } from './kernel_type';
 import { createKernelType } from './kernel_type';
-import { ConsoleLogger, ILogger } from './logger';
+import { ConsoleLogger, FileLogger, ILogger } from './logger';
 import type { IMessageHandler } from './message_handler';
 import { DOMMessageHandler, TextMessageHandler } from './message_handler';
-import { removeAnsiEscapeCodes } from './utils';
+import { isNode, removeAnsiEscapeCodes } from './utils';
 
 export class XeusKernel implements IXeusKernel {
   constructor(options: IXeusKernel.IOptions) {
-    const { cssClassPrefix, logger, parentElement, showCode, type, worker } = options;
+    const { cssClassPrefix, logger, messageHandler, parentElement, showCode, type, worker } =
+      options;
     this._isWorker = worker ?? false;
 
-    this._logger = logger ?? new ConsoleLogger('>>>');
+    this._logger =
+      logger ??
+      (isNode()
+        ? new FileLogger({ filename: 'xeus-runner.log', maxLevel: ILogger.Level.Info })
+        : new ConsoleLogger({ prefix: '>>>', maxLevel: ILogger.Level.Debug }));
 
     this._log(ILogger.Level.Debug, 'XeusKernel isWorker', this._isWorker);
     this._log(
@@ -40,7 +45,7 @@ export class XeusKernel implements IXeusKernel {
     this._cssClassPrefix = cssClassPrefix ?? 'xr';
     this._showCode = showCode ?? false;
 
-    this._messageHandler = this.createMessageHandler();
+    this._messageHandler = messageHandler ?? this.createMessageHandler();
 
     this._bridge = this.createBridge(options);
     this.initialize(options); // Will set ready when done.
@@ -51,7 +56,7 @@ export class XeusKernel implements IXeusKernel {
   }
 
   protected createMessageHandler(): IMessageHandler {
-    if (this._parentElement === undefined) {
+    if (this._parentElement === undefined || isNode()) {
       return new TextMessageHandler();
     } else {
       return new DOMMessageHandler(
@@ -107,7 +112,7 @@ export class XeusKernel implements IXeusKernel {
   }
 
   protected async initialize(options: IXeusKernel.IOptions) {
-    const { channels, envLock, packages, pipPackages, platform, untarjsBaseUrl } = options;
+    const { channels, envLock, packages, pipPackages, platform } = options;
 
     if (envLock !== undefined) {
       if (options.channels !== undefined) {
@@ -132,7 +137,7 @@ export class XeusKernel implements IXeusKernel {
       pipPackages,
       platform,
       baseUrl: '',
-      untarjsBaseUrl,
+      untarjsBaseUrl: options.untarjsBaseUrl ?? import.meta.url,
       kernelId: 'unique',
       mountDrive: false,
       kernelSpec: undefined, // This is completed in the impl when the env is solved and loaded.
@@ -142,9 +147,10 @@ export class XeusKernel implements IXeusKernel {
       .initialize(
         implOptions,
         this.receiveMessage.bind(this),
+        this._onError.bind(this),
         this._logger !== undefined ? this._log.bind(this) : undefined,
       )
-      .then(this._ready.resolve.bind(this._ready));
+      .then(this._ready.resolve.bind(this._ready), this._onError.bind(this));
   }
 
   get isDisposed(): boolean {
@@ -295,6 +301,15 @@ export class XeusKernel implements IXeusKernel {
     if (this._logger !== undefined) {
       this._logger.log(level, ...msg);
     }
+  }
+
+  private _onError(err: Error): void {
+    this._log(ILogger.Level.Error, err);
+    this._ready.reject(err);
+    for (const executeDelegate of this._executeDelegates.values()) {
+      executeDelegate.reject(err);
+    }
+    this._executeDelegates.clear();
   }
 
   private _nextRequestId(): string {

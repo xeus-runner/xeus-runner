@@ -1,8 +1,9 @@
 # xeus-runner
 
-Run `xeus` WebAssembly kernels outside of JupyterLite in TypeScript/JavaScript projects.
+Run `xeus` WebAssembly kernels outside of JupyterLite in TypeScript/JavaScript projects, both in the
+browser and in Node.js.
 
-Simple example that runs in a HTML page:
+Simple example that runs in a HTML page and add the output to the DOM:
 
 ```ts
 import { XeusKernel } from 'xeus-runner';
@@ -18,6 +19,28 @@ kernel.execute({ code: `import numpy as np
 print("Hello from Python!")
 np.sqrt(2.0)` });
 ```
+
+Example of adding JavaScript direct to a HTML page will be coming shortly.
+
+Simple example that runs in `node`:
+
+```ts
+import { XeusKernel } from 'xeus-runner';
+
+const kernel = new XeusKernel({
+  type: 'python',
+  packages: ['numpy'],
+  worker: true
+});
+const code = `import numpy as np
+print("Hello from Python!", np.sqrt(2.0))`;
+const ret = await kernel.execute({ code });
+console.log(ret);
+kernel.dispose();
+```
+
+This also logs kernel initialisation to the file `xeus-runner.log`; this will be configurable in
+future.
 
 ## Kernel languages supported
 
@@ -40,33 +63,58 @@ npm install
 npm run build
 ```
 
-Output JavaScript is in the `lib` directory.
+Output JavaScript is in the `lib` directory, and pre-packed bundles in `dist_node` and `dist_web`.
 
 ## Examples
 
-To build and serve the examples locally, build the project and then:
+To build the examples locally, build the project as above and then:
 
 ```bash
 cd examples
 npm install
 npm run build
+```
+
+To run the browser examples use:
+
+```ts
 npm run serve
 ```
 
-Open a web browser and you can try out the various examples:
+and then open a web browser at:
 
 - http://localhost:4500/ - served without cross-origin isolation headers
 - http://localhost:4501/ - served with cross-origin isolation headers
 
+To run a Node.js example use, for example:
+
+```bash
+node dist_node/python_worker.js
+```
+
 ## Testing
 
-To test, first build the project and then:
+To test, first build the project as above and then:
 
 ```bash
 cd test
 npm install
 npx playwright install chromium
 npm run build
+```
+
+There are three types of tests which are `unit`, `node` and `web`, the latter requires `playwright`.
+Run the separately using any of:
+
+```bash
+npm run test:unit
+npm run test:node
+npm run test:web
+```
+
+or run them all together using:
+
+```bash
 npm run test
 ```
 

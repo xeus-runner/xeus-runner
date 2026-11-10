@@ -1,11 +1,18 @@
-export interface ILogger {
-  log(level: ILogger.Level, ...msg: any[]): void;
-}
+import { ILogger } from './logger';
 
+/**
+ * Logger to the console, for both web browser and node.
+ */
 export class ConsoleLogger implements ILogger {
-  constructor(readonly prefix: string = '') {}
+  constructor(options: ConsoleLogger.IOptions = {}) {
+    this.prefix = options.prefix ?? '';
+    this.maxLevel = options.maxLevel ?? ILogger.Level.Debug;
+  }
 
   log(level: ILogger.Level, ...msg: any[]): void {
+    if (level > this.maxLevel) {
+      return;
+    }
     switch (level) {
       case ILogger.Level.Error:
         console.error(this.prefix, ...msg);
@@ -21,15 +28,14 @@ export class ConsoleLogger implements ILogger {
         break;
     }
   }
+
+  readonly prefix: string;
+  readonly maxLevel: ILogger.Level;
 }
 
-export namespace ILogger {
-  export enum Level {
-    Error,
-    Warning,
-    Info,
-    Debug,
+export namespace ConsoleLogger {
+  export interface IOptions {
+    prefix?: string;
+    maxLevel?: ILogger.Level;
   }
-
-  export type ILogCallback = (level: Level, ...msg: any[]) => void;
 }
