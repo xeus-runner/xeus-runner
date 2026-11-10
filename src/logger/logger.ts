@@ -9,6 +9,4 @@ export namespace ILogger {
     Info,
     Debug,
   }
-
-  export type ILogCallback = (level: Level, ...msg: any[]) => void;
 }

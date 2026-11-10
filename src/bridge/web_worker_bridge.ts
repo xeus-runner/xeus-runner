@@ -1,7 +1,6 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { IXeusKernel } from '../defs';
 import type { IXeusKernelImplOptions } from '../impl';
-import type { ILogger } from '../logger';
 import type { IBridge } from './bridge';
 
 /**
@@ -21,11 +20,10 @@ export abstract class WebWorkerBridge implements IBridge {
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
     onError: IXeusKernel.IOnError,
-    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     this._worker = this.createWorker(options);
     this.handleWorkerErrors(onError);
-    return this.initWorker(options, onMessage, logCallback);
+    return this.initWorker(options, onMessage);
   }
 
   protected handleWorkerErrors(onError?: IXeusKernel.IOnError): void {
@@ -35,7 +33,6 @@ export abstract class WebWorkerBridge implements IBridge {
   protected abstract initWorker(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
-    logCallback?: ILogger.ILogCallback,
   ): Promise<void>;
 
   abstract sendMessage(msg: any): Promise<void>;

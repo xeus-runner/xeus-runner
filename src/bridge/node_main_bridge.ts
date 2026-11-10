@@ -2,7 +2,6 @@ import type { ILock } from '@emscripten-forge/mambajs';
 import type { IXeusKernel } from '../defs';
 import type { IXeusKernelImplOptions } from '../impl';
 import { NodeMainXeusKernelImpl } from '../impl';
-import type { ILogger } from '../logger';
 import type { IBridge } from './bridge';
 
 /**
@@ -27,7 +26,6 @@ export class NodeMainBridge implements IBridge {
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
     _onError: IXeusKernel.IOnError,
-    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     const g = globalThis as any;
     this._oldPostMessage = g.postMessage;
@@ -36,7 +34,7 @@ export class NodeMainBridge implements IBridge {
       g.self = g;
     }
     g.postMessage = onMessage;
-    return this._impl.initialize(options, logCallback);
+    return this._impl.initialize(options);
   }
 
   async sendMessage(msg: any): Promise<void> {

@@ -66,11 +66,8 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     return this._envLock;
   }
 
-  override async initialize(
-    options: IXeusKernelImplOptions,
-    logCallback?: ILogger.ILogCallback,
-  ): Promise<void> {
-    this._logCallback = logCallback;
+  override async initialize(options: IXeusKernelImplOptions): Promise<void> {
+    this._logEnabled = options.log;
 
     // Need to determine kernelSpec to add to the options that are passed to base class
     // initialize function, so need to solve for and obtain emscripten-forge packages before
@@ -285,8 +282,8 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
   }
 
   protected _log(level: ILogger.Level, ...msg: any[]): void {
-    if (this._logCallback !== undefined) {
-      this._logCallback(level, ...msg);
+    if (this._logEnabled) {
+      (globalThis as any).postMessage({ log: [level, ...msg] });
     }
   }
 
@@ -376,7 +373,7 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
   protected _emscriptenMajorVersion: number = 0;
   protected _envLock?: ILock;
   protected _installedData?: IInstalledData;
-  private _logCallback?: ILogger.ILogCallback;
+  private _logEnabled = false;
   protected _pythonVersion?: number[];
   protected _untarjs?: IUnpackJSAPI;
 }

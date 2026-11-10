@@ -1,7 +1,6 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { KernelMessage } from '@jupyterlab/services';
 import coincident from 'coincident/window/worker';
-import type { ILogger } from '../logger';
 import type { IXeusKernelImplOptions } from './options';
 import { WebWorkerXeusKernelImpl } from './web_worker_impl';
 
@@ -10,8 +9,7 @@ import { WebWorkerXeusKernelImpl } from './web_worker_impl';
  */
 export interface ICoincidentWebWorkerKernel {
   envLock(): Promise<ILock | undefined>;
-  initialize(options: IXeusKernelImplOptions, hasLog: boolean): Promise<void>;
-  log(level: ILogger.Level, ...msg: any[]): void;
+  initialize(options: IXeusKernelImplOptions): Promise<void>;
   onmessage: (event: any) => void;
   processMessage: (msg: any) => Promise<void>;
 
@@ -36,8 +34,7 @@ class CoincidentWebWorkerXeusKernelImpl extends WebWorkerXeusKernelImpl {
   initProxy(proxy: ICoincidentWebWorkerKernel): void {
     // Functions in web worker that are called from main thread.
     proxy.envLock = this.envLock.bind(this);
-    proxy.initialize = (options: IXeusKernelImplOptions, hasLog: boolean) =>
-      this.initialize(options, hasLog ? proxy.log.bind(proxy) : undefined);
+    proxy.initialize = this.initialize.bind(this);
     proxy.processMessage = this.processMessage.bind(this);
 
     // Functions in main thread that are called by web worker,

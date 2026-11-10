@@ -142,14 +142,10 @@ export class XeusKernel implements IXeusKernel {
       mountDrive: false,
       kernelSpec: undefined, // This is completed in the impl when the env is solved and loaded.
       browsingContextId: '',
+      log: this._logger !== undefined,
     };
     this._bridge
-      .initialize(
-        implOptions,
-        this.receiveMessage.bind(this),
-        this._onError.bind(this),
-        this._logger !== undefined ? this._log.bind(this) : undefined,
-      )
+      .initialize(implOptions, this.receiveMessage.bind(this), this._onError.bind(this))
       .then(this._ready.resolve.bind(this._ready), this._onError.bind(this));
   }
 
@@ -169,6 +165,11 @@ export class XeusKernel implements IXeusKernel {
    * Process message received from kernel implementation.
    */
   protected receiveMessage(msg: any) {
+    if (msg?.log !== undefined) {
+      this._log(...(msg.log as [ILogger.Level, ...any[]]));
+      return;
+    }
+
     // Don't like using lastParentMsgId, but _stream messages do not have a parent_header.
     const requestId: string | undefined = msg.parent_header?.msg_id ?? this._latestRequestId;
     this._log(ILogger.Level.Debug, 'processWorkerMessage', msg, requestId);

@@ -3,7 +3,6 @@ import type { ILock } from '@emscripten-forge/mambajs';
 import { PromiseDelegate } from '@lumino/coreutils';
 import type { IXeusKernel } from '../defs';
 import type { IXeusKernelImplOptions } from '../impl';
-import type { ILogger } from '../logger';
 import type { IBridge } from './bridge';
 
 /**
@@ -36,17 +35,15 @@ export class NodeWorkerBridge implements IBridge {
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
     onError: IXeusKernel.IOnError,
-    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     this._worker = await this.createWorker(options);
-    return this.initWorker(options, onMessage, onError, logCallback);
+    return this.initWorker(options, onMessage, onError);
   }
 
   protected initWorker(
     options: IXeusKernelImplOptions,
     onMessage: IXeusKernel.IOnMessage,
     onError: IXeusKernel.IOnError,
-    logCallback?: ILogger.ILogCallback,
   ): Promise<void> {
     const promiseDelegate = new PromiseDelegate<void>();
     const { worker } = this;
@@ -56,8 +53,6 @@ export class NodeWorkerBridge implements IBridge {
       } else if (typeof data === 'object' && data !== null && 'envLockReply' in data) {
         this._envLockDelegate?.resolve(data.envLockReply);
         this._envLockDelegate = undefined;
-      } else if (typeof data === 'object' && data !== null && 'log' in data) {
-        logCallback?.(...(data.log as [ILogger.Level, ...any[]]));
       } else {
         onMessage(data);
       }

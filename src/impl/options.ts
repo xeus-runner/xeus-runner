@@ -11,4 +11,5 @@ export interface IXeusKernelImplOptions extends IXeusWorkerKernel.IOptions {
   channels?: string[];
   platform?: IXeusKernel.Platform;
   untarjsBaseUrl?: string;
+  log: boolean; // Whether to post log messages to the XeusKernel.
 }
