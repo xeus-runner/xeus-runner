@@ -114,9 +114,9 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
 
     // Download and cache files needed to load the kernel module which are a `.js`, `.wasm` and
     // possible `.data` from the kernel package (or `xeus-pywrap`), and system shared libraries from
-    // potentially any packages. To identify these files we have to download all of the environment
-    // packages, so cache all of them also to avoid downloading them again later. Also need the
-    // kernelSpec which comes from the kernel package.
+    // potentially any packages. To identify these files we have to download and extract all of the
+    // environment packages, so keep the extracted files to avoid downloading and extracting them
+    // again later. Also need the kernelSpec which comes from the kernel package.
     const pkgs: ISolvedPackages = this._envLock.packages;
     const channelInfo: ILock['channelInfo'] = this._envLock.channelInfo;
 
@@ -134,9 +134,8 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
         const isKernelBinaryPkg = pkg.name === kernelPackageName || pkg.name === 'xeus-pywrap';
         const pkgUrl = computePackageUrl(pkg, filename, channelInfo);
         const wholePkgData = await fetchByteArray(pkgUrl);
-        const blob = new Blob([wholePkgData as any], { type: 'application/x-bzip2' });
-        this._blobCache.set(filename, blob);
         const pkgData: FilesData = await this._untarjs!.extractData(wholePkgData);
+        this._extractedCache.set(filename, pkgData);
         Object.keys(pkgData).forEach((name) => {
           if (soRegex.test(name) || (isKernelBinaryPkg && binRegex.test(name))) {
             let type = 'application/wasm';
@@ -199,8 +198,12 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       throw new Error('No envLock');
     }
 
-    // Bootstrap into emscripten FS.  These packages are fetched from local blobCache via
-    // patched fetch() call.
+    // Bootstrap into emscripten FS. Packages were already extracted in initialize, so
+    // return those instead of fetching and extracting them again.
+    const untarjs: IUnpackJSAPI = {
+      extract: async (url: string) => this._extractedCache.get(url.split('/').pop()!)!,
+      extractData: this._untarjs!.extractData,
+    };
     this._installedData = await installPackagesToEmscriptenFS({
       packages: {
         packages: this._envLock.packages,
@@ -208,8 +211,9 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
       },
       channels: this._envLock.channelInfo,
       Module: this.Module,
-      untarjs: this._untarjs,
+      untarjs,
     });
+    this._extractedCache.clear();
   }
 
   protected async initializeInterpreter(options: IXeusKernelImplOptions): Promise<void> {
@@ -367,11 +371,13 @@ export abstract class MambajsXeusKernelImpl extends XeusRemoteKernelBase {
     this._log(ILogger.Level.Info, 'unpatching fetch');
     globalThis.fetch = (globalThis as any)._originalFetch;
     delete (globalThis as any)._originalFetch;
+    this._blobCache.clear();
   }
 
   protected _blobCache = new Map<string, Blob>();
   protected _emscriptenMajorVersion: number = 0;
   protected _envLock?: ILock;
+  protected _extractedCache = new Map<string, FilesData>();
   protected _installedData?: IInstalledData;
   private _logEnabled = false;
   protected _pythonVersion?: number[];
