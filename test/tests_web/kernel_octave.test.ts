@@ -9,7 +9,6 @@ test.describe('Octave kernel', () => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'octave',
           worker,
-          channels: ['standard-4x'], // Temporary
         });
         const code = 'printf("Hello from Octave!")';
         const executeReturn = await kernel.execute({ code });

@@ -6,7 +6,7 @@ describe('createEnvLock', () => {
     ['xeus-cpp', ['cppinterop', 'nlohmann_json']],
     ['xeus-lfortran', []],
     ['xeus-lua', ['python', 'nlohmann_json']],
-    ['xeus-octave', ['python', 'zlib']],
+    ['xeus-octave', ['python']],
     ['xeus-python', ['ipython', 'python', 'python_abi', 'xeus-python-shell']],
     ['xeus-r', ['r-base']],
     ['xeus-shakespearelang', ['pyjs-rt', 'python', 'xeus-pywrap']],
@@ -17,7 +17,7 @@ describe('createEnvLock', () => {
     const expected = param[1];
 
     test(`should solve ${want}`, async () => {
-      const use4x = ['xeus-cpp', 'xeus-octave', 'xeus-shakespearelang'];
+      const use4x = ['xeus-shakespearelang'];
       const channels = use4x.includes(want) ? ['standard-4x'] : undefined; // Temporary
       const envLock = await createEnvLock({
         packages: [want],

@@ -9,7 +9,6 @@ test.describe('C++ kernel', () => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'cpp',
           worker,
-          channels: ['standard-4x'], // Temporary
         });
         const code =
           '#include <iostream>\nint i = -23;\nstd::cout << "Hello from C++! " << i << std::endl;';
@@ -33,7 +32,6 @@ test.describe('C++ kernel', () => {
         const g = globalThis as any;
         const kernel = new g.XeusKernel({
           type: 'cpp',
-          channels: ['standard-4x'], // Temporary
           parentElement: 'target',
           worker,
         });

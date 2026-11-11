@@ -4,7 +4,6 @@ describe('C++ kernel', () => {
   it.each([false, true])('runs, worker: %s', async (worker) => {
     const kernel = new XeusKernel({
       type: 'cpp',
-      channels: ['standard-4x'], // Temporary
       worker,
     });
     const code =

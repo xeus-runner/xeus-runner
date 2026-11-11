@@ -4,7 +4,6 @@ describe('Octave kernel', () => {
   it.each([false, true])('runs, worker: %s', async (worker) => {
     const kernel = new XeusKernel({
       type: 'octave',
-      channels: ['standard-4x'], // Temporary
       worker,
     });
     const code = 'printf("Hello from Octave!")';
