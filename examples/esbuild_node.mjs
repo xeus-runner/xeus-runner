@@ -14,7 +14,7 @@ const commonOptions = {
     '.wasm': 'empty',
   },
   platform: 'node',
-  external: ['xeus-runner'],
+  external: ['@xeus-runner/xeus-runner'],
 };
 
 await build({

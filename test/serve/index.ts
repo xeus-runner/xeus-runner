@@ -1,4 +1,4 @@
-import { createKernelType, DOMMessageHandler, XeusKernel } from 'xeus-runner';
+import { createKernelType, DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 (globalThis as any).createKernelType = createKernelType;
 (globalThis as any).DOMMessageHandler = DOMMessageHandler;

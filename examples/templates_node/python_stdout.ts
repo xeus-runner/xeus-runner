@@ -1,6 +1,6 @@
 // :title: Streaming output to stdout and stderr.
 
-import { FileLogger, StreamMessageHandler, XeusKernel } from 'xeus-runner';
+import { FileLogger, StreamMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',

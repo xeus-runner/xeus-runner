@@ -1,0 +1,57 @@
+name: 'Step 2: Publish Release'
+
+# Publishes the npm package attached to a draft GitHub release created by 'Step 1: Prep Release',
+# then publishes the GitHub release. Safe to re-run if it fails part way through.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of the draft GitHub release, e.g. v0.1.0'
+        required: true
+
+permissions:
+  contents: write # Needed to publish the GitHub release.
+  id-token: write # Needed for npm trusted publishing.
+
+jobs:
+  publish_release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    environment: release
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Download package from draft release
+        run: gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*.tgz' --dir dist
+
+      - name: Publish to npm
+        run: |
+          spec=$(tar -xzOf dist/*.tgz package/package.json | node -p "const p = JSON.parse(require('fs').readFileSync(0, 'utf8')); p.name + '@' + p.version")
+          if [ "$TAG" != "v${spec##*@}" ]; then
+            echo "::error::Package $spec does not match tag $TAG"
+            exit 1
+          fi
+          if [ -n "$(npm view "$spec" version 2>/dev/null)" ]; then
+            echo "$spec is already published on npm, skipping"
+          else
+            npm publish dist/*.tgz
+          fi
+
+      - name: Publish GitHub release
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+
+      - name: '** Failure Message **'
+        if: ${{ failure() }}
+        run: |
+          echo "Failed to publish release $TAG. Fix the problem and re-run this workflow, completed steps are skipped."

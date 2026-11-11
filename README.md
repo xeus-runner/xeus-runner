@@ -3,10 +3,24 @@
 Run `xeus` WebAssembly kernels outside of JupyterLite in TypeScript/JavaScript projects, both in the
 browser and in Node.js.
 
+## Kernel languages supported
+
+- xeus-cpp
+- xeus-haskell
+- xeus-lfortran
+- xeus-lua
+- xeus-octave
+- xeus-python
+- xeus-r
+- xeus-shakespearelang
+- xeus-sqlite
+
+## Simple examples
+
 Simple example that runs in a HTML page and add the output to the DOM:
 
 ```ts
-import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
@@ -46,7 +60,7 @@ np.sqrt(2.0)` });
 Simple example that runs in `node`:
 
 ```ts
-import { XeusKernel } from 'xeus-runner';
+import { XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
@@ -81,21 +95,15 @@ kernel.dispose();
 By default nothing is logged in Node.js. To log kernel initialisation to a file pass a `FileLogger`
 to the `XeusKernel` constructor, e.g. `logger: new FileLogger({ filename: 'xeus-runner.log' })`.
 
-## Kernel languages supported
+## Install
 
-- xeus-cpp
-- xeus-haskell
-- xeus-lfortran
-- xeus-lua
-- xeus-octave
-- xeus-python
-- xeus-r
-- xeus-shakespearelang
-- xeus-sqlite
+```bash
+npm install @xeus-runner/xeus-runner
+```
 
-## Build
+## Build package
 
-To build you need a `nodejs >= 24`.
+To build a local clone of this repo you need a `nodejs >= 24`.
 
 ```bash
 npm install
@@ -104,7 +112,7 @@ npm run build
 
 Output JavaScript is in the `lib` directory, and pre-packed bundles in `dist_node` and `dist_web`.
 
-## Examples
+## Build and run examples
 
 To build the examples locally, build the project as above and then:
 

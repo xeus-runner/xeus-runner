@@ -1,4 +1,4 @@
-import { XeusKernel } from 'xeus-runner';
+import { XeusKernel } from '@xeus-runner/xeus-runner';
 
 describe('LFortran kernel', () => {
   it.each([false, true])('runs, worker: %s', async (worker) => {

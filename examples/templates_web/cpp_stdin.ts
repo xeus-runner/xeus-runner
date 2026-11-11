@@ -2,7 +2,7 @@
 // :note: only in web worker with cross-origin headers
 // :not-main:
 
-import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'cpp',

@@ -10,7 +10,7 @@
     "serve:cross-origin": "npx static-handler --coi --port 4501 dist_web/"
   },
   "dependencies": {
-    "xeus-runner": "file:.."
+    "@xeus-runner/xeus-runner": "file:.."
   },
   "devDependencies": {
     "concurrently": "^10.0.5",

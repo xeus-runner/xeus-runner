@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { StreamMessageHandler, XeusKernel } from 'xeus-runner';
+import { StreamMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 describe('Python kernel', () => {
   it.each([false, true])('runs, worker: %s', async (worker) => {

@@ -1,6 +1,6 @@
 // :title: Using pyemscripten wheels from PyPI
 
-import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',

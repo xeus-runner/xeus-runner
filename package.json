@@ -1,5 +1,5 @@
 {
-  "name": "xeus-runner",
+  "name": "@xeus-runner/xeus-runner",
   "version": "0.0.1",
   "description": "Run xeus WebAssembly kernels in TypeScript/JavaScript outside of JupyterLite",
   "homepage": "https://github.com/xeus-runner/xeus-runner#readme",
@@ -11,6 +11,9 @@
   },
   "bugs": {
     "url": "https://github.com/xeus-runner/xeus-runner/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "lib/**/*.{d.ts,js,js.map}",

@@ -1,0 +1,76 @@
+name: 'Step 1: Prep Release'
+
+# Builds the npm package from the version in package.json and attaches it to a new draft GitHub
+# release. Nothing is published. Bump the version in package.json via a normal PR before running.
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to release from'
+        default: 'main'
+        required: true
+
+permissions:
+  contents: write # Needed to create the draft release.
+
+jobs:
+  prep_release:
+    name: Prep release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Check version is not already released
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          tag="v$version"
+          if [ -n "$(npm view "$name@$version" version 2>/dev/null)" ]; then
+            echo "::error::$name@$version is already published on npm"
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+            echo "::error::Tag $tag already exists"
+            exit 1
+          fi
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "::error::GitHub release $tag already exists"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      # prepack runs npm install and npm run build.
+      - name: Build package
+        run: |
+          npm pack --pack-destination dist
+          npm publish dist/*.tgz --dry-run
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$TAG" dist/*.tgz \
+            --draft \
+            --target "$(git rev-parse HEAD)" \
+            --title "$TAG" \
+            --generate-notes
+
+      - name: '** Next Step **'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          echo "Review and edit the draft release $TAG, then run 'Step 2: Publish Release' with tag $TAG"
