@@ -6,6 +6,7 @@ export { XeusKernel } from './kernel';
 export { createKernelType, IKernelType } from './kernel_type';
 export { ConsoleLogger, FileLogger, ILogger } from './logger';
 export {
+  BaseMessageHandler,
   DOMMessageHandler,
   IMessageHandler,
   StreamMessageHandler,

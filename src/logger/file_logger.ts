@@ -2,6 +2,7 @@ import { ILogger } from './logger';
 
 /**
  * Logger to a file, for node only.
+ * Default max log level is ILogger.Level.Info
  */
 export class FileLogger implements ILogger {
   constructor(options: FileLogger.IOptions) {
@@ -9,7 +10,7 @@ export class FileLogger implements ILogger {
     this._fs = g.process.getBuiltinModule('node:fs');
     this._format = g.process.getBuiltinModule('node:util').format;
     this.filename = options.filename;
-    this.maxLevel = options.maxLevel ?? ILogger.Level.Debug;
+    this.maxLevel = options.maxLevel ?? ILogger.Level.Info;
     this._fs.writeFileSync(this.filename, '');
   }
 

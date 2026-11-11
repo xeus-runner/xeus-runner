@@ -5,7 +5,7 @@ import type { IXeusKernel } from '../defs';
  * protocol.
  */
 export interface IMessageHandler {
-  code(requestId: string, code: string): void;
+  code(requestId: string, language: string, code: string): void;
   html(requestId: string, html: string): boolean;
   image(requestId: string, buffer: string): boolean; // Assumes PNG, need to do more than this.
   javascript(requestId: string, jsCode: string): boolean;

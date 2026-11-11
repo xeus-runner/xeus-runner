@@ -1,11 +1,10 @@
 // :title: Simple example
 
-import { XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'lua',
-  parentElement: 'target',
-  showCode: true,
+  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
   // :worker:
 });
 const code = 'print("Hello from Lua!")';

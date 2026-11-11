@@ -1,13 +1,12 @@
 // :title: Using pyemscripten wheels from PyPI
 
-import { XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
   packages: ['numpy'],
   pipPackages: ['contourpy'],
-  parentElement: 'target',
-  showCode: true,
+  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
   // :worker:
 });
 

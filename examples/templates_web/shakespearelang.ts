@@ -1,12 +1,11 @@
 // :title: Simple example
 
-import { XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'shakespearelang',
   channels: ['standard-4x'], // Until xeus-octave for 6x is available
-  parentElement: 'target',
-  showCode: true,
+  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
   // :worker:
 });
 const code = `Do Not Adieu, a play in two acts.

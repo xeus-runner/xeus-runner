@@ -9,22 +9,19 @@ import type { IXeusKernel } from './defs';
 import type { IXeusKernelImplOptions } from './impl';
 import type { IKernelType } from './kernel_type';
 import { createKernelType } from './kernel_type';
-import { ConsoleLogger, FileLogger, ILogger } from './logger';
+import { ConsoleLogger, ILogger } from './logger';
 import type { IMessageHandler } from './message_handler';
-import { DOMMessageHandler, TextMessageHandler } from './message_handler';
+import { TextMessageHandler } from './message_handler';
 import { isNode, removeAnsiEscapeCodes } from './utils';
 
 export class XeusKernel implements IXeusKernel {
   constructor(options: IXeusKernel.IOptions) {
-    const { cssClassPrefix, logger, messageHandler, parentElement, showCode, type, worker } =
-      options;
+    const { logger, messageHandler, type, worker } = options;
     this._isWorker = worker ?? false;
 
     this._logger =
       logger ??
-      (isNode()
-        ? new FileLogger({ filename: 'xeus-runner.log', maxLevel: ILogger.Level.Info })
-        : new ConsoleLogger({ prefix: '>>>', maxLevel: ILogger.Level.Debug }));
+      (isNode() ? undefined : new ConsoleLogger({ prefix: '>>>', maxLevel: ILogger.Level.Debug }));
 
     this._log(ILogger.Level.Debug, 'XeusKernel isWorker', this._isWorker);
     this._log(
@@ -34,38 +31,13 @@ export class XeusKernel implements IXeusKernel {
     );
 
     this._kernelType = typeof type === 'string' ? createKernelType(type) : type;
-
-    if (parentElement !== undefined) {
-      if (parentElement instanceof Element) {
-        this._parentElement = parentElement;
-      } else {
-        this._parentElement = document.getElementById(parentElement) ?? undefined;
-      }
-    }
-    this._cssClassPrefix = cssClassPrefix ?? 'xr';
-    this._showCode = showCode ?? false;
-
-    this._messageHandler = messageHandler ?? this.createMessageHandler();
-
+    this._messageHandler = messageHandler ?? new TextMessageHandler();
     this._bridge = this.createBridge(options);
     this.initialize(options); // Will set ready when done.
   }
 
   protected createBridge(options: IXeusKernel.IOptions): IBridge {
     return new BridgeFactory().createBridge(options);
-  }
-
-  protected createMessageHandler(): IMessageHandler {
-    if (this._parentElement === undefined || isNode()) {
-      return new TextMessageHandler();
-    } else {
-      return new DOMMessageHandler(
-        this._parentElement,
-        this._cssClassPrefix,
-        this._showCode,
-        this._kernelType.language,
-      );
-    }
   }
 
   get disposed(): ISignal<this, void> {
@@ -187,7 +159,7 @@ export class XeusKernel implements IXeusKernel {
             messageHandler.stderr(requestId, content.text);
           }
         } else if (msgType === 'execute_input' && content.code) {
-          messageHandler.code(requestId, content.code);
+          messageHandler.code(requestId, this._kernelType.language, content.code);
         } else if (msgType === 'display_data' || msgType === 'execute_result') {
           const { data } = content; // data is an nbformat.IMimeBundle
           let handled = false;
@@ -320,9 +292,6 @@ export class XeusKernel implements IXeusKernel {
 
   private _kernelType: IKernelType;
   private _logger?: ILogger;
-  private _parentElement?: Element;
-  private _cssClassPrefix: string;
-  private _showCode: boolean;
 
   private _isDisposed = false;
   private _isWorker: boolean;

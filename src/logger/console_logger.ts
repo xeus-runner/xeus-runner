@@ -2,11 +2,12 @@ import { ILogger } from './logger';
 
 /**
  * Logger to the console, for both web browser and node.
+ * Default max log level is ILogger.Level.Info
  */
 export class ConsoleLogger implements ILogger {
   constructor(options: ConsoleLogger.IOptions = {}) {
     this.prefix = options.prefix ?? '';
-    this.maxLevel = options.maxLevel ?? ILogger.Level.Debug;
+    this.maxLevel = options.maxLevel ?? ILogger.Level.Info;
   }
 
   log(level: ILogger.Level, ...msg: any[]): void {

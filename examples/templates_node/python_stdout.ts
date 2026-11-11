@@ -1,11 +1,12 @@
 // :title: Streaming output to stdout and stderr.
 
-import { StreamMessageHandler, XeusKernel } from 'xeus-runner';
+import { FileLogger, StreamMessageHandler, XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
   packages: ['numpy'],
   messageHandler: new StreamMessageHandler(),
+  logger: new FileLogger({ filename: 'xeus-runner.log' }),
   // :worker:
 });
 const code = `import numpy as np

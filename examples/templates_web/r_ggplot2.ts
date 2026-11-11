@@ -1,12 +1,11 @@
 // :title: ggplot2 plot
 
-import { XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'r',
   packages: ['r-ggplot2'],
-  parentElement: 'target',
-  showCode: true,
+  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
   // :worker:
 });
 const code = `library(ggplot2)

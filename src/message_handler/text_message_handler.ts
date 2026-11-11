@@ -1,24 +1,10 @@
 import type { IXeusKernel } from '../defs';
-import type { IMessageHandler } from './message_handler';
+import { BaseMessageHandler } from './base_message_handler';
 
 /**
  * Handles text-only messages from the kernel, returning then via `toExecuteReturn`.
  */
-export class TextMessageHandler implements IMessageHandler {
-  code(_requestId: string, _code: string) {}
-
-  html(_requestId: string, _html: string): boolean {
-    return false;
-  }
-
-  image(_requestId: string, _buffer: string): boolean {
-    return false;
-  }
-
-  javascript(_requestId: string, _jsCode: string): boolean {
-    return false;
-  }
-
+export class TextMessageHandler extends BaseMessageHandler {
   stderr(requestId: string, text: string): void {
     if (text.length > 0) {
       const prev = this._stderrs.get(requestId);
@@ -27,14 +13,6 @@ export class TextMessageHandler implements IMessageHandler {
       }
       this._stderrs.set(requestId, text);
     }
-  }
-
-  async stdin(
-    _requestId: string,
-    _prompt: string,
-    _password: boolean,
-  ): Promise<string | undefined> {
-    return undefined;
   }
 
   stdout(requestId: string, text: string): void {

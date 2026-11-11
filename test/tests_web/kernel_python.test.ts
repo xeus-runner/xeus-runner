@@ -56,7 +56,11 @@ test.describe('Python kernel', () => {
       await coiNavigate(page, { coi });
       await page.evaluate(async (worker) => {
         const g = globalThis as any;
-        const kernel = new g.XeusKernel({ type: 'python', parentElement: 'target', worker });
+        const kernel = new g.XeusKernel({
+          type: 'python',
+          messageHandler: new g.DOMMessageHandler({ targetElement: 'target' }),
+          worker,
+        });
         // Do not await the cell containing stdin request.
         kernel.execute({ code: 'name = input("What is your name?")' });
         g.kernel = kernel;
@@ -180,8 +184,7 @@ cg.filled(2.5, 3.5)`;
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
           packages: ['matplotlib'],
-          parentElement: 'target',
-          showCode: true,
+          messageHandler: new (globalThis as any).DOMMessageHandler({ targetElement: 'target' }),
           worker,
         });
         await kernel.execute({
@@ -232,8 +235,7 @@ display.Image(filename='/share/jupyter/kernels/xpython/logo-64x64.png')`,
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
           packages: ['bokeh'],
-          parentElement: 'target',
-          showCode: true,
+          messageHandler: new (globalThis as any).DOMMessageHandler({ targetElement: 'target' }),
           worker,
         });
 
@@ -314,8 +316,7 @@ show(layout)
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
-          parentElement: 'target',
-          showCode: true,
+          messageHandler: new (globalThis as any).DOMMessageHandler({ targetElement: 'target' }),
           worker,
         });
 
@@ -399,8 +400,7 @@ print(event1.is_set(), event2.is_set())`,
           type: 'python',
           channels: ['standard-4x'], // Temporary
           packages: ['datashader', 'pillow'],
-          parentElement: 'target',
-          showCode: true,
+          messageHandler: new (globalThis as any).DOMMessageHandler({ targetElement: 'target' }),
           worker,
         });
         await kernel.execute({
@@ -457,8 +457,7 @@ tf.shade(cvs.points(df, 'x', 'y'), cmap=bgy)
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
           packages: ['pyjs'],
-          parentElement: 'target',
-          showCode: true,
+          messageHandler: new (globalThis as any).DOMMessageHandler({ targetElement: 'target' }),
           worker,
         });
         await kernel.execute({

@@ -6,13 +6,12 @@ browser and in Node.js.
 Simple example that runs in a HTML page and add the output to the DOM:
 
 ```ts
-import { XeusKernel } from 'xeus-runner';
+import { DOMMessageHandler, XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
   packages: ['numpy'],
-  parentElement: 'target',
-  showCode: true,
+  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
   worker: true
 });
 kernel.execute({ code: `import numpy as np
@@ -39,8 +38,8 @@ console.log(ret);
 kernel.dispose();
 ```
 
-This also logs kernel initialisation to the file `xeus-runner.log`; this will be configurable in
-future.
+By default nothing is logged in Node.js. To log kernel initialisation to a file pass a `FileLogger`
+to the `XeusKernel` constructor, e.g. `logger: new FileLogger({ filename: 'xeus-runner.log' })`.
 
 ## Kernel languages supported
 

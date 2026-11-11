@@ -7,41 +7,39 @@ import type { IMessageHandler } from './message_handler';
  * Writes messages received from kernel to new div elements added to the DOM.
  */
 export class DOMMessageHandler implements IMessageHandler {
-  constructor(
-    readonly parentElement: Element,
-    readonly cssClassPrefix: string,
-    readonly showCode: boolean,
-    readonly language: string,
-  ) {
-    this._wantCodeMirror = true;
+  constructor(options: DOMMessageHandler.IOptions) {
+    const { targetElement } = options;
+    this._targetElement =
+      targetElement instanceof Element ? targetElement : document.getElementById(targetElement)!;
+    this._cssClassPrefix = options.cssClassPrefix ?? 'xr';
+    this._showCode = options.showCode ?? true;
+    this._wantCodeMirror = options.useCodeMirror ?? true;
   }
 
-  code(requestId: string, code: string) {
-    if (code.length > 0) {
+  code(requestId: string, language: string, code: string) {
+    if (this._showCode && code.length > 0) {
       const div = this._getOrCreateDiv(
         this._requestIdDiv(requestId),
-        `${this.cssClassPrefix}-code`,
+        `${this._cssClassPrefix}-code`,
         `code-${requestId}`,
       );
       div.textContent += code;
 
-      if (this._wantCodeMirror && CodeMirrorNs.supportsLanguage(this.language)) {
+      if (this._wantCodeMirror && CodeMirrorNs.supportsLanguage(language)) {
         if (!this._codeMirrorInitialising) {
-          CodeMirrorNs.init(this.language).then(() => {
+          CodeMirrorNs.init(language).then(() => {
             this._codeMirrorInitialising = false;
             this._initCodeMirrorDelegate.resolve();
           });
         }
-        this._initCodeMirrorDelegate.promise.then(() =>
-          CodeMirrorNs.applyToDiv(div, this.language),
-        );
+        this._initCodeMirrorDelegate.promise.then(() => CodeMirrorNs.applyToDiv(div, language));
       }
     }
   }
 
   html(requestId: string, html: string): boolean {
     if (html.length > 0) {
-      const div = this._createDiv(this._requestIdDiv(requestId), `${this.cssClassPrefix}-html`);
+      const div = this._createDiv(this._requestIdDiv(requestId), `${this._cssClassPrefix}-html`);
       div.innerHTML = html;
       return true;
     }
@@ -49,7 +47,7 @@ export class DOMMessageHandler implements IMessageHandler {
   }
 
   image(requestId: string, buffer: string): boolean {
-    const div = this._createDiv(this._requestIdDiv(requestId), `${this.cssClassPrefix}-image`);
+    const div = this._createDiv(this._requestIdDiv(requestId), `${this._cssClassPrefix}-image`);
     const image = new Image();
     image.src = buffer;
     div.appendChild(image);
@@ -66,7 +64,7 @@ export class DOMMessageHandler implements IMessageHandler {
     if (text.length > 0) {
       const div = this._getOrCreateDiv(
         this._requestIdDiv(requestId),
-        `${this.cssClassPrefix}-stderr`,
+        `${this._cssClassPrefix}-stderr`,
         `stderr-${requestId}`,
       );
       div.textContent += text;
@@ -74,7 +72,7 @@ export class DOMMessageHandler implements IMessageHandler {
   }
 
   async stdin(requestId: string, prompt: string, password: boolean): Promise<string | undefined> {
-    const div = this._createDiv(this._requestIdDiv(requestId), `${this.cssClassPrefix}-stdin`);
+    const div = this._createDiv(this._requestIdDiv(requestId), `${this._cssClassPrefix}-stdin`);
     if (prompt.length > 0) {
       const promptNode = document.createElement('div');
       promptNode.textContent = prompt;
@@ -101,7 +99,7 @@ export class DOMMessageHandler implements IMessageHandler {
     if (text.length > 0) {
       const div = this._getOrCreateDiv(
         this._requestIdDiv(requestId),
-        `${this.cssClassPrefix}-stdout`,
+        `${this._cssClassPrefix}-stdout`,
         `stdout-${requestId}`,
       );
       div.textContent += text;
@@ -136,10 +134,38 @@ export class DOMMessageHandler implements IMessageHandler {
    */
   private _requestIdDiv(requestId: string): HTMLDivElement {
     const id = `execute-${requestId}`;
-    return this._getOrCreateDiv(this.parentElement, `${this.cssClassPrefix}-execute`, id);
+    return this._getOrCreateDiv(this._targetElement, `${this._cssClassPrefix}-execute`, id);
   }
 
-  private _wantCodeMirror: boolean;
+  private readonly _targetElement: Element;
+  private readonly _cssClassPrefix: string;
+  private readonly _showCode: boolean;
+  private readonly _wantCodeMirror: boolean;
   private _codeMirrorInitialising = false;
   private _initCodeMirrorDelegate = new PromiseDelegate<void>();
+}
+
+export namespace DOMMessageHandler {
+  export interface IOptions {
+    /**
+     * Target element or its string `id` to add new child divs to.
+     */
+    targetElement: Element | string;
+
+    /**
+     * Prefix for CSS class names of generated `div` elements. Default is `xr`.
+     */
+    cssClassPrefix?: string;
+
+    /**
+     * Whether to show source code that is executed or not. Default is `true`.
+     */
+    showCode?: boolean;
+
+    /**
+     * Whether to use CodeMirror to syntax highlight source code. Ignored if `showCode` is
+     * `false`. Default is `true`.
+     */
+    useCodeMirror?: boolean;
+  }
 }

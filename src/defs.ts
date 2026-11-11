@@ -103,28 +103,12 @@ export namespace IXeusKernel {
     untarjsBaseUrl?: string;
 
     /**
-     * Target element or its string `id` to add new child divs to.
-     */
-    parentElement?: Element | string;
-
-    /**
-     * Whether to show source code that is executed or not. Only valid if `parentElement` is set.
-     */
-    showCode?: boolean;
-
-    /**
-     * Prefix for CSS class names of generated `div` elementss, only used if `parentElement` set.
-     * Default is `xr`.
-     */
-    cssClassPrefix?: string;
-
-    /**
      * Logger for kernel initialisation and execution.
      */
     logger?: ILogger;
 
     /**
-     * Handler for messages from the kernel. If not specified a default handler is created.
+     * Handler for messages from the kernel. Default is a `TextMessageHandler`.
      */
     messageHandler?: IMessageHandler;
   }

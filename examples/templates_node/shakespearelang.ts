@@ -1,10 +1,11 @@
 // :title: Simple example
 
-import { XeusKernel } from 'xeus-runner';
+import { FileLogger, XeusKernel } from 'xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'shakespearelang',
   channels: ['standard-4x'], // Until xeus-shakespearelang for 6x is available
+  logger: new FileLogger({ filename: 'xeus-runner.log' }),
   // :worker:
 });
 const code = `Do Not Adieu, a play in two acts.

@@ -26,7 +26,11 @@ test.describe('R kernel', () => {
       await coiNavigate(page, { coi });
       await page.evaluate(async (worker) => {
         const g = globalThis as any;
-        const kernel = new g.XeusKernel({ type: 'r', parentElement: 'target', worker });
+        const kernel = new g.XeusKernel({
+          type: 'r',
+          messageHandler: new g.DOMMessageHandler({ targetElement: 'target' }),
+          worker,
+        });
         // Do not await the cell containing stdin request.
         kernel.execute({ code: 'name <- readline("What is your name?")' });
         g.kernel = kernel;
@@ -51,8 +55,7 @@ test.describe('R kernel', () => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'r',
           packages: ['r-ggplot2'],
-          parentElement: 'target',
-          showCode: true,
+          messageHandler: new (globalThis as any).DOMMessageHandler({ targetElement: 'target' }),
           worker,
         });
         await kernel.execute({

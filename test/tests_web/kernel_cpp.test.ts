@@ -32,7 +32,7 @@ test.describe('C++ kernel', () => {
         const g = globalThis as any;
         const kernel = new g.XeusKernel({
           type: 'cpp',
-          parentElement: 'target',
+          messageHandler: new g.DOMMessageHandler({ targetElement: 'target' }),
           worker,
         });
         const code = `#include <iostream>
