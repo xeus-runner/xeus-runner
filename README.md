@@ -19,8 +19,7 @@ print("Hello from Python!")
 np.sqrt(2.0)` });
 ```
 
-Simple example of adding JavaScript directly to a HTML page, using the `dist_web` bundle. Copy the
-contents of `dist_web` to a local `xeus-runner` directory and serve the page over HTTP:
+Simple example of adding JavaScript directly to a HTML page, using the `dist_web` bundle:
 
 ```html
 <!DOCTYPE html>
@@ -28,7 +27,7 @@ contents of `dist_web` to a local `xeus-runner` directory and serve the page ove
 <body>
   <div id="target"></div>
   <script type="module">
-    import { DOMMessageHandler, XeusKernel } from './xeus-runner/xeus-runner.js';
+    import { DOMMessageHandler, XeusKernel } from './xeus-runner.js';
 
     const kernel = new XeusKernel({
       type: 'python',
@@ -48,6 +47,24 @@ Simple example that runs in `node`:
 
 ```ts
 import { XeusKernel } from 'xeus-runner';
+
+const kernel = new XeusKernel({
+  type: 'python',
+  packages: ['numpy'],
+  worker: true
+});
+const code = `import numpy as np
+print("Hello from Python!", np.sqrt(2.0))`;
+const ret = await kernel.execute({ code });
+console.log(ret);
+kernel.dispose();
+```
+
+Simple example of plain JavaScript that runs in `node` without being compiled, using the
+`dist_node` bundle:
+
+```js
+import { XeusKernel } from './<some path>/xeus-runner.js';
 
 const kernel = new XeusKernel({
   type: 'python',

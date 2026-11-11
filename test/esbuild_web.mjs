@@ -22,7 +22,7 @@ await build({
   ...commonOptions,
 }).catch(() => process.exit(1));
 
-cpSync('assets', outdir, { recursive: true });
+cpSync('assets_web', outdir, { recursive: true });
 
 const libDir = `../${outdir}`;
 for (const file of readdirSync(libDir)) {
