@@ -134,5 +134,18 @@ for (const language of Object.keys(allByLanguage)) {
   index.write('    </li>\n');
 }
 index.write('  </ul>\n');
+index.write(
+  '  <p id="cross-origin-4500" hidden>Cross-origin import:' +
+    ' <a href="http://localhost:4500/cross_origin.html">main thread</a>' +
+    ' <a href="http://localhost:4500/cross_origin.html?worker">web worker</a> (no stdin in either)</p>\n',
+);
+index.write(
+  '  <p id="cross-origin-4501" hidden>Cross-origin import, cross-origin isolated:' +
+    ' <a href="http://127.0.0.1:4501/cross_origin.html">main thread</a>' +
+    ' <a href="http://127.0.0.1:4501/cross_origin.html?worker">web worker</a> (stdin in worker only)</p>\n',
+);
+index.write(
+  "  <script>document.getElementById(location.port === '4501' ? 'cross-origin-4501' : 'cross-origin-4500').hidden = false;</script>\n",
+);
 index.write('</body>\n');
 index.write('</html>\n');

@@ -11,9 +11,7 @@ import { WebWorkerBridge } from './web_worker_bridge';
  */
 export class CoincidentWebWorkerBridge extends WebWorkerBridge {
   protected createWorker(_options: IXeusKernelImplOptions): Worker {
-    return new Worker(new URL('./coincident_web_worker_impl.js', import.meta.url), {
-      type: 'module',
-    });
+    return this.createModuleWorker(new URL('./coincident_web_worker_impl.js', import.meta.url));
   }
 
   override dispose(): void {

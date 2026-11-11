@@ -26,7 +26,7 @@ cpSync('assets', outdir, { recursive: true });
 
 const libDir = `../${outdir}`;
 for (const file of readdirSync(libDir)) {
-  if (file.endsWith('_web_worker_impl.js') || file === 'unpack.wasm') {
+  if (file.endsWith('_web_worker_impl.js') || file === 'unpack.wasm' || file === 'xeus-runner.js') {
     copyFileSync(join(libDir, file), join(outdir, file));
   }
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>xeus-runner Python: Cross-origin import</title>
+  <link rel="stylesheet" href="example.css">
+</head>
+<body>
+  <h2>Python: Cross-origin import</h2>
+  <p>
+    Imports xeus-runner.js from http://localhost:4501, a different origin to this page. Open this
+    page from http://localhost:4500 or directly via file:// (not cross-origin isolated), or from
+    http://127.0.0.1:4501 (cross-origin isolated). Add <code>?worker</code> to the URL to run the
+    kernel in a web worker. Stdin is only supported in a cross-origin isolated web worker.
+  </p>
+  <p id="status"></p>
+  <div id="target"></div>
+  <script type="module">
+    import {
+      DOMMessageHandler,
+      XeusKernel,
+    } from 'http://localhost:4501/xeus-runner.js';
+
+    const worker = new URLSearchParams(location.search).has('worker');
+    document.getElementById('status').textContent =
+      `Page origin: ${self.origin}, worker: ${worker}`;
+
+    const kernel = new XeusKernel({
+      type: 'python',
+      packages: ['matplotlib'],
+      messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+      worker,
+    });
+    kernel.execute({ code: 'print("Hello from Python!")' });
+
+    kernel.execute({
+      code: `import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+cs = ax.contourf([[1, 2], [3, 4]])
+fig.colorbar(cs, ax=ax)
+ax.set_title('Matplotlib contour plot as PNG image');`,
+    });
+
+    if (worker && globalThis.crossOriginIsolated) {
+      await kernel.execute({ code: 'name = input("What is your name?")' });
+      await kernel.execute({ code: 'print(name)' });
+    }
+  </script>
+</body>
+</html>

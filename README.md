@@ -19,7 +19,30 @@ print("Hello from Python!")
 np.sqrt(2.0)` });
 ```
 
-Example of adding JavaScript direct to a HTML page will be coming shortly.
+Simple example of adding JavaScript directly to a HTML page, using the `dist_web` bundle. Copy the
+contents of `dist_web` to a local `xeus-runner` directory and serve the page over HTTP:
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  <div id="target"></div>
+  <script type="module">
+    import { DOMMessageHandler, XeusKernel } from './xeus-runner/xeus-runner.js';
+
+    const kernel = new XeusKernel({
+      type: 'python',
+      packages: ['numpy'],
+      messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+      worker: true
+    });
+    kernel.execute({ code: `import numpy as np
+print("Hello from Python!")
+np.sqrt(2.0)` });
+  </script>
+</body>
+</html>
+```
 
 Simple example that runs in `node`:
 
