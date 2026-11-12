@@ -136,8 +136,10 @@ and then open a web browser at:
 To run a Node.js example use, for example:
 
 ```bash
-node dist_node/python_worker.js
+node dist_node/python.js --worker
 ```
+
+If you omit the `--worker` flag it will run in the main UI thread rather than a worker thread.
 
 ## Testing
 

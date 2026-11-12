@@ -1,11 +1,11 @@
-// :title: Simple example
+// Simple R example
 
 import { FileLogger, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'r',
   logger: new FileLogger({ filename: 'xeus-runner.log' }),
-  // :worker:
+  worker: process.argv.includes('--worker'),
 });
 const code = `x <- "Hello from R!"
 print(x)`;

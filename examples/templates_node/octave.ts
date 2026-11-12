@@ -1,11 +1,11 @@
-// :title: Simple example
+// Simple Octave example
 
 import { FileLogger, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'octave',
   logger: new FileLogger({ filename: 'xeus-runner.log' }),
-  // :worker:
+  worker: process.argv.includes('--worker'),
 });
 const code = 'printf("Hello from Octave!")';
 const ret = await kernel.execute({ code });

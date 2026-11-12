@@ -1,4 +1,4 @@
-// :title: Simple example
+// Simple Python example
 
 import { FileLogger, XeusKernel } from '@xeus-runner/xeus-runner';
 
@@ -6,7 +6,7 @@ const kernel = new XeusKernel({
   type: 'python',
   packages: ['numpy'],
   logger: new FileLogger({ filename: 'xeus-runner.log' }),
-  // :worker:
+  worker: process.argv.includes('--worker'),
 });
 const code = `import numpy as np
 print("Hello from Python!", np.sqrt(2.0))`;

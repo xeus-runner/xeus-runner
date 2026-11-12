@@ -1,11 +1,11 @@
-// :title: Simple example
+// Simple C++ example
 
 import { FileLogger, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'cpp',
   logger: new FileLogger({ filename: 'xeus-runner.log' }),
-  // :worker:
+  worker: process.argv.includes('--worker'),
 });
 const code = `#include <iostream>
 float f = 1.23;

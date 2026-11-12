@@ -1,5 +1,5 @@
-// Plain JavaScript example that imports the xeus-runner.js bundle directly, without being compiled.
-// Run from the examples directory after building with:
+// Plain JavaScript example that isn't compiled and imports the xeus-runner.js bundle directly.
+// Run from the examples directory after `npm run build` with:
 //   node dist_node/python_plain.mjs
 //   node dist_node/python_plain.mjs --worker
 

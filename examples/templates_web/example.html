@@ -8,5 +8,10 @@
 <body>
   <h2>{{ language }}: {{ title }}</h2>
   <div id="target"></div>
+  <script>
+    const suffix = new URLSearchParams(location.search).has('worker') ? ' in web worker' : ' in main thread';
+    document.title += suffix;
+    document.querySelector('h2').textContent += suffix;
+  </script>
 </body>
 </html>

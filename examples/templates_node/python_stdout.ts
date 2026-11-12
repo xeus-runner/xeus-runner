@@ -1,4 +1,4 @@
-// :title: Streaming output to stdout and stderr.
+// Python example streaming output to stdout and stderr.
 
 import { FileLogger, StreamMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
@@ -7,7 +7,7 @@ const kernel = new XeusKernel({
   packages: ['numpy'],
   messageHandler: new StreamMessageHandler(),
   logger: new FileLogger({ filename: 'xeus-runner.log' }),
-  // :worker:
+  worker: process.argv.includes('--worker'),
 });
 const code = `import numpy as np
 print("Hello from Python!", np.sqrt(2.0))`;

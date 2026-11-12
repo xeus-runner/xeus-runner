@@ -1,9 +1,9 @@
 /**
  * Create html files and JS bundles for the TS examples in `templates_web` directory.
- * Multiple examples are created for each .ts template file, one for each worker type.
- * For each example+worker a .html file is created in dist_web/ and a .ts file is created in
+ * For each .ts template file a .html file is created in dist_web/ and a .ts file is created in
  * tmp_web/ that will be compiled and bundled (by esbuild after this script is finished) into a .js
- * file in dist/ that is loaded by the .html file.
+ * file in dist/ that is loaded by the .html file. The kernel runs in a web worker if `?worker` is
+ * appended to the URL, otherwise in the main thread.
  * Also dist/index.html is created with links to all of the examples.
  */
 
@@ -83,22 +83,16 @@ for (const file of tsFiles) {
   }
   allByLanguage[language].push({ name, note, title, workerTypes });
 
-  for (const workerType of workerTypes) {
-    const nameWorker = `${name}_${workerType}`;
-    const titleWorker = `${title} in ${workerNames[workerType]}`;
-    const html = htmlTemplate
-      .replaceAll('{{ title }}', titleWorker)
-      .replaceAll('{{ name }}', nameWorker)
-      .replaceAll('{{ language }}', languageText(language));
-    const htmlFilename = join(distDir, `${nameWorker}.html`);
-    writeFileSync(htmlFilename, html);
+  const html = htmlTemplate
+    .replaceAll('{{ title }}', title)
+    .replaceAll('{{ name }}', name)
+    .replaceAll('{{ language }}', languageText(language));
+  writeFileSync(join(distDir, `${name}.html`), html);
 
-    const tsFilename = join(tmpDir, `${nameWorker}.ts`);
-    const ts = source
-      .replace(workerRegex, `$1worker: ${workerType === 'worker'}`)
-      .replaceAll('{{ workerName }}', workerNames[workerType]);
-    writeFileSync(tsFilename, ts);
-  }
+  const ts = source
+    .replace(workerRegex, "$1worker: new URLSearchParams(location.search).has('worker'),")
+    .replaceAll('{{ workerName }}', "${kernel.isWorker ? 'web worker' : 'main thread'}");
+  writeFileSync(join(tmpDir, `${name}.ts`), ts);
 }
 
 // Write index file. Could use a TS/JS template engine for this instead.
@@ -121,7 +115,7 @@ for (const language of Object.keys(allByLanguage)) {
   for (const example of allByLanguage[language]) {
     const { workerTypes, name, note } = example;
     const links = workerTypes
-      .map((w) => ` <a href="${name}_${w}.html">${workerNames[w]}</a>`)
+      .map((w) => ` <a href="${name}.html${w === 'worker' ? '?worker' : ''}">${workerNames[w]}</a>`)
       .join('');
     let line = `        <li>${example.title}`;
     if (note !== undefined) {

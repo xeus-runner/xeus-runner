@@ -14,6 +14,11 @@
   </p>
   <p id="status"></p>
   <div id="target"></div>
+  <script>
+    const suffix = new URLSearchParams(location.search).has('worker') ? ' in web worker' : ' in main thread';
+    document.title += suffix;
+    document.querySelector('h2').textContent += suffix;
+  </script>
   <script type="module">
     import {
       DOMMessageHandler,
@@ -22,7 +27,7 @@
 
     const worker = new URLSearchParams(location.search).has('worker');
     document.getElementById('status').textContent =
-      `Page origin: ${self.origin}, worker: ${worker}`;
+      `Page origin: ${self.origin}`;
 
     const kernel = new XeusKernel({
       type: 'python',

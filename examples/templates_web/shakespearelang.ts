@@ -4,7 +4,7 @@ import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'shakespearelang',
-  channels: ['standard-4x'], // Until xeus-octave for 6x is available
+  channels: ['standard-4x'], // Until xeus-shakespearelang for 6x is available
   messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
   // :worker:
 });

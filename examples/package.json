@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "node create_examples_node.mjs && node create_examples_web.mjs",
+    "prebuild": "node create_examples_web.mjs",
     "build": "tsc --noEmit && node esbuild_node.mjs && node esbuild_web.mjs",
     "serve": "concurrently 'npm run serve:simple' 'npm run serve:cross-origin'",
     "serve:simple": "npx static-handler --port 4500 dist_web/",

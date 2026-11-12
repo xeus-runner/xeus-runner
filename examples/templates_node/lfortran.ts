@@ -1,11 +1,11 @@
-// :title: Simple example
+// Simple LFortran example
 
 import { FileLogger, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'lfortran',
   logger: new FileLogger({ filename: 'xeus-runner.log' }),
-  // :worker:
+  worker: process.argv.includes('--worker'),
 });
 const code = `real :: a, b, result
 a = 5.7

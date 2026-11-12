@@ -1,4 +1,4 @@
-import { copyFileSync, cpSync, readdirSync } from 'node:fs';
+import { copyFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { build } from 'esbuild';
 
@@ -18,11 +18,11 @@ const commonOptions = {
 };
 
 await build({
-  entryPoints: ['tmp_node/*.ts'],
+  entryPoints: ['templates_node/*.ts'],
   ...commonOptions,
 }).catch(() => process.exit(1));
 
-cpSync('assets_node', outdir, { recursive: true });
+copyFileSync('templates_node/python_plain.mjs', join(outdir, 'python_plain.mjs'));
 
 const libDir = `../${outdir}`;
 for (const file of readdirSync(libDir)) {
