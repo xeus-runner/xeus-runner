@@ -1,6 +1,6 @@
 {
   "name": "@xeus-runner/xeus-runner",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Run xeus WebAssembly kernels in TypeScript/JavaScript outside of JupyterLite",
   "homepage": "https://github.com/xeus-runner/xeus-runner#readme",
   "license": "BSD-3-Clause",
