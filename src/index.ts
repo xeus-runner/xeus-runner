@@ -12,3 +12,4 @@ export {
   StreamMessageHandler,
   TextMessageHandler,
 } from './message_handler';
+export { version } from './version';

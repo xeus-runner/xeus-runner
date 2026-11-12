@@ -10,6 +10,8 @@ docs/_build/
 examples/package-lock.json
 examples/tmp_web
 
+src/version.ts
+
 test/package-lock.json
 test/.pkg_cache/
 test-results/

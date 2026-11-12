@@ -19,7 +19,7 @@
     "test:node": "NODE_OPTIONS='--experimental-vm-modules --import ./tests_node/fetch_preload.ts' sh -c 'jest \"${@:-tests_node}\"' --",
     "test:web": "cd tests_web && playwright test --project=chromium",
     "test:web:ui": "cd tests_web && playwright test --project=chromium --ui",
-    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest tests_unit/env_lock.test.ts"
+    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest tests_unit"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
