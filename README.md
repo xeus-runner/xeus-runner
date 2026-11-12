@@ -57,6 +57,16 @@ np.sqrt(2.0)` });
 </html>
 ```
 
+Instead of serving `xeus-runner.js` yourself, you can import it from the npm package via the
+`jsDelivr` or `unpkg` CDN:
+
+```js
+import { DOMMessageHandler, XeusKernel } from 'https://cdn.jsdelivr.net/npm/@xeus-runner/xeus-runner/dist_web/xeus-runner.js';
+import { DOMMessageHandler, XeusKernel } from 'https://unpkg.com/@xeus-runner/xeus-runner/dist_web/xeus-runner.js';
+```
+
+and this will work even if opening the example in a browser using `file://`.
+
 Simple example that runs in `node`:
 
 ```ts
