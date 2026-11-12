@@ -22,17 +22,15 @@ export abstract class WebWorkerBridge implements IBridge {
       return new Worker(`data:text/javascript,${encodeURIComponent(source)}`, { type: 'module' });
     }
     const blob = new Blob([source], { type: 'text/javascript' });
-    const blobUrl = URL.createObjectURL(blob);
-    try {
-      return new Worker(blobUrl, { type: 'module' });
-    } finally {
-      URL.revokeObjectURL(blobUrl);
-    }
+    // WebKit loads the worker script asynchronously, so revoke the blob URL after initialization.
+    this._blobUrl = URL.createObjectURL(blob);
+    return new Worker(this._blobUrl, { type: 'module' });
   }
 
   protected abstract createWorker(options: IXeusKernelImplOptions): Worker;
 
   dispose(): void {
+    this.revokeBlobUrl();
     this._worker?.terminate();
     this._worker = undefined;
   }
@@ -46,7 +44,18 @@ export abstract class WebWorkerBridge implements IBridge {
   ): Promise<void> {
     this._worker = this.createWorker(options);
     this.handleWorkerErrors(onError);
-    return this.initWorker(options, onMessage);
+    try {
+      return await this.initWorker(options, onMessage);
+    } finally {
+      this.revokeBlobUrl();
+    }
+  }
+
+  protected revokeBlobUrl(): void {
+    if (this._blobUrl !== undefined) {
+      URL.revokeObjectURL(this._blobUrl);
+      this._blobUrl = undefined;
+    }
   }
 
   protected handleWorkerErrors(onError?: IXeusKernel.IOnError): void {
@@ -72,5 +81,6 @@ export abstract class WebWorkerBridge implements IBridge {
     return this._worker;
   }
 
+  private _blobUrl?: string;
   protected _worker?: Worker;
 }

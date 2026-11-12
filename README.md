@@ -177,6 +177,14 @@ or run them all together using:
 npm run test
 ```
 
+The `web` tests run on `chromium` by default. To run them on a different browser supported by
+`playwright` (`chromium`, `firefox` or `webkit`), install that browser and set `BROWSER`:
+
+```bash
+npx playwright install firefox
+BROWSER=firefox npm run test:web
+```
+
 ## Documentation
 
 To build the documentation:

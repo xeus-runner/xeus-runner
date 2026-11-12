@@ -37,7 +37,11 @@ export class CoincidentWebWorkerBridge extends WebWorkerBridge {
       globalThis.Worker = originalWorker;
     }
     this.handleWorkerErrors(onError);
-    return this.initWorker(options, onMessage);
+    try {
+      return await this.initWorker(options, onMessage);
+    } finally {
+      this.revokeBlobUrl();
+    }
   }
 
   protected async initWorker(

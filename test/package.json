@@ -17,8 +17,8 @@
     "show_cache": "ls .pkg_cache",
     "test": "npm run test:unit && npm run test:node && npm run test:web",
     "test:node": "NODE_OPTIONS='--experimental-vm-modules --import ./tests_node/fetch_preload.ts' sh -c 'jest \"${@:-tests_node}\"' --",
-    "test:web": "cd tests_web && playwright test --project=chromium",
-    "test:web:ui": "cd tests_web && playwright test --project=chromium --ui",
+    "test:web": "cd tests_web && playwright test --project=${BROWSER:-chromium}",
+    "test:web:ui": "cd tests_web && playwright test --project=${BROWSER:-chromium} --ui",
     "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest tests_unit"
   },
   "devDependencies": {
