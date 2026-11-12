@@ -65,6 +65,7 @@ jobs:
             lib/
             dist_node/
             dist_web/
+            src/version.ts
 
   test:
     name: Test ${{ matrix.type }}
