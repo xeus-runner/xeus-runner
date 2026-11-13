@@ -17,4 +17,18 @@ print '(A, F6.2)', "Hello from LFortran, the sum is ", result
     expect(kernel.isWorker).toEqual(worker);
     expect(kernel.isDisposed).toBeTruthy();
   });
+
+  // TODO: skipped as error stop crashes the kernel in exitRuntime, so execute never returns.
+  it.skip.each([false, true])('writes errors to stderr, worker: %s', async (worker) => {
+    const kernel = new XeusKernel({ type: 'fortran', worker });
+    const raiseReturn = await kernel.execute({
+      code: 'error stop "Some error"\nprint *, "Not reached"\n',
+    });
+    kernel.dispose();
+
+    expect(raiseReturn.stdout).toBeUndefined();
+    expect(raiseReturn.stderr).toMatch(/Some error/);
+    expect(kernel.isWorker).toEqual(worker);
+    expect(kernel.isDisposed).toBeTruthy();
+  });
 });

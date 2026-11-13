@@ -21,6 +21,30 @@ test.describe('Python kernel', () => {
       expect(output.coi).toEqual(coi);
     });
 
+    test(`writes errors to stderr, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({ type: 'python', worker });
+        const raiseReturn = await kernel.execute({
+          code: 'raise RuntimeError("Some error")\nprint("Not reached")',
+        });
+        const assertReturn = await kernel.execute({
+          code: 'assert 1 == 2, "Some assert"\nprint("Not reached")',
+        });
+        kernel.dispose();
+        const { isDisposed, isWorker } = kernel;
+        return { raiseReturn, assertReturn, isWorker, isDisposed, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.raiseReturn.stdout).toBeUndefined();
+      expect(output.raiseReturn.stderr).toMatch(/RuntimeError: Some error/);
+      expect(output.assertReturn.stdout).toBeUndefined();
+      expect(output.assertReturn.stderr).toMatch(/AssertionError: Some assert/);
+      expect(output.isWorker).toEqual(worker);
+      expect(output.isDisposed).toBeTruthy();
+      expect(output.coi).toEqual(coi);
+    });
+
     test(`accepts envLock, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
       await coiNavigate(page, { coi });
       const output = await page.evaluate(async (worker) => {

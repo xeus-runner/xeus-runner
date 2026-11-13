@@ -17,4 +17,18 @@ describe('Sqlite kernel', () => {
     expect(kernel.isWorker).toEqual(worker);
     expect(kernel.isDisposed).toBeTruthy();
   });
+
+  it.each([false, true])('writes errors to stderr, worker: %s', async (worker) => {
+    const kernel = new XeusKernel({ type: 'sqlite', worker });
+    await kernel.execute({ code: '%CREATE mydb.db mydb' });
+    const raiseReturn = await kernel.execute({
+      code: 'SELECT * FROM no_such_table;\nSELECT "Not reached";',
+    });
+    kernel.dispose();
+
+    expect(raiseReturn.stdout).toBeUndefined();
+    expect(raiseReturn.stderr).toMatch(/no such table/);
+    expect(kernel.isWorker).toEqual(worker);
+    expect(kernel.isDisposed).toBeTruthy();
+  });
 });

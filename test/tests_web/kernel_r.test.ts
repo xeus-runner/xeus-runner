@@ -85,5 +85,29 @@ ggplot(data, aes(x = x, y = y)) +
       await expect(childImages).toHaveCount(1);
       expect(await childImages.nth(0).getAttribute('src')).toMatch(/^data:image\/png;base64,/);
     });
+
+    test(`writes errors to stderr, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({ type: 'r', worker });
+        const raiseReturn = await kernel.execute({
+          code: 'stop("Some error")\nprint("Not reached")',
+        });
+        const assertReturn = await kernel.execute({
+          code: 'stopifnot("Some assert" = 1 == 2)\nprint("Not reached")',
+        });
+        kernel.dispose();
+        const { isDisposed, isWorker } = kernel;
+        return { raiseReturn, assertReturn, isWorker, isDisposed, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.raiseReturn.stdout).toBeUndefined();
+      expect(output.raiseReturn.stderr).toMatch(/Some error/);
+      expect(output.assertReturn.stdout).toBeUndefined();
+      expect(output.assertReturn.stderr).toMatch(/Some assert/);
+      expect(output.isWorker).toEqual(worker);
+      expect(output.isDisposed).toBeTruthy();
+      expect(output.coi).toEqual(coi);
+    });
   });
 });

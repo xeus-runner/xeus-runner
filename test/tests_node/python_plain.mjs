@@ -7,7 +7,13 @@ const worker = process.argv.includes('--worker');
 
 const kernel = new XeusKernel({ type: 'python', worker });
 const executeReturn = await kernel.execute({ code: 'print("Hello from Python!")' });
+const raiseReturn = await kernel.execute({
+  code: 'raise RuntimeError("Some error")\nprint("Not reached")',
+});
+const assertReturn = await kernel.execute({
+  code: 'assert 1 == 2, "Some assert"\nprint("Not reached")',
+});
 const { isWorker } = kernel;
 kernel.dispose();
 
-console.log(JSON.stringify({ executeReturn, isWorker }));
+console.log(JSON.stringify({ executeReturn, raiseReturn, assertReturn, isWorker }));
