@@ -14,6 +14,24 @@ describe('Python kernel', () => {
     expect(kernel.isDisposed).toBeTruthy();
   });
 
+  it.each([false, true])('writes errors to stderr, worker: %s', async (worker) => {
+    const kernel = new XeusKernel({ type: 'python', worker });
+    const raiseReturn = await kernel.execute({
+      code: 'raise RuntimeError("Some error")\nprint("Not reached")',
+    });
+    const assertReturn = await kernel.execute({
+      code: 'assert 1 == 2, "Some assert"\nprint("Not reached")',
+    });
+    kernel.dispose();
+
+    expect(raiseReturn.stdout).toBeUndefined();
+    expect(raiseReturn.stderr).toMatch(/RuntimeError: Some error/);
+    expect(assertReturn.stdout).toBeUndefined();
+    expect(assertReturn.stderr).toMatch(/AssertionError: Some assert/);
+    expect(kernel.isWorker).toEqual(worker);
+    expect(kernel.isDisposed).toBeTruthy();
+  });
+
   it.each([false, true])('runs with StreamMessageHandler, worker: %s', async (worker) => {
     const kernel = new XeusKernel({
       type: 'python',

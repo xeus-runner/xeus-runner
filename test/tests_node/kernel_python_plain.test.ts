@@ -15,6 +15,10 @@ describe('Plain JavaScript', () => {
 
     expect(output.executeReturn.stdout).toBe('Hello from Python!\n');
     expect(output.executeReturn.stderr).toBeUndefined();
+    expect(output.raiseReturn.stdout).toBeUndefined();
+    expect(output.raiseReturn.stderr).toMatch(/RuntimeError: Some error/);
+    expect(output.assertReturn.stdout).toBeUndefined();
+    expect(output.assertReturn.stderr).toMatch(/AssertionError: Some assert/);
     expect(output.isWorker).toEqual(worker);
   });
 });

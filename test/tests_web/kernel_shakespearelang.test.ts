@@ -115,5 +115,44 @@ Ophelia:
       expect(output.isDisposed).toBeTruthy();
       expect(output.coi).toEqual(coi);
     });
+
+    // TODO: skipped as division by zero hangs the test run. Needs fixing either here or upstream.
+    test.skip(`writes errors to stderr, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const kernel = new (globalThis as any).XeusKernel({
+          type: 'shakespearelang',
+          worker,
+          channels: ['standard-4x'], // Temporary
+        });
+        const raiseReturn = await kernel.execute({
+          code: `An Erroneous Play.
+
+Romeo, a young man.
+Juliet, a young woman.
+
+                    Act I: The error.
+
+                    Scene I: Division by zero.
+
+[Enter Romeo and Juliet]
+
+Juliet:
+ You are as good as the quotient between a cat and nothing.
+ Open your heart!
+
+[Exeunt]`,
+        });
+        kernel.dispose();
+        const { isDisposed, isWorker } = kernel;
+        return { raiseReturn, isWorker, isDisposed, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.raiseReturn.stdout).toBeUndefined();
+      expect(output.raiseReturn.stderr).toMatch(/zero/i);
+      expect(output.isWorker).toEqual(worker);
+      expect(output.isDisposed).toBeTruthy();
+      expect(output.coi).toEqual(coi);
+    });
   });
 });
