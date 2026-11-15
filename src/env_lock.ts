@@ -37,6 +37,11 @@ export async function createEnvLock(options: {
     throw new Error('No packages specified');
   }
 
+  // Avoid pyjs 4.3.0
+  if (packages.includes('xeus-python')) {
+    packages.push('pyjs<4.3');
+  }
+
   let yml = 'channels:\n';
   channels.forEach((channel) => {
     yml += `- ${channel}\n`;
