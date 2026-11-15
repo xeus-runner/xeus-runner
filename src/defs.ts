@@ -137,6 +137,21 @@ export namespace IXeusKernel {
   export type IOnMessage = (msg: any) => void;
 
   /**
+   * Progress of kernel installation.
+   */
+  export interface IProgress {
+    /**
+     * Fraction of installation completed, from 0 to 1 (ready).
+     */
+    fraction: number;
+
+    /**
+     * Descriptive progress message.
+     */
+    message: string;
+  }
+
+  /**
    * Supported target platforms.
    */
   export type Platform = 'emscripten-wasm32' | 'emscripten-wasm64';

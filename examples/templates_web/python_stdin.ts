@@ -6,7 +6,7 @@ import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
-  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+  messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
   // :worker:
 });
 await kernel.execute({ code: 'name = input("What is your name?")' });

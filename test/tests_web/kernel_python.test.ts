@@ -165,6 +165,34 @@ print(p.system(), p.machine(), p.release())`;
       expect(output.coi).toEqual(coi);
     });
 
+    test(`shows DOM progress, worker: ${worker}, coi: ${coi}`, async ({ page }) => {
+      await coiNavigate(page, { coi });
+      const output = await page.evaluate(async (worker) => {
+        const g = globalThis as any;
+        const progressElement = document.createElement('div');
+        progressElement.id = 'progress';
+        document.body.append(progressElement);
+        const kernel = new g.XeusKernel({
+          type: 'python',
+          messageHandler: new g.DOMMessageHandler({ targetElement: 'target', progressElement }),
+          worker,
+        });
+        await kernel.ready;
+        kernel.dispose();
+        return { isWorker: kernel.isWorker, coi: crossOriginIsolated };
+      }, worker);
+
+      expect(output.isWorker).toEqual(worker);
+      expect(output.coi).toEqual(coi);
+
+      const bar = page.locator('#progress > progress.xr-progress');
+      await expect(bar).toHaveCount(1);
+      await expect(bar).toHaveJSProperty('value', 1);
+      const message = page.locator('#progress > span.xr-progress-message');
+      await expect(message).toHaveCount(1);
+      await expect(message).toHaveText('Kernel ready');
+    });
+
     test(`supports pyemscripten wheels from PyPI, worker: ${worker}, coi: ${coi}`, async ({
       page,
     }) => {

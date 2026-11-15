@@ -4,7 +4,7 @@ import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'sqlite',
-  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+  messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
   // :worker:
 });
 await kernel.execute({ code: '%CREATE mydb.db mydb' });

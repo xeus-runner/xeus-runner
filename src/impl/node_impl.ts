@@ -15,7 +15,7 @@ export abstract class NodeXeusKernelImpl extends MambajsXeusKernelImpl {
 
     const jsText = await blob.text();
     const module = { exports: {} as any };
-    this._log(ILogger.Level.Info, 'importing kernel');
+    this.log(ILogger.Level.Info, 'importing kernel');
     new Function('module', 'exports', jsText)(module, module.exports);
     g.createXeusModule = module.exports;
 
@@ -28,8 +28,8 @@ export abstract class NodeXeusKernelImpl extends MambajsXeusKernelImpl {
     await super.initializeModule(options);
     // Send emscripten stdout/stderr to the logger rather than console.log/error.
     return {
-      print: (text: string) => this._log(ILogger.Level.Info, text),
-      printErr: (text: string) => this._log(ILogger.Level.Warning, text),
+      print: (text: string) => this.log(ILogger.Level.Info, text),
+      printErr: (text: string) => this.log(ILogger.Level.Warning, text),
     };
   }
 }

@@ -5,7 +5,7 @@ import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 const kernel = new XeusKernel({
   type: 'shakespearelang',
   channels: ['standard-4x'], // Until xeus-shakespearelang for 6x is available
-  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+  messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
   // :worker:
 });
 const code = `Do Not Adieu, a play in two acts.

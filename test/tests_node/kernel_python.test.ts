@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
-import { StreamMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
+import type { IXeusKernel } from '@xeus-runner/xeus-runner';
+import { BaseMessageHandler, TerminalMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 describe('Python kernel', () => {
   it.each([false, true])('runs, worker: %s', async (worker) => {
@@ -32,11 +33,11 @@ describe('Python kernel', () => {
     expect(kernel.isDisposed).toBeTruthy();
   });
 
-  it.each([false, true])('runs with StreamMessageHandler, worker: %s', async (worker) => {
+  it.each([false, true])('runs with TerminalMessageHandler, worker: %s', async (worker) => {
     const kernel = new XeusKernel({
       type: 'python',
       worker,
-      messageHandler: new StreamMessageHandler(),
+      messageHandler: new TerminalMessageHandler(),
     });
     // Wait for kernel to start before mocking stdout/stderr, as xeus-python writes some
     // unconditional debug output to console.log during initialisation. If using a worker this
@@ -67,6 +68,53 @@ describe('Python kernel', () => {
     expect(stderr).toMatch(/Error\n$/);
     expect(kernel.isWorker).toEqual(worker);
     expect(kernel.isDisposed).toBeTruthy();
+  });
+
+  it.each([false, true])('reports progress to message handler, worker: %s', async (worker) => {
+    class ProgressMessageHandler extends BaseMessageHandler {
+      progress(progress: IXeusKernel.IProgress): void {
+        this.progresses.push(progress);
+      }
+      stderr(): void {}
+      stdout(): void {}
+      progresses: IXeusKernel.IProgress[] = [];
+    }
+
+    const messageHandler = new ProgressMessageHandler();
+    const kernel = new XeusKernel({ type: 'python', worker, messageHandler });
+    await kernel.ready;
+    kernel.dispose();
+
+    const { progresses } = messageHandler;
+    const fractions = progresses.map((p) => p.fraction);
+    expect(fractions.every((f) => f >= 0 && f <= 1)).toBeTruthy();
+    expect(fractions.every((f, i) => i === 0 || f >= fractions[i - 1])).toBeTruthy();
+    const downloadRegex = /^Downloading and extracting packages \(\d+\/\d+\)$/;
+    expect(progresses.some((p) => downloadRegex.test(p.message))).toBeTruthy();
+    expect(progresses.at(-1)).toEqual({ fraction: 1, message: 'Kernel ready' });
+  });
+
+  it.each([false, true])('shows terminal progress, worker: %s', async (worker) => {
+    // Mock stdout before creating kernel so that all progress output is captured. Not a TTY here
+    // so progress is written as one line per update. xeus-python also writes debug output to
+    // stdout during initialisation, so only check for the final progress line.
+    let stdout = '';
+    const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation((text) => {
+      stdout += text;
+      return true;
+    });
+
+    const kernel = new XeusKernel({
+      type: 'python',
+      worker,
+      messageHandler: new TerminalMessageHandler({ showProgress: true }),
+    });
+    await kernel.ready;
+    kernel.dispose();
+
+    stdoutSpy.mockRestore();
+
+    expect(stdout).toMatch(/^█{30} 100% Kernel ready$/m);
   });
 
   it.each([false, true])('accepts envLock, worker: %s', async (worker) => {

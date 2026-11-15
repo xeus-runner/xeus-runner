@@ -20,6 +20,8 @@ export abstract class BaseMessageHandler implements IMessageHandler {
     return false;
   }
 
+  progress(_progress: IXeusKernel.IProgress): void {}
+
   abstract stderr(requestId: string, text: string): void;
 
   async stdin(

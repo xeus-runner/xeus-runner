@@ -9,6 +9,7 @@ export interface IMessageHandler {
   html(requestId: string, html: string): boolean;
   image(requestId: string, buffer: string): boolean; // Assumes PNG, need to do more than this.
   javascript(requestId: string, jsCode: string): boolean;
+  progress(progress: IXeusKernel.IProgress): void;
   stderr(requestId: string, text: string): void;
   stdin(requestId: string, prompt: string, password: boolean): Promise<string | undefined>;
   stdout(requestId: string, text: string): void;

@@ -18,6 +18,10 @@ body {
   margin: 0.5em;
 }
 
+.xr-progress {
+  margin-right: 0.5em;
+}
+
 .xr-stdout {
   border: solid 1px silver;
   background-color: whitesmoke;

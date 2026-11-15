@@ -5,7 +5,7 @@ import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 const kernel = new XeusKernel({
   type: 'python',
   packages: ['bokeh'],
-  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+  messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
   // :worker:
 });
 

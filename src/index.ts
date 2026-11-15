@@ -9,7 +9,7 @@ export {
   BaseMessageHandler,
   DOMMessageHandler,
   IMessageHandler,
-  StreamMessageHandler,
+  TerminalMessageHandler,
   TextMessageHandler,
 } from './message_handler';
 export { version } from './version';

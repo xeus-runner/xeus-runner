@@ -11,6 +11,13 @@ export class DOMMessageHandler implements IMessageHandler {
     const { targetElement } = options;
     this._targetElement =
       targetElement instanceof Element ? targetElement : document.getElementById(targetElement)!;
+    const { progressElement } = options;
+    if (progressElement !== undefined) {
+      this._progressElement =
+        progressElement instanceof Element
+          ? progressElement
+          : document.getElementById(progressElement)!;
+    }
     this._cssClassPrefix = options.cssClassPrefix ?? 'xr';
     this._showCode = options.showCode ?? true;
     this._wantCodeMirror = options.useCodeMirror ?? true;
@@ -95,6 +102,22 @@ export class DOMMessageHandler implements IMessageHandler {
     });
   }
 
+  progress(progress: IXeusKernel.IProgress): void {
+    if (this._progressElement === undefined) {
+      return;
+    }
+    if (this._progressBar === undefined) {
+      this._progressBar = document.createElement('progress');
+      this._progressBar.max = 1;
+      this._progressBar.className = `${this._cssClassPrefix}-progress`;
+      this._progressMessage = document.createElement('span');
+      this._progressMessage.className = `${this._cssClassPrefix}-progress-message`;
+      this._progressElement.append(this._progressBar, this._progressMessage);
+    }
+    this._progressBar.value = progress.fraction;
+    this._progressMessage!.textContent = progress.message;
+  }
+
   stdout(requestId: string, text: string): void {
     if (text.length > 0) {
       const div = this._getOrCreateDiv(
@@ -138,6 +161,9 @@ export class DOMMessageHandler implements IMessageHandler {
   }
 
   private readonly _targetElement: Element;
+  private readonly _progressElement?: Element;
+  private _progressBar?: HTMLProgressElement;
+  private _progressMessage?: HTMLSpanElement;
   private readonly _cssClassPrefix: string;
   private readonly _showCode: boolean;
   private readonly _wantCodeMirror: boolean;
@@ -151,6 +177,12 @@ export namespace DOMMessageHandler {
      * Target element or its string `id` to add new child divs to.
      */
     targetElement: Element | string;
+
+    /**
+     * Element or its string `id` to show kernel installation progress in. Default is no progress
+     * shown.
+     */
+    progressElement?: Element | string;
 
     /**
      * Prefix for CSS class names of generated `div` elements. Default is `xr`.

@@ -5,7 +5,7 @@ import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 const kernel = new XeusKernel({
   type: 'r',
   packages: ['r-ggplot2'],
-  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+  messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
   // :worker:
 });
 const code = `library(ggplot2)

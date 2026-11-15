@@ -91,6 +91,7 @@ for (const file of tsFiles) {
 
   const ts = source
     .replace(workerRegex, "$1worker: new URLSearchParams(location.search).has('worker'),")
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: literal text for a template string in the generated code
     .replaceAll('{{ workerName }}', "${kernel.isWorker ? 'web worker' : 'main thread'}");
   writeFileSync(join(tmpDir, `${name}.ts`), ts);
 }

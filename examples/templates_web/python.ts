@@ -5,7 +5,7 @@ import { DOMMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 const kernel = new XeusKernel({
   type: 'python',
   packages: ['numpy'],
-  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+  messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
   // :worker:
 });
 const code = `import numpy as np

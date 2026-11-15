@@ -142,6 +142,11 @@ export class XeusKernel implements IXeusKernel {
       return;
     }
 
+    if (msg?.progress !== undefined) {
+      this._messageHandler.progress(msg.progress);
+      return;
+    }
+
     // Don't like using lastParentMsgId, but _stream messages do not have a parent_header.
     const requestId: string | undefined = msg.parent_header?.msg_id ?? this._latestRequestId;
     this._log(ILogger.Level.Debug, 'processWorkerMessage', msg, requestId);
@@ -290,17 +295,15 @@ export class XeusKernel implements IXeusKernel {
     return `${this._requestIndex}`;
   }
 
+  private _bridge: IBridge;
+  private _disposed = new Signal<this, void>(this);
+  private _executeDelegates: Map<string, PromiseDelegate<void>> = new Map();
   private _kernelType: IKernelType;
-  private _logger?: ILogger;
-
   private _isDisposed = false;
   private _isWorker: boolean;
-  private _disposed = new Signal<this, void>(this);
-  private _ready = new PromiseDelegate<void>();
-  private _bridge: IBridge;
-
-  private _executeDelegates: Map<string, PromiseDelegate<void>> = new Map();
-  private _requestIndex = -1; // Last request index used.
   private _latestRequestId?: string;
+  private _logger?: ILogger;
   private _messageHandler: IMessageHandler;
+  private _ready = new PromiseDelegate<void>();
+  private _requestIndex = -1; // Last request index used.
 }

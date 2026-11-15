@@ -6,7 +6,7 @@ const kernel = new XeusKernel({
   type: 'python',
   packages: ['numpy'],
   pipPackages: ['contourpy'],
-  messageHandler: new DOMMessageHandler({ targetElement: 'target' }),
+  messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
   // :worker:
 });
 

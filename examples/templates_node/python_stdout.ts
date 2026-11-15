@@ -1,11 +1,11 @@
 // Python example streaming output to stdout and stderr.
 
-import { FileLogger, StreamMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
+import { FileLogger, TerminalMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 const kernel = new XeusKernel({
   type: 'python',
   packages: ['numpy'],
-  messageHandler: new StreamMessageHandler(),
+  messageHandler: new TerminalMessageHandler({ showProgress: process.stdout.isTTY }),
   logger: new FileLogger({ filename: 'xeus-runner.log' }),
   worker: process.argv.includes('--worker'),
 });
