@@ -165,25 +165,14 @@ export class XeusKernel implements IXeusKernel {
           }
         } else if (msgType === 'execute_input' && content.code) {
           messageHandler.code(requestId, this._kernelType.language, content.code);
-        } else if (msgType === 'display_data' || msgType === 'execute_result') {
+        } else if (
+          msgType === 'display_data' ||
+          msgType === 'execute_result' ||
+          msgType === 'update_display_data'
+        ) {
           const { data } = content; // data is an nbformat.IMimeBundle
-          let handled = false;
-          // Only process one of the data types. Might be better if messageHandler advertises what
-          // it accepts.
-          if (!handled && 'application/javascript' in data) {
-            handled = messageHandler.javascript(requestId, data['application/javascript']);
-          }
-          if (!handled && 'text/html' in data) {
-            handled = messageHandler.html(requestId, data['text/html']);
-          }
-          if (!handled && 'image/png' in data) {
-            const buffer = `data:image/png;base64,${data['image/png']}`;
-            handled = messageHandler.image(requestId, buffer);
-          }
-          if (!handled && 'text/plain' in data) {
-            // Could be text/html too.
-            const text = data['text/plain'];
-            messageHandler.stdout(requestId, text);
+          if (!messageHandler.mimeBundle(requestId, data) && 'text/plain' in data) {
+            messageHandler.stdout(requestId, data['text/plain']);
           }
         } else if (msgType === 'error') {
           const { ename, evalue, traceback } = content;

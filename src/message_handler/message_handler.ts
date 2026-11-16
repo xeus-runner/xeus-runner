@@ -6,12 +6,20 @@ import type { IXeusKernel } from '../defs';
  */
 export interface IMessageHandler {
   code(requestId: string, language: string, code: string): void;
-  html(requestId: string, html: string): boolean;
-  image(requestId: string, buffer: string): boolean; // Assumes PNG, need to do more than this.
-  javascript(requestId: string, jsCode: string): boolean;
+
+  /**
+   * Handle the MIME bundle of a display_data, update_display_data or execute_result message.
+   * Return true if handled, otherwise the text/plain entry (if any) is passed to stdout.
+   */
+  mimeBundle(requestId: string, data: { [mimeType: string]: unknown }): boolean;
+
   progress(progress: IXeusKernel.IProgress): void;
+
   stderr(requestId: string, text: string): void;
+
   stdin(requestId: string, prompt: string, password: boolean): Promise<string | undefined>;
+
   stdout(requestId: string, text: string): void;
+
   toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn;
 }

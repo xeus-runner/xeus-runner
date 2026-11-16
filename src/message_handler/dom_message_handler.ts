@@ -44,27 +44,28 @@ export class DOMMessageHandler implements IMessageHandler {
     }
   }
 
-  html(requestId: string, html: string): boolean {
-    if (html.length > 0) {
+  mimeBundle(requestId: string, data: { [mimeType: string]: unknown }): boolean {
+    // Only process one of the data types.
+    const js = data['application/javascript'];
+    if (typeof js === 'string') {
+      new Function(js)();
+      return true;
+    }
+    const html = data['text/html'];
+    if (typeof html === 'string' && html.length > 0) {
       const div = this._createDiv(this._requestIdDiv(requestId), `${this._cssClassPrefix}-html`);
       div.innerHTML = html;
       return true;
     }
+    const png = data['image/png'];
+    if (typeof png === 'string') {
+      const div = this._createDiv(this._requestIdDiv(requestId), `${this._cssClassPrefix}-image`);
+      const image = new Image();
+      image.src = `data:image/png;base64,${png}`;
+      div.appendChild(image);
+      return true;
+    }
     return false;
-  }
-
-  image(requestId: string, buffer: string): boolean {
-    const div = this._createDiv(this._requestIdDiv(requestId), `${this._cssClassPrefix}-image`);
-    const image = new Image();
-    image.src = buffer;
-    div.appendChild(image);
-    return true;
-  }
-
-  javascript(_requestId: string, jsCode: string): boolean {
-    const func = new Function(jsCode);
-    func();
-    return true;
   }
 
   stderr(requestId: string, text: string): void {

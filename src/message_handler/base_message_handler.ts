@@ -8,15 +8,7 @@ import type { IMessageHandler } from './message_handler';
 export abstract class BaseMessageHandler implements IMessageHandler {
   code(_requestId: string, _language: string, _code: string): void {}
 
-  html(_requestId: string, _html: string): boolean {
-    return false;
-  }
-
-  image(_requestId: string, _buffer: string): boolean {
-    return false;
-  }
-
-  javascript(_requestId: string, _jsCode: string): boolean {
+  mimeBundle(_requestId: string, _data: { [mimeType: string]: unknown }): boolean {
     return false;
   }
 
