@@ -1,4 +1,4 @@
-import type { IXeusKernel } from '../defs';
+import type { InstallProgress } from '../defs';
 import { BaseMessageHandler } from './base_message_handler';
 
 /**
@@ -6,12 +6,12 @@ import { BaseMessageHandler } from './base_message_handler';
  * are received, and optionally shows kernel installation progress on process.stdout, for node only.
  */
 export class TerminalMessageHandler extends BaseMessageHandler {
-  constructor(options: TerminalMessageHandler.IOptions = {}) {
+  constructor(options: TerminalMessageHandlerOptions = {}) {
     super();
     this._showProgress = options.showProgress ?? false;
   }
 
-  progress(progress: IXeusKernel.IProgress): void {
+  progress(progress: InstallProgress): void {
     if (!this._showProgress) {
       return;
     }
@@ -40,11 +40,9 @@ export class TerminalMessageHandler extends BaseMessageHandler {
   private readonly _showProgress: boolean;
 }
 
-export namespace TerminalMessageHandler {
-  export interface IOptions {
-    /**
-     * Whether to show kernel installation progress on process.stdout. Default is `false`.
-     */
-    showProgress?: boolean;
-  }
+export interface TerminalMessageHandlerOptions {
+  /**
+   * Whether to show kernel installation progress on process.stdout. Default is `false`.
+   */
+  showProgress?: boolean;
 }

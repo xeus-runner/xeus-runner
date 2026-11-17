@@ -1,8 +1,9 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import { create } from '@emscripten-forge/mambajs';
-import type { ILogger as IMambaLogger } from '@emscripten-forge/mambajs-core';
-import type { IXeusKernel } from './defs';
-import { ILogger } from './logger';
+import type { ILogger as MambaLogger } from '@emscripten-forge/mambajs-core';
+import type { Platform } from './defs';
+import type { Logger } from './logger';
+import { LogLevel } from './logger';
 
 // Standard channel aliases, 'standard' currently points to 'standard-6x'.
 const STANDARD_CHANNELS: { [alias: string]: string[] } = {
@@ -21,8 +22,8 @@ export async function createEnvLock(options: {
   channels?: string[];
   packages: string[];
   pipPackages?: string[];
-  platform?: IXeusKernel.Platform;
-  logger?: ILogger;
+  platform?: Platform;
+  logger?: Logger;
 }): Promise<ILock> {
   const { logger, packages, pipPackages, platform } = options;
   const channels = (options.channels ?? ['standard']).flatMap(
@@ -54,12 +55,12 @@ export async function createEnvLock(options: {
     });
   }
 
-  let mambaLogger: IMambaLogger | undefined;
+  let mambaLogger: MambaLogger | undefined;
   if (logger !== undefined) {
     mambaLogger = {
-      log: (...msg) => logger.log(ILogger.Level.Info, ...msg),
-      warn: (...msg) => logger.log(ILogger.Level.Warning, ...msg),
-      error: (...msg) => logger.log(ILogger.Level.Error, ...msg),
+      log: (...msg) => logger.log(LogLevel.Info, ...msg),
+      warn: (...msg) => logger.log(LogLevel.Warning, ...msg),
+      error: (...msg) => logger.log(LogLevel.Error, ...msg),
     };
   }
 

@@ -1,29 +1,29 @@
-interface IMainOptions {
+interface CoincidentMainOptions {
   transform?: any;
   encoder?: any;
   transfer?: boolean;
 }
 
-interface IMainReturn {
+interface CoincidentMainReturn {
   Worker: typeof Worker & { proxy: typeof Proxy };
   native: boolean;
   transfer: any;
 }
 
 declare module 'coincident/main' {
-  export default function coincident(options?: IMainOptions): IMainReturn;
+  export default function coincident(options?: CoincidentMainOptions): CoincidentMainReturn;
 }
 
 declare module 'coincident/window/main' {
-  export default function coincident(options?: IMainOptions): IMainReturn;
+  export default function coincident(options?: CoincidentMainOptions): CoincidentMainReturn;
 }
 
-interface IWorkerOptions extends IMainOptions {
+interface CoincidentWorkerOptions extends CoincidentMainOptions {
   minByteLength?: number;
   maxByteLength?: number;
 }
 
-interface IWorkerReturn {
+interface CoincidentWorkerReturn {
   proxy: any;
   native: boolean;
   transfer: any;
@@ -31,16 +31,20 @@ interface IWorkerReturn {
   sync: boolean;
 }
 
-interface IWindowWorkerReturn extends IWorkerReturn {
+interface CoincidentWindowWorkerReturn extends CoincidentWorkerReturn {
   ffi: any;
   isWindowProxy: any;
   window: Window;
 }
 
 declare module 'coincident/worker' {
-  export default function coincident(options?: IWorkerOptions): Promise<IWorkerReturn>;
+  export default function coincident(
+    options?: CoincidentWorkerOptions,
+  ): Promise<CoincidentWorkerReturn>;
 }
 
 declare module 'coincident/window/worker' {
-  export default function coincident(options?: IWorkerOptions): Promise<IWindowWorkerReturn>;
+  export default function coincident(
+    options?: CoincidentWorkerOptions,
+  ): Promise<CoincidentWindowWorkerReturn>;
 }

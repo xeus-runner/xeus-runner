@@ -1,15 +1,15 @@
 import type { Worker } from 'node:worker_threads';
 import type { ILock } from '@emscripten-forge/mambajs';
 import { PromiseDelegate } from '@lumino/coreutils';
-import type { IXeusKernel } from '../defs';
-import type { IXeusKernelImplOptions } from '../impl';
-import type { IBridge } from './bridge';
+import type { OnError, OnMessage } from '../defs';
+import type { XeusKernelImplOptions } from '../impl';
+import type { Bridge } from './bridge';
 
 /**
  * Bridge to kernel impl running in node worker.
  */
-export class NodeWorkerBridge implements IBridge {
-  protected async createWorker(_options: IXeusKernelImplOptions): Promise<Worker> {
+export class NodeWorkerBridge implements Bridge {
+  protected async createWorker(_options: XeusKernelImplOptions): Promise<Worker> {
     // Dynamic import so that browser bundles do not contain a static import of a node module.
     const { Worker } = await import('node:worker_threads');
     return new Worker(new URL('./node_worker_impl.js', import.meta.url));
@@ -32,18 +32,18 @@ export class NodeWorkerBridge implements IBridge {
   }
 
   async initialize(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
-    onError: IXeusKernel.IOnError,
+    options: XeusKernelImplOptions,
+    onMessage: OnMessage,
+    onError: OnError,
   ): Promise<void> {
     this._worker = await this.createWorker(options);
     return this.initWorker(options, onMessage, onError);
   }
 
   protected initWorker(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
-    onError: IXeusKernel.IOnError,
+    options: XeusKernelImplOptions,
+    onMessage: OnMessage,
+    onError: OnError,
   ): Promise<void> {
     const promiseDelegate = new PromiseDelegate<void>();
     const { worker } = this;

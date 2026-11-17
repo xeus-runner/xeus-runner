@@ -6,8 +6,30 @@ declare const CodeMirror: any;
 const CODE_MIRROR_VERSION = '6.65.7';
 const CODE_MIRROR_BASE = `https://cdnjs.cloudflare.com/ajax/libs/codemirror/${CODE_MIRROR_VERSION}`;
 
-export namespace CodeMirrorNs {
-  export function applyToDiv(div: HTMLDivElement, language: string) {
+/**
+ * Syntax highlights code in div elements using CodeMirror, loading it from a CDN on first use.
+ */
+export class CodeMirrorHighlighter {
+  /**
+   * Highlight the code in a div, if the language is supported. Loads CodeMirror if necessary.
+   */
+  highlight(div: HTMLDivElement, language: string): void {
+    if (!this.supportsLanguage(language)) {
+      return;
+    }
+    this._ready ??= this._init(language);
+    // If CodeMirror fails to load, leave the code unhighlighted.
+    this._ready.then(
+      () => this._applyToDiv(div, language),
+      () => {},
+    );
+  }
+
+  supportsLanguage(language: string): boolean {
+    return language !== 'shakespearelang';
+  }
+
+  private _applyToDiv(div: HTMLDivElement, language: string): void {
     const CodeMirror = (globalThis as any).CodeMirror;
     div.classList.add('cm-s-default');
     CodeMirror.runMode(div.textContent, getLanguage(language), div, {
@@ -16,7 +38,7 @@ export namespace CodeMirrorNs {
     });
   }
 
-  export async function init(language: string): Promise<void> {
+  private async _init(language: string): Promise<void> {
     language = getLanguage(language);
     await Promise.all([
       loadStylesheet(`${CODE_MIRROR_BASE}/codemirror.min.css`),
@@ -26,9 +48,7 @@ export namespace CodeMirrorNs {
     await loadScript(`${CODE_MIRROR_BASE}/mode/${language}/${language}.min.js`);
   }
 
-  export function supportsLanguage(language: string): boolean {
-    return language !== 'shakespearelang';
-  }
+  private _ready?: Promise<void>;
 }
 
 function getLanguage(input: string): string {

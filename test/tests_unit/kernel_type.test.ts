@@ -1,8 +1,8 @@
-import type { IKernelType } from '../../src/kernel_type';
+import type { KernelType } from '../../src/kernel_type';
 import { createKernelType } from '../../src/kernel_type';
 
 describe('createKernelType', () => {
-  const params: [string, IKernelType][] = [
+  const params: [string, KernelType][] = [
     ['cpp', { packageName: 'xeus-cpp', language: 'C++', specName: 'xcpp23' }],
     ['c++', { packageName: 'xeus-cpp', language: 'C++', specName: 'xcpp23' }],
     ['cpp17', { packageName: 'xeus-cpp', language: 'C++', specName: 'xcpp17' }],

@@ -1,15 +1,16 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { KernelMessage } from '@jupyterlab/services';
 import coincident from 'coincident/window/worker';
-import type { IXeusKernelImplOptions } from './options';
+import type { XeusKernelImplOptions } from './options';
 import { WebWorkerXeusKernelImpl } from './web_worker_impl';
 
 /**
- * Coincident web worker as seen from main UI thread.
+ * Proxy for the CoincidentWebWorkerXeusKernelImpl running in a web worker, as seen from the main UI
+ * thread.
  */
-export interface ICoincidentWebWorkerKernel {
+export interface CoincidentWebWorkerProxy {
   envLock(): Promise<ILock | undefined>;
-  initialize(options: IXeusKernelImplOptions): Promise<void>;
+  initialize(options: XeusKernelImplOptions): Promise<void>;
   onmessage: (event: any) => void;
   processMessage: (msg: any) => Promise<void>;
 
@@ -31,7 +32,7 @@ class CoincidentWebWorkerXeusKernelImpl extends WebWorkerXeusKernelImpl {
     ): KernelMessage.IInputReplyMsg => proxy.processStdinRequest(inputRequest);
   }
 
-  initProxy(proxy: ICoincidentWebWorkerKernel): void {
+  initProxy(proxy: CoincidentWebWorkerProxy): void {
     // Functions in web worker that are called from main thread.
     proxy.envLock = this.envLock.bind(this);
     proxy.initialize = this.initialize.bind(this);
@@ -43,7 +44,7 @@ class CoincidentWebWorkerXeusKernelImpl extends WebWorkerXeusKernelImpl {
 }
 
 const coincidentWorker = await coincident();
-const proxy = coincidentWorker.proxy as ICoincidentWebWorkerKernel;
+const proxy = coincidentWorker.proxy as CoincidentWebWorkerProxy;
 
 const { window } = coincidentWorker;
 if (globalThis.crossOriginIsolated && window) {

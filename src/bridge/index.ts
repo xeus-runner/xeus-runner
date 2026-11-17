@@ -1,4 +1,4 @@
-export { IBridge } from './bridge';
+export { Bridge } from './bridge';
 export { BridgeFactory } from './bridge_factory';
 export { CoincidentWebWorkerBridge } from './coincident_web_worker_bridge';
 export { ComlinkWebWorkerBridge } from './comlink_web_worker_bridge';

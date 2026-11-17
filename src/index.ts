@@ -1,15 +1,32 @@
-export { CoincidentWebWorkerBridge, ComlinkWebWorkerBridge, IBridge } from './bridge';
-export { IXeusKernel } from './defs';
+export { Bridge, CoincidentWebWorkerBridge, ComlinkWebWorkerBridge } from './bridge';
+export {
+  ExecuteOptions,
+  ExecuteReturn,
+  InstallProgress,
+  OnError,
+  OnMessage,
+  Platform,
+  XeusKernelOptions,
+} from './defs';
 export { createEnvLock } from './env_lock';
-export { IXeusKernelImplOptions } from './impl';
+export { XeusKernelImplOptions } from './impl';
 export { XeusKernel } from './kernel';
-export { createKernelType, IKernelType } from './kernel_type';
-export { ConsoleLogger, FileLogger, ILogger } from './logger';
+export { createKernelType, KernelType } from './kernel_type';
+export {
+  ConsoleLogger,
+  ConsoleLoggerOptions,
+  FileLogger,
+  FileLoggerOptions,
+  Logger,
+  LogLevel,
+} from './logger';
 export {
   BaseMessageHandler,
   DOMMessageHandler,
-  IMessageHandler,
+  DOMMessageHandlerOptions,
+  MessageHandler,
   TerminalMessageHandler,
+  TerminalMessageHandlerOptions,
   TextMessageHandler,
 } from './message_handler';
 export { version } from './version';

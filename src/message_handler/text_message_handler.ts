@@ -1,4 +1,4 @@
-import type { IXeusKernel } from '../defs';
+import type { ExecuteReturn } from '../defs';
 import { BaseMessageHandler } from './base_message_handler';
 
 /**
@@ -25,7 +25,7 @@ export class TextMessageHandler extends BaseMessageHandler {
     }
   }
 
-  toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn {
+  toExecuteReturn(requestId: string): ExecuteReturn {
     const stderr = this._stderrs.get(requestId);
     this._stderrs.delete(requestId);
 

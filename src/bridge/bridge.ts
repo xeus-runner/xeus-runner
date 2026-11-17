@@ -1,13 +1,13 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import type { IXeusKernel } from '../defs';
-import type { IXeusKernelImplOptions } from '../impl';
+import type { OnError, OnMessage } from '../defs';
+import type { XeusKernelImplOptions } from '../impl';
 
 /**
  * Bridge from XeusKernel to kernel implementation (impl), encapsulating communication between the
  * two.  If the kernel impl is in the main thread then communication is via simple function calls,
  * if it is in a web worker it is via message handling.
  */
-export interface IBridge {
+export interface Bridge {
   /**
    * Dispose the bridge and its impl.
    */
@@ -25,11 +25,7 @@ export interface IBridge {
    * @param onMessage Handler for messages sent from the impl to the XeusKernel.
    * @param onError Optional callback for errors from the impl, such as a worker crashing.
    */
-  initialize(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
-    onError: IXeusKernel.IOnError,
-  ): Promise<void>;
+  initialize(options: XeusKernelImplOptions, onMessage: OnMessage, onError: OnError): Promise<void>;
 
   /**
    * Send message to kernel impl.

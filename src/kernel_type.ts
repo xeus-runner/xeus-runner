@@ -1,7 +1,7 @@
 /**
  * Unique identifier for kernel type.
  */
-export interface IKernelType {
+export interface KernelType {
   /**
    * Name of the Emscripten-forge package containing the kernel, such as 'xeus-python'.
    */
@@ -44,7 +44,7 @@ export interface IKernelType {
  *
  * @param input
  */
-export function createKernelType(input: string): IKernelType {
+export function createKernelType(input: string): KernelType {
   // Sanitise input.
   input = input.toLowerCase();
   if (input.startsWith('xeus-')) {

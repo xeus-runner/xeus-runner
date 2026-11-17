@@ -1,12 +1,10 @@
-export interface ILogger {
-  log(level: ILogger.Level, ...msg: any[]): void;
+export interface Logger {
+  log(level: LogLevel, ...msg: any[]): void;
 }
 
-export namespace ILogger {
-  export enum Level {
-    Error,
-    Warning,
-    Info,
-    Debug,
-  }
+export enum LogLevel {
+  Error,
+  Warning,
+  Info,
+  Debug,
 }

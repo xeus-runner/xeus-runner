@@ -1,6 +1,6 @@
 import { parentPort } from 'node:worker_threads';
 import { NodeXeusKernelImpl } from './node_impl';
-import type { IXeusKernelImplOptions } from './options';
+import type { XeusKernelImplOptions } from './options';
 
 /**
  * Kernel implementation that runs in a node worker.
@@ -26,7 +26,7 @@ const worker = new NodeWorkerXeusKernelImpl();
 
 port.on('message', async (data: any) => {
   if (data.initialize) {
-    await worker.initialize(data.initialize as IXeusKernelImplOptions);
+    await worker.initialize(data.initialize as XeusKernelImplOptions);
     port.postMessage('ready');
   } else if (data.envLock) {
     port.postMessage({ envLockReply: await worker.envLock() });

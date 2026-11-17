@@ -1,42 +1,41 @@
-import { ILogger } from './logger';
+import type { Logger } from './logger';
+import { LogLevel } from './logger';
 
 /**
  * Logger to the console, for both web browser and node.
- * Default max log level is ILogger.Level.Info
+ * Default max log level is LogLevel.Info
  */
-export class ConsoleLogger implements ILogger {
-  constructor(options: ConsoleLogger.IOptions = {}) {
+export class ConsoleLogger implements Logger {
+  constructor(options: ConsoleLoggerOptions = {}) {
     this.prefix = options.prefix ?? '';
-    this.maxLevel = options.maxLevel ?? ILogger.Level.Info;
+    this.maxLevel = options.maxLevel ?? LogLevel.Info;
   }
 
-  log(level: ILogger.Level, ...msg: any[]): void {
+  log(level: LogLevel, ...msg: any[]): void {
     if (level > this.maxLevel) {
       return;
     }
     switch (level) {
-      case ILogger.Level.Error:
+      case LogLevel.Error:
         console.error(this.prefix, ...msg);
         break;
-      case ILogger.Level.Warning:
+      case LogLevel.Warning:
         console.warn(this.prefix, ...msg);
         break;
-      case ILogger.Level.Info:
+      case LogLevel.Info:
         console.info(this.prefix, ...msg);
         break;
-      case ILogger.Level.Debug:
+      case LogLevel.Debug:
         console.debug(this.prefix, ...msg);
         break;
     }
   }
 
   readonly prefix: string;
-  readonly maxLevel: ILogger.Level;
+  readonly maxLevel: LogLevel;
 }
 
-export namespace ConsoleLogger {
-  export interface IOptions {
-    prefix?: string;
-    maxLevel?: ILogger.Level;
-  }
+export interface ConsoleLoggerOptions {
+  prefix?: string;
+  maxLevel?: LogLevel;
 }

@@ -3,32 +3,29 @@ import type { KernelMessage } from '@jupyterlab/services';
 import { PromiseDelegate, UUID } from '@lumino/coreutils';
 import type { ISignal } from '@lumino/signaling';
 import { Signal } from '@lumino/signaling';
-import type { IBridge } from './bridge';
+import type { Bridge } from './bridge';
 import { BridgeFactory } from './bridge';
-import type { IXeusKernel } from './defs';
-import type { IXeusKernelImplOptions } from './impl';
-import type { IKernelType } from './kernel_type';
+import type { ExecuteOptions, ExecuteReturn, XeusKernelOptions } from './defs';
+import type { XeusKernelImplOptions } from './impl';
+import type { KernelType } from './kernel_type';
 import { createKernelType } from './kernel_type';
-import { ConsoleLogger, ILogger } from './logger';
-import type { IMessageHandler } from './message_handler';
+import type { Logger } from './logger';
+import { ConsoleLogger, LogLevel } from './logger';
+import type { MessageHandler } from './message_handler';
 import { TextMessageHandler } from './message_handler';
 import { isNode, removeAnsiEscapeCodes } from './utils';
 
-export class XeusKernel implements IXeusKernel {
-  constructor(options: IXeusKernel.IOptions) {
+export class XeusKernel {
+  constructor(options: XeusKernelOptions) {
     const { logger, messageHandler, type, worker } = options;
     this._isWorker = worker ?? false;
 
     this._logger =
       logger ??
-      (isNode() ? undefined : new ConsoleLogger({ prefix: '>>>', maxLevel: ILogger.Level.Debug }));
+      (isNode() ? undefined : new ConsoleLogger({ prefix: '>>>', maxLevel: LogLevel.Debug }));
 
-    this._log(ILogger.Level.Debug, 'XeusKernel isWorker', this._isWorker);
-    this._log(
-      ILogger.Level.Debug,
-      'XeusKernel crossOriginIsolated',
-      globalThis.crossOriginIsolated,
-    );
+    this._log(LogLevel.Debug, 'XeusKernel isWorker', this._isWorker);
+    this._log(LogLevel.Debug, 'XeusKernel crossOriginIsolated', globalThis.crossOriginIsolated);
 
     this._kernelType = typeof type === 'string' ? createKernelType(type) : type;
     this._messageHandler = messageHandler ?? new TextMessageHandler();
@@ -36,14 +33,20 @@ export class XeusKernel implements IXeusKernel {
     this.initialize(options); // Will set ready when done.
   }
 
-  protected createBridge(options: IXeusKernel.IOptions): IBridge {
+  protected createBridge(options: XeusKernelOptions): Bridge {
     return new BridgeFactory().createBridge(options);
   }
 
+  /**
+   * Signal emitted when the kernel is disposed.
+   */
   get disposed(): ISignal<this, void> {
     return this._disposed;
   }
 
+  /**
+   * Dispose of the kernel.
+   */
   dispose(): void {
     if (this.isDisposed) {
       return;
@@ -53,12 +56,22 @@ export class XeusKernel implements IXeusKernel {
     this._disposed.emit(void 0);
   }
 
+  /**
+   * Environment lock file used by the kernel.
+   */
   async envLock(): Promise<ILock | undefined> {
     await this.ready;
     return await this._bridge.envLock();
   }
 
-  async execute(options: IXeusKernel.IExecuteOptions): Promise<IXeusKernel.IExecuteReturn> {
+  /**
+   * Execute code in the kernel.
+   * Returns a promise that resolves when the execution is complete containing the text-only returns
+   * from the kernel if they have not already been handled in some other way by a MessageHandler.
+   *
+   * @param options
+   */
+  async execute(options: ExecuteOptions): Promise<ExecuteReturn> {
     const requestId = this._nextRequestId();
 
     const msg: KernelMessage.IExecuteRequestMsg = {
@@ -83,25 +96,25 @@ export class XeusKernel implements IXeusKernel {
     return this._messageHandler.toExecuteReturn(requestId);
   }
 
-  protected async initialize(options: IXeusKernel.IOptions) {
+  protected async initialize(options: XeusKernelOptions) {
     const { channels, envLock, packages, pipPackages, platform } = options;
 
     if (envLock !== undefined) {
       if (options.channels !== undefined) {
-        this._log(ILogger.Level.Warning, "Ignoring 'channels' as using 'envLock'");
+        this._log(LogLevel.Warning, "Ignoring 'channels' as using 'envLock'");
       }
       if (options.packages !== undefined) {
-        this._log(ILogger.Level.Warning, "Ignoring 'packages' as using 'envLock'");
+        this._log(LogLevel.Warning, "Ignoring 'packages' as using 'envLock'");
       }
       if (options.pipPackages !== undefined) {
-        this._log(ILogger.Level.Warning, "Ignoring 'pipPackages' as using 'envLock'");
+        this._log(LogLevel.Warning, "Ignoring 'pipPackages' as using 'envLock'");
       }
       if (options.platform !== undefined) {
-        this._log(ILogger.Level.Warning, "Ignoring 'platform' as using 'envLock'");
+        this._log(LogLevel.Warning, "Ignoring 'platform' as using 'envLock'");
       }
     }
 
-    const implOptions: IXeusKernelImplOptions = {
+    const implOptions: XeusKernelImplOptions = {
       kernelType: this._kernelType,
       envLock,
       channels,
@@ -121,14 +134,23 @@ export class XeusKernel implements IXeusKernel {
       .then(this._ready.resolve.bind(this._ready), this._onError.bind(this));
   }
 
+  /**
+   * Whether the kernel is disposed.
+   */
   get isDisposed(): boolean {
     return this._isDisposed;
   }
 
+  /**
+   * Whether kernel is running in a web worker or the main UI thread.
+   */
   get isWorker(): boolean {
     return this._isWorker;
   }
 
+  /**
+   * Promise that resolves when the kernel is ready to be used.
+   */
   get ready(): Promise<void> {
     return this._ready.promise;
   }
@@ -138,7 +160,7 @@ export class XeusKernel implements IXeusKernel {
    */
   protected receiveMessage(msg: any) {
     if (msg?.log !== undefined) {
-      this._log(...(msg.log as [ILogger.Level, ...any[]]));
+      this._log(...(msg.log as [LogLevel, ...any[]]));
       return;
     }
 
@@ -149,7 +171,7 @@ export class XeusKernel implements IXeusKernel {
 
     // Don't like using lastParentMsgId, but _stream messages do not have a parent_header.
     const requestId: string | undefined = msg.parent_header?.msg_id ?? this._latestRequestId;
-    this._log(ILogger.Level.Debug, 'processWorkerMessage', msg, requestId);
+    this._log(LogLevel.Debug, 'processWorkerMessage', msg, requestId);
     const { channel, content, header } = msg;
     const msgType = header?.msg_type;
     const messageHandler = this._messageHandler;
@@ -264,14 +286,14 @@ export class XeusKernel implements IXeusKernel {
     this.sendMessage(reply);
   }
 
-  private _log(level: ILogger.Level, ...msg: any[]): void {
+  private _log(level: LogLevel, ...msg: any[]): void {
     if (this._logger !== undefined) {
       this._logger.log(level, ...msg);
     }
   }
 
   private _onError(err: Error): void {
-    this._log(ILogger.Level.Error, err);
+    this._log(LogLevel.Error, err);
     this._ready.reject(err);
     for (const executeDelegate of this._executeDelegates.values()) {
       executeDelegate.reject(err);
@@ -284,15 +306,15 @@ export class XeusKernel implements IXeusKernel {
     return `${this._requestIndex}`;
   }
 
-  private _bridge: IBridge;
+  private _bridge: Bridge;
   private _disposed = new Signal<this, void>(this);
   private _executeDelegates: Map<string, PromiseDelegate<void>> = new Map();
-  private _kernelType: IKernelType;
+  private _kernelType: KernelType;
   private _isDisposed = false;
   private _isWorker: boolean;
   private _latestRequestId?: string;
-  private _logger?: ILogger;
-  private _messageHandler: IMessageHandler;
+  private _logger?: Logger;
+  private _messageHandler: MessageHandler;
   private _ready = new PromiseDelegate<void>();
   private _requestIndex = -1; // Last request index used.
 }

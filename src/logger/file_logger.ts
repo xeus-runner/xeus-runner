@@ -1,34 +1,33 @@
-import { ILogger } from './logger';
+import type { Logger } from './logger';
+import { LogLevel } from './logger';
 
 /**
  * Logger to a file, for node only.
- * Default max log level is ILogger.Level.Info
+ * Default max log level is LogLevel.Info
  */
-export class FileLogger implements ILogger {
-  constructor(options: FileLogger.IOptions) {
+export class FileLogger implements Logger {
+  constructor(options: FileLoggerOptions) {
     const g = globalThis as any;
     this._fs = g.process.getBuiltinModule('node:fs');
     this._format = g.process.getBuiltinModule('node:util').format;
     this.filename = options.filename;
-    this.maxLevel = options.maxLevel ?? ILogger.Level.Info;
+    this.maxLevel = options.maxLevel ?? LogLevel.Info;
     this._fs.writeFileSync(this.filename, '');
   }
 
-  log(level: ILogger.Level, ...msg: any[]): void {
+  log(level: LogLevel, ...msg: any[]): void {
     if (level <= this.maxLevel) {
       this._fs.appendFileSync(this.filename, `${this._format(...msg)}\n`);
     }
   }
 
   readonly filename: string;
-  readonly maxLevel: ILogger.Level;
+  readonly maxLevel: LogLevel;
   private _fs: any;
   private _format: (...msg: any[]) => string;
 }
 
-export namespace FileLogger {
-  export interface IOptions {
-    filename: string;
-    maxLevel?: ILogger.Level;
-  }
+export interface FileLoggerOptions {
+  filename: string;
+  maxLevel?: LogLevel;
 }

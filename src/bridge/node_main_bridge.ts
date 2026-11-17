@@ -1,13 +1,13 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import type { IXeusKernel } from '../defs';
-import type { IXeusKernelImplOptions } from '../impl';
+import type { OnError, OnMessage } from '../defs';
+import type { XeusKernelImplOptions } from '../impl';
 import { NodeMainXeusKernelImpl } from '../impl';
-import type { IBridge } from './bridge';
+import type { Bridge } from './bridge';
 
 /**
  * Bridge to kernel impl running in node main UI thread.
  */
-export class NodeMainBridge implements IBridge {
+export class NodeMainBridge implements Bridge {
   dispose(): void {
     // Restore globals changed in initialize.
     const g = globalThis as any;
@@ -23,9 +23,9 @@ export class NodeMainBridge implements IBridge {
   }
 
   async initialize(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
-    _onError: IXeusKernel.IOnError,
+    options: XeusKernelImplOptions,
+    onMessage: OnMessage,
+    _onError: OnError,
   ): Promise<void> {
     const g = globalThis as any;
     this._oldPostMessage = g.postMessage;

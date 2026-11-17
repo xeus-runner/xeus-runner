@@ -1,19 +1,19 @@
-import type { IXeusKernel } from '../defs';
+import type { ExecuteReturn, InstallProgress } from '../defs';
 
 /**
  * Handles messages received from a kernel, in a simpler format that the full Jupyter messaging
  * protocol.
  */
-export interface IMessageHandler {
+export interface MessageHandler {
   code(requestId: string, language: string, code: string): void;
 
   /**
    * Handle the MIME bundle of a display_data, update_display_data or execute_result message.
-   * Return true if handled, otherwise the text/plain entry (if any) is passed to stdout.
+   * Return true if handled.
    */
   mimeBundle(requestId: string, data: { [mimeType: string]: unknown }): boolean;
 
-  progress(progress: IXeusKernel.IProgress): void;
+  progress(progress: InstallProgress): void;
 
   stderr(requestId: string, text: string): void;
 
@@ -21,5 +21,5 @@ export interface IMessageHandler {
 
   stdout(requestId: string, text: string): void;
 
-  toExecuteReturn(requestId: string): IXeusKernel.IExecuteReturn;
+  toExecuteReturn(requestId: string): ExecuteReturn;
 }

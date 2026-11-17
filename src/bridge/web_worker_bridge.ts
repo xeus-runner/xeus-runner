@@ -1,12 +1,12 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import type { IXeusKernel } from '../defs';
-import type { IXeusKernelImplOptions } from '../impl';
-import type { IBridge } from './bridge';
+import type { OnError, OnMessage } from '../defs';
+import type { XeusKernelImplOptions } from '../impl';
+import type { Bridge } from './bridge';
 
 /**
  * Bridge to kernel implementation running in a web worker.
  */
-export abstract class WebWorkerBridge implements IBridge {
+export abstract class WebWorkerBridge implements Bridge {
   /**
    * Create a module worker. Browsers do not allow worker scripts from a different origin, so in
    * that case create a same-origin blob worker that imports the script. If the page has an opaque
@@ -30,7 +30,7 @@ export abstract class WebWorkerBridge implements IBridge {
     }
   }
 
-  protected abstract createWorker(options: IXeusKernelImplOptions): Worker;
+  protected abstract createWorker(options: XeusKernelImplOptions): Worker;
 
   dispose(): void {
     this._worker?.terminate();
@@ -40,16 +40,16 @@ export abstract class WebWorkerBridge implements IBridge {
   abstract envLock(): Promise<ILock | undefined>;
 
   async initialize(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
-    onError: IXeusKernel.IOnError,
+    options: XeusKernelImplOptions,
+    onMessage: OnMessage,
+    onError: OnError,
   ): Promise<void> {
     this._worker = this.createWorker(options);
     this.handleWorkerErrors(onError);
     return this.initWorker(options, onMessage);
   }
 
-  protected handleWorkerErrors(onError?: IXeusKernel.IOnError): void {
+  protected handleWorkerErrors(onError?: OnError): void {
     this.worker.onerror = (event: ErrorEvent) => {
       const message = event.message
         ? `Web worker error: ${event.message} (${event.filename}:${event.lineno})`
@@ -59,8 +59,8 @@ export abstract class WebWorkerBridge implements IBridge {
   }
 
   protected abstract initWorker(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
+    options: XeusKernelImplOptions,
+    onMessage: OnMessage,
   ): Promise<void>;
 
   abstract sendMessage(msg: any): Promise<void>;

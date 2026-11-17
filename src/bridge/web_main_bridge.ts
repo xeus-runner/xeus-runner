@@ -1,13 +1,13 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import type { IXeusKernel } from '../defs';
-import type { IXeusKernelImplOptions } from '../impl';
+import type { OnError, OnMessage } from '../defs';
+import type { XeusKernelImplOptions } from '../impl';
 import { WebMainXeusKernelImpl } from '../impl';
-import type { IBridge } from './bridge';
+import type { Bridge } from './bridge';
 
 /**
  * Bridge to kernel impl running in a web browser main UI thread.
  */
-export class WebMainBridge implements IBridge {
+export class WebMainBridge implements Bridge {
   dispose(): void {
     // Restore global changed in initialize.
     (globalThis as any).postMessage = this._oldPostMessage;
@@ -19,9 +19,9 @@ export class WebMainBridge implements IBridge {
   }
 
   async initialize(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
-    _onError: IXeusKernel.IOnError,
+    options: XeusKernelImplOptions,
+    onMessage: OnMessage,
+    _onError: OnError,
   ): Promise<void> {
     this._oldPostMessage = (globalThis as any).postMessage;
     (globalThis as any).postMessage = onMessage;

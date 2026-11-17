@@ -1,158 +1,114 @@
 import type { ILock } from '@emscripten-forge/mambajs';
-import type { ISignal } from '@lumino/signaling';
-import type { IKernelType } from './kernel_type';
-import type { ILogger } from './logger';
-import type { IMessageHandler } from './message_handler';
+import type { KernelType } from './kernel_type';
+import type { Logger } from './logger';
+import type { MessageHandler } from './message_handler';
 
-export interface IXeusKernel {
+export interface XeusKernelOptions {
   /**
-   * Signal emitted when the kernel is disposed.
+   * Requested language/kernel such as `python`, `cpp` or `cpp23`.
+   * See :func:`~createKernelType` for more details.
    */
-  disposed: ISignal<this, void>;
+  type: string | KernelType;
 
   /**
-   * Dispose of the kernel.
+   * Environment lock file. If specified, `packages` and `channels` will be ignored.
    */
-  dispose(): void;
+  envLock?: ILock;
 
   /**
-   * Environment lock file used by the kernel.
+   * List of emscripten-forge packages to install, can include version specifiers.
+   * Ignored if `envLock` is specified.
    */
-  envLock(): Promise<ILock | undefined>;
+  packages?: string[];
 
   /**
-   * Execute code in the kernel.
-   * Returns a promise that resolves when the execution is complete containing the text-only returns
-   * from the kernel if they have not already been handled in some other way by an IMessageHandler.
+   * List of PyPI packages to install, can include version specifiers.
+   * Ignored if `envLock` is specified.
+   */
+  pipPackages?: string[];
+
+  /**
+   * Channels to obtain packages from such as 'https://prefix.dev/emscripten-forge/6x'
+   * or 'conda-forge'.
+   * Also accepts the following aliases:
    *
-   * @param options
+   * - 'standard' to use the latest stable emscripten-forge channel, currently 'standard-6x'.
+   * - 'standard-4x' to use the emscripten-forge channel built using emscripten version 4.
+   * - 'standard-6x' to use the emscripten-forge channel built using emscripten version 6.
+   *
+   * If unspecified uses 'standard'.
+   * Ignored if `envLock` is specified.
    */
-  execute(options: IXeusKernel.IExecuteOptions): Promise<IXeusKernel.IExecuteReturn>;
+  channels?: string[];
 
   /**
-   * Whether the kernel is disposed.
+   * Target platform of the environment, default is `emscripten-wasm32`.
+   * Ignored if `envLock` is specified.
    */
-  isDisposed: boolean;
+  platform?: Platform;
 
   /**
-   * Whether kernel is running in a web worker or the main UI thread.
+   * Whether to use web worker or not, default is `false`.
    */
-  isWorker: boolean;
+  worker?: boolean;
 
   /**
-   * Promise that resolves when the kernel is ready to be used.
+   * Base URL to obtain the untarjs `unpack.wasm` file. Default is the URL of the xeus-runner
+   * module, which is correct for the `dist_node` and `dist_web` bundles as they contain
+   * `unpack.wasm`. If bundling `lib` yourself then set this to wherever `unpack.wasm` is served.
    */
-  ready: Promise<void>;
+  untarjsBaseUrl?: string;
+
+  /**
+   * Logger for kernel initialisation and execution.
+   */
+  logger?: Logger;
+
+  /**
+   * Handler for messages from the kernel. Default is a `TextMessageHandler`.
+   */
+  messageHandler?: MessageHandler;
 }
 
-export namespace IXeusKernel {
-  export interface IOptions {
-    /**
-     * Requested language/kernel such as `python`, `cpp` or `cpp23`.
-     * See :func:`~createKernelType` for more details.
-     */
-    type: string | IKernelType;
-
-    /**
-     * Environment lock file. If specified, `packages` and `channels` will be ignored.
-     */
-    envLock?: ILock;
-
-    /**
-     * List of emscripten-forge packages to install, can include version specifiers.
-     * Ignored if `envLock` is specified.
-     */
-    packages?: string[];
-
-    /**
-     * List of PyPI packages to install, can include version specifiers.
-     * Ignored if `envLock` is specified.
-     */
-    pipPackages?: string[];
-
-    /**
-     * Channels to obtain packages from such as 'https://prefix.dev/emscripten-forge/6x'
-     * or 'conda-forge'.
-     * Also accepts the following aliases:
-     *
-     * - 'standard' to use the latest stable emscripten-forge channel, currently 'standard-6x'.
-     * - 'standard-4x' to use the emscripten-forge channel built using emscripten version 4.
-     * - 'standard-6x' to use the emscripten-forge channel built using emscripten version 6.
-     *
-     * If unspecified uses 'standard'.
-     * Ignored if `envLock` is specified.
-     */
-    channels?: string[];
-
-    /**
-     * Target platform of the environment, default is `emscripten-wasm32`.
-     * Ignored if `envLock` is specified.
-     */
-    platform?: Platform;
-
-    /**
-     * Whether to use web worker or not, default is `false`.
-     */
-    worker?: boolean;
-
-    /**
-     * Base URL to obtain the untarjs `unpack.wasm` file. Default is the URL of the xeus-runner
-     * module, which is correct for the `dist_node` and `dist_web` bundles as they contain
-     * `unpack.wasm`. If bundling `lib` yourself then set this to wherever `unpack.wasm` is served.
-     */
-    untarjsBaseUrl?: string;
-
-    /**
-     * Logger for kernel initialisation and execution.
-     */
-    logger?: ILogger;
-
-    /**
-     * Handler for messages from the kernel. Default is a `TextMessageHandler`.
-     */
-    messageHandler?: IMessageHandler;
-  }
-
+/**
+ * Options passed to XeusKernel.execute()
+ */
+export interface ExecuteOptions {
   /**
-   * Options passed to IXeusKernel.execute()
+   * Code to execute, as string.
    */
-  export interface IExecuteOptions {
-    /**
-     * Code to execute, as string.
-     */
-    code: string;
-  }
-
-  /**
-   * Information returned from a XeusKernel.execute call, if it is not handled in some other way
-   * such as added to the DOM.
-   */
-  export interface IExecuteReturn {
-    stdout?: string;
-    stderr?: string;
-  }
-
-  export type IOnError = (err: Error) => void;
-
-  export type IOnMessage = (msg: any) => void;
-
-  /**
-   * Progress of kernel installation.
-   */
-  export interface IProgress {
-    /**
-     * Fraction of installation completed, from 0 to 1 (ready).
-     */
-    fraction: number;
-
-    /**
-     * Descriptive progress message.
-     */
-    message: string;
-  }
-
-  /**
-   * Supported target platforms.
-   */
-  export type Platform = 'emscripten-wasm32' | 'emscripten-wasm64';
+  code: string;
 }
+
+/**
+ * Information returned from a XeusKernel.execute call, if it is not handled in some other way
+ * such as added to the DOM.
+ */
+export interface ExecuteReturn {
+  stdout?: string;
+  stderr?: string;
+}
+
+export type OnError = (err: Error) => void;
+
+export type OnMessage = (msg: any) => void;
+
+/**
+ * Progress of kernel installation.
+ */
+export interface InstallProgress {
+  /**
+   * Fraction of installation completed, from 0 to 1 (ready).
+   */
+  fraction: number;
+
+  /**
+   * Descriptive progress message.
+   */
+  message: string;
+}
+
+/**
+ * Supported target platforms.
+ */
+export type Platform = 'emscripten-wasm32' | 'emscripten-wasm64';

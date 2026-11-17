@@ -1,43 +1,40 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { Remote } from 'comlink';
 import { wrap } from 'comlink';
-import type { IXeusKernel } from '../defs';
-import type { IComlinkWebWorkerKernel, IXeusKernelImplOptions } from '../impl';
+import type { OnMessage } from '../defs';
+import type { ComlinkWebWorkerProxy, XeusKernelImplOptions } from '../impl';
 import { WebWorkerBridge } from './web_worker_bridge';
 
 /**
  * Bridge to kernel implementation in web worker using comlink for communication between threads.
  */
 export class ComlinkWebWorkerBridge extends WebWorkerBridge {
-  protected createWorker(_options: IXeusKernelImplOptions): Worker {
+  protected createWorker(_options: XeusKernelImplOptions): Worker {
     return this.createModuleWorker(new URL('./comlink_web_worker_impl.js', import.meta.url));
   }
 
   override dispose(): void {
-    (this._remoteKernel as any) = null;
+    (this._proxy as any) = null;
     super.dispose();
   }
 
   async envLock(): Promise<ILock | undefined> {
-    return await this._remoteKernel?.envLock();
+    return await this._proxy?.envLock();
   }
 
-  protected async initWorker(
-    options: IXeusKernelImplOptions,
-    onMessage: IXeusKernel.IOnMessage,
-  ): Promise<void> {
+  protected async initWorker(options: XeusKernelImplOptions, onMessage: OnMessage): Promise<void> {
     const { worker } = this;
 
     // Avoid use of comlink for messages coming from worker.
     worker.onmessage = (event) => onMessage(event.data);
 
-    this._remoteKernel = wrap(worker) as Remote<IComlinkWebWorkerKernel>;
-    return this._remoteKernel.initialize(options);
+    this._proxy = wrap(worker) as Remote<ComlinkWebWorkerProxy>;
+    return this._proxy.initialize(options);
   }
 
   async sendMessage(msg: any): Promise<void> {
-    await this._remoteKernel?.processMessage(msg);
+    await this._proxy?.processMessage(msg);
   }
 
-  private _remoteKernel?: Remote<IComlinkWebWorkerKernel>;
+  private _proxy?: Remote<ComlinkWebWorkerProxy>;
 }

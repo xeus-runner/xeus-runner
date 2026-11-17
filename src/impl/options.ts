@@ -1,15 +1,15 @@
 import type { ILock } from '@emscripten-forge/mambajs';
 import type { IXeusWorkerKernel } from '@jupyterlite/xeus-core';
-import type { IXeusKernel } from '../defs';
-import type { IKernelType } from '../kernel_type';
+import type { Platform } from '../defs';
+import type { KernelType } from '../kernel_type';
 
-export interface IXeusKernelImplOptions extends IXeusWorkerKernel.IOptions {
-  kernelType: IKernelType;
+export interface XeusKernelImplOptions extends IXeusWorkerKernel.IOptions {
+  kernelType: KernelType;
   envLock?: ILock;
   packages?: string[];
   pipPackages?: string[];
   channels?: string[];
-  platform?: IXeusKernel.Platform;
+  platform?: Platform;
   untarjsBaseUrl?: string;
   log: boolean; // Whether to post log messages to the XeusKernel.
 }

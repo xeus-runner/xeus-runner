@@ -1,5 +1,5 @@
 import { createEnvLock } from '../../src/env_lock';
-import type { ILogger } from '../../src/logger';
+import type { Logger, LogLevel } from '../../src/logger';
 
 describe('createEnvLock', () => {
   const params: [string, string[]][] = [
@@ -129,8 +129,8 @@ describe('createEnvLock', () => {
 
   test('should write to logger', async () => {
     const LOG: string[] = [];
-    class TestLogger implements ILogger {
-      log(_level: ILogger.Level, ...msg: any[]): void {
+    class TestLogger implements Logger {
+      log(_level: LogLevel, ...msg: any[]): void {
         LOG.push(msg.join(' '));
       }
     }

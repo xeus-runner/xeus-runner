@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import type { IXeusKernel } from '@xeus-runner/xeus-runner';
+import type { InstallProgress } from '@xeus-runner/xeus-runner';
 import { BaseMessageHandler, TerminalMessageHandler, XeusKernel } from '@xeus-runner/xeus-runner';
 
 describe('Python kernel', () => {
@@ -72,12 +72,12 @@ describe('Python kernel', () => {
 
   it.each([false, true])('reports progress to message handler, worker: %s', async (worker) => {
     class ProgressMessageHandler extends BaseMessageHandler {
-      progress(progress: IXeusKernel.IProgress): void {
+      progress(progress: InstallProgress): void {
         this.progresses.push(progress);
       }
       stderr(): void {}
       stdout(): void {}
-      progresses: IXeusKernel.IProgress[] = [];
+      progresses: InstallProgress[] = [];
     }
 
     const messageHandler = new ProgressMessageHandler();

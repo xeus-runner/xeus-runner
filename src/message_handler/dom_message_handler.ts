@@ -1,13 +1,12 @@
-import { PromiseDelegate } from '@lumino/coreutils';
-import { CodeMirrorNs } from '../code_mirror';
-import type { IXeusKernel } from '../defs';
-import type { IMessageHandler } from './message_handler';
+import { CodeMirrorHighlighter } from '../code_mirror';
+import type { ExecuteReturn, InstallProgress } from '../defs';
+import type { MessageHandler } from './message_handler';
 
 /**
  * Writes messages received from kernel to new div elements added to the DOM.
  */
-export class DOMMessageHandler implements IMessageHandler {
-  constructor(options: DOMMessageHandler.IOptions) {
+export class DOMMessageHandler implements MessageHandler {
+  constructor(options: DOMMessageHandlerOptions) {
     const { targetElement } = options;
     this._targetElement =
       targetElement instanceof Element ? targetElement : document.getElementById(targetElement)!;
@@ -20,7 +19,8 @@ export class DOMMessageHandler implements IMessageHandler {
     }
     this._cssClassPrefix = options.cssClassPrefix ?? 'xr';
     this._showCode = options.showCode ?? true;
-    this._wantCodeMirror = options.useCodeMirror ?? true;
+    this._codeMirror =
+      this._showCode && (options.useCodeMirror ?? true) ? new CodeMirrorHighlighter() : undefined;
   }
 
   code(requestId: string, language: string, code: string) {
@@ -31,16 +31,7 @@ export class DOMMessageHandler implements IMessageHandler {
         `code-${requestId}`,
       );
       div.textContent += code;
-
-      if (this._wantCodeMirror && CodeMirrorNs.supportsLanguage(language)) {
-        if (!this._codeMirrorInitialising) {
-          CodeMirrorNs.init(language).then(() => {
-            this._codeMirrorInitialising = false;
-            this._initCodeMirrorDelegate.resolve();
-          });
-        }
-        this._initCodeMirrorDelegate.promise.then(() => CodeMirrorNs.applyToDiv(div, language));
-      }
+      this._codeMirror?.highlight(div, language);
     }
   }
 
@@ -103,7 +94,7 @@ export class DOMMessageHandler implements IMessageHandler {
     });
   }
 
-  progress(progress: IXeusKernel.IProgress): void {
+  progress(progress: InstallProgress): void {
     if (this._progressElement === undefined) {
       return;
     }
@@ -130,7 +121,7 @@ export class DOMMessageHandler implements IMessageHandler {
     }
   }
 
-  toExecuteReturn(_requestId: string): IXeusKernel.IExecuteReturn {
+  toExecuteReturn(_requestId: string): ExecuteReturn {
     // Return nothing.
     return {};
   }
@@ -167,38 +158,34 @@ export class DOMMessageHandler implements IMessageHandler {
   private _progressMessage?: HTMLSpanElement;
   private readonly _cssClassPrefix: string;
   private readonly _showCode: boolean;
-  private readonly _wantCodeMirror: boolean;
-  private _codeMirrorInitialising = false;
-  private _initCodeMirrorDelegate = new PromiseDelegate<void>();
+  private readonly _codeMirror?: CodeMirrorHighlighter;
 }
 
-export namespace DOMMessageHandler {
-  export interface IOptions {
-    /**
-     * Target element or its string `id` to add new child divs to.
-     */
-    targetElement: Element | string;
+export interface DOMMessageHandlerOptions {
+  /**
+   * Target element or its string `id` to add new child divs to.
+   */
+  targetElement: Element | string;
 
-    /**
-     * Element or its string `id` to show kernel installation progress in. Default is no progress
-     * shown.
-     */
-    progressElement?: Element | string;
+  /**
+   * Element or its string `id` to show kernel installation progress in. Default is no progress
+   * shown.
+   */
+  progressElement?: Element | string;
 
-    /**
-     * Prefix for CSS class names of generated `div` elements. Default is `xr`.
-     */
-    cssClassPrefix?: string;
+  /**
+   * Prefix for CSS class names of generated `div` elements. Default is `xr`.
+   */
+  cssClassPrefix?: string;
 
-    /**
-     * Whether to show source code that is executed or not. Default is `true`.
-     */
-    showCode?: boolean;
+  /**
+   * Whether to show source code that is executed or not. Default is `true`.
+   */
+  showCode?: boolean;
 
-    /**
-     * Whether to use CodeMirror to syntax highlight source code. Ignored if `showCode` is
-     * `false`. Default is `true`.
-     */
-    useCodeMirror?: boolean;
-  }
+  /**
+   * Whether to use CodeMirror to syntax highlight source code. Ignored if `showCode` is
+   * `false`. Default is `true`.
+   */
+  useCodeMirror?: boolean;
 }
