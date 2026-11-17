@@ -1,0 +1,45 @@
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# R
+
+Run an R kernel in the browser, using `ggplot2`, and show the plot in the `target` element.
+
+```html live
+<!DOCTYPE html>
+<html>
+<body>
+  <span id="progress"></span>
+  <div id="target"></div>
+  <script type="module">
+    import { DOMMessageHandler, XeusKernel }
+      from 'https://cdn.jsdelivr.net/npm/@xeus-runner/xeus-runner@VERSION/dist_web/xeus-runner.js';
+
+    const kernel = new XeusKernel({
+      type: 'r',
+      packages: ['r-ggplot2'],
+      messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
+      worker: true
+    });
+    let code = `writeLines(paste("R:", R.version.string))
+writeLines(paste("Platform:", R.version$platform))
+writeLines(paste("ggplot2:", packageVersion("ggplot2")))`;
+    kernel.execute({ code });
+
+    code = `library(ggplot2)
+
+data <- expand.grid(x = 0:1, y = 0:1)
+data$z <- c(1, 2, 3, 4)
+
+ggplot(data, aes(x = x, y = y, z = z)) +
+  geom_contour_filled() +
+  labs(title = "ggplot2 contour plot")`;
+    kernel.execute({ code });
+  </script>
+</body>
+</html>
+```
+
+<iframe
+  src={useBaseUrl('/live/r.html')}
+  style={{ width: '100%', border: 'none' }}
+/>

@@ -7,6 +7,8 @@ import { WebWorkerBridge } from './web_worker_bridge';
 
 /**
  * Bridge to kernel implementation in web worker using comlink for communication between threads.
+ *
+ * @category Bridges
  */
 export class ComlinkWebWorkerBridge extends WebWorkerBridge {
   protected createWorker(_options: XeusKernelImplOptions): Worker {

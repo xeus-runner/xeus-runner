@@ -1,0 +1,66 @@
+button {
+  background-color: #3578e5;
+  color: white;
+  border: none;
+  border-radius: 0.5em;
+  padding: 0.5em 1.2em;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#progress {
+  margin-left: 1em;
+}
+
+#target {
+  margin-top: 0.5em;
+  min-height: 2em;
+}
+
+.xr-code,
+.xr-html,
+.xr-image,
+.xr-stdout,
+.xr-stderr {
+  margin: 0.5em 0;
+  padding: 0.3em;
+  border-radius: 0.5em;
+}
+
+.xr-code,
+.xr-stdout,
+.xr-stderr {
+  font-family: monospace;
+  white-space: pre;
+}
+
+.xr-code {
+  border: solid 1px gold;
+  background-color: ivory;
+}
+
+.xr-progress {
+  margin-right: 0.5em;
+}
+
+[data-theme="dark"] .xr-progress {
+  accent-color: #4e89e8;
+}
+
+[data-theme="dark"] .xr-progress-message {
+  color: #e3e3e3;
+}
+
+.xr-stdout {
+  border: solid 1px silver;
+  background-color: whitesmoke;
+}
+
+.xr-stderr {
+  border: solid 1px red;
+  background-color: #ffcccc;
+}

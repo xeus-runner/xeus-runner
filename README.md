@@ -5,15 +5,15 @@ browser and in Node.js.
 
 ## Kernel languages supported
 
-- xeus-cpp
-- xeus-haskell
-- xeus-lfortran
-- xeus-lua
-- xeus-octave
-- xeus-python
-- xeus-r
-- xeus-shakespearelang
-- xeus-sqlite
+- [xeus-cpp](https://github.com/compiler-research/xeus-cpp)
+- [xeus-haskell](https://github.com/jupyter-xeus/xeus-haskell)
+- [xeus-lfortran](https://github.com/lfortran/lfortran)
+- [xeus-lua](https://github.com/jupyter-xeus/xeus-lua)
+- [xeus-octave](https://github.com/jupyter-xeus/xeus-octave)
+- [xeus-python](https://github.com/jupyter-xeus/xeus-python)
+- [xeus-r](https://github.com/jupyter-xeus/xeus-r)
+- [xeus-shakespearelang](https://github.com/DerThorsten/xeus-pywrap)
+- [xeus-sqlite](https://github.com/jupyter-xeus/xeus-sqlite)
 
 ## Simple examples
 
@@ -179,11 +179,13 @@ npm run test
 
 ## Documentation
 
-To build the documentation:
+To build the documentation, first build the project as above and then:
 
 ```bash
 cd docs
-micromamba create -f docs-environment
-micromamba activate xeus-runner-docs
-make html
+npm install
+npm run build
 ```
+
+The built documentation is in `docs/build`. Alternatively use `npm start` to run a development
+server that rebuilds the documentation when files change.

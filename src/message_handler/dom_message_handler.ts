@@ -4,6 +4,8 @@ import type { MessageHandler } from './message_handler';
 
 /**
  * Writes messages received from kernel to new div elements added to the DOM.
+ *
+ * @category Message handlers
  */
 export class DOMMessageHandler implements MessageHandler {
   constructor(options: DOMMessageHandlerOptions) {
@@ -161,6 +163,7 @@ export class DOMMessageHandler implements MessageHandler {
   private readonly _codeMirror?: CodeMirrorHighlighter;
 }
 
+/** @category Message handlers */
 export interface DOMMessageHandlerOptions {
   /**
    * Target element or its string `id` to add new child divs to.

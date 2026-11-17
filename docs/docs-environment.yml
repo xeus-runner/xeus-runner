@@ -1,9 +1,0 @@
-name: xeus-runner-docs
-channels:
-  - https://prefix.dev/conda-forge
-dependencies:
-  - nodejs =24
-  - myst-parser
-  - sphinx
-  - sphinx-book-theme
-  - sphinx-js

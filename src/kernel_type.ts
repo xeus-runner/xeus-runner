@@ -43,6 +43,8 @@ export interface KernelType {
  * is contained within the Emscrioten-forge packages.
  *
  * @param input
+ *
+ * @category Helpers
  */
 export function createKernelType(input: string): KernelType {
   // Sanitise input.

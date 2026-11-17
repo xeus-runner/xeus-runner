@@ -6,7 +6,17 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!**/dist_*", "!**/lib", "!**/tmp_*"],
+    "includes": [
+      "**",
+      "!**/dist_*",
+      "!**/lib",
+      "!**/tmp_*",
+      "!docs/.docusaurus",
+      "!docs/build",
+      "!docs/docs/api",
+      "!docs/static/live/*.html",
+      "!docs/static/xeus-runner"
+    ],
     "maxSize": 104857600
   },
   "formatter": {

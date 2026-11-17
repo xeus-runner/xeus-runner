@@ -1,0 +1,38 @@
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Octave
+
+Run an Octave kernel in the browser to solve a linear system, and show the output in the `target` element.
+
+```html live
+<!DOCTYPE html>
+<html>
+<body>
+  <span id="progress"></span>
+  <div id="target"></div>
+  <script type="module">
+    import { DOMMessageHandler, XeusKernel }
+      from 'https://cdn.jsdelivr.net/npm/@xeus-runner/xeus-runner@VERSION/dist_web/xeus-runner.js';
+
+    const kernel = new XeusKernel({
+      type: 'octave',
+      messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
+      worker: true
+    });
+    let code = `disp(["Octave: ", version()])
+disp(["Platform: ", computer()])`;
+    kernel.execute({ code });
+
+    code = `A = magic(3)
+b = [1; 2; 3]
+x = inv(A) * b`;
+    kernel.execute({ code });
+  </script>
+</body>
+</html>
+```
+
+<iframe
+  src={useBaseUrl('/live/octave.html')}
+  style={{ width: '100%', border: 'none' }}
+/>

@@ -3,6 +3,8 @@ import type { ExecuteReturn, InstallProgress } from '../defs';
 /**
  * Handles messages received from a kernel, in a simpler format that the full Jupyter messaging
  * protocol.
+ *
+ * @category Message handlers
  */
 export interface MessageHandler {
   code(requestId: string, language: string, code: string): void;

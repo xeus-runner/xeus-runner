@@ -1,0 +1,47 @@
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Python
+
+Run a Python kernel in the browser, using `matplotlib`, and show the plot in the `target` element.
+
+```html live
+<!DOCTYPE html>
+<html>
+<body>
+  <span id="progress"></span>
+  <div id="target"></div>
+  <script type="module">
+    import { DOMMessageHandler, XeusKernel }
+      from 'https://cdn.jsdelivr.net/npm/@xeus-runner/xeus-runner@VERSION/dist_web/xeus-runner.js';
+
+    const kernel = new XeusKernel({
+      type: 'python',
+      packages: ['matplotlib'],
+      messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
+      worker: true
+    });
+    let code = `import matplotlib as mpl
+import platform
+import sys
+
+print('Python:', sys.version_info)
+print('Platform:', platform.system(), platform.machine())
+print('Matplotlib:', mpl.__version__)`;
+    kernel.execute({ code });
+
+    code = `import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+cs = ax.contourf([[1, 2], [3, 4]])
+fig.colorbar(cs, ax=ax)
+ax.set_title('Matplotlib contour plot');`;
+    kernel.execute({ code });
+  </script>
+</body>
+</html>
+```
+
+<iframe
+  src={useBaseUrl('/live/python.html')}
+  style={{ width: '100%', border: 'none' }}
+/>

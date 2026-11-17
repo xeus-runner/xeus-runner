@@ -5,7 +5,11 @@ node_modules/
 tsconfig.tsbuildinfo
 xeus-runner.log
 
-docs/_build/
+docs/.docusaurus/
+docs/build/
+docs/docs/api/
+docs/static/xeus-runner/
+docs/static/live/*.html
 
 examples/package-lock.json
 examples/tmp_web

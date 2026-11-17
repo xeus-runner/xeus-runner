@@ -4,6 +4,8 @@ import { LogLevel } from './logger';
 /**
  * Logger to the console, for both web browser and node.
  * Default max log level is LogLevel.Info
+ *
+ * @category Loggers
  */
 export class ConsoleLogger implements Logger {
   constructor(options: ConsoleLoggerOptions = {}) {
@@ -35,6 +37,7 @@ export class ConsoleLogger implements Logger {
   readonly maxLevel: LogLevel;
 }
 
+/** @category Loggers */
 export interface ConsoleLoggerOptions {
   prefix?: string;
   maxLevel?: LogLevel;

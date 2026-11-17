@@ -3,6 +3,8 @@ import { BaseMessageHandler } from './base_message_handler';
 
 /**
  * Handles text-only messages from the kernel, returning then via `toExecuteReturn`.
+ *
+ * @category Message handlers
  */
 export class TextMessageHandler extends BaseMessageHandler {
   stderr(requestId: string, text: string): void {

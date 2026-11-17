@@ -1,0 +1,23 @@
+{
+  "name": "xeus-runner-docs",
+  "private": true,
+  "scripts": {
+    "prestart": "npm run copy-dist-web && node generate-live.mjs",
+    "start": "docusaurus start",
+    "prebuild": "npm run copy-dist-web && node generate-live.mjs",
+    "build": "docusaurus build",
+    "copy-dist-web": "mkdir -p static/xeus-runner && cp ../dist_web/xeus-runner.js ../dist_web/comlink_web_worker_impl.js ../dist_web/unpack.wasm static/xeus-runner/",
+    "serve": "docusaurus serve",
+    "clear": "docusaurus clear"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/faster": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
+    "docusaurus-plugin-typedoc": "^1.4.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.14.1"
+  }
+}

@@ -4,6 +4,8 @@ import { BaseMessageHandler } from './base_message_handler';
 /**
  * Writes stdout and stderr messages from the kernel to process.stdout and process.stderr as they
  * are received, and optionally shows kernel installation progress on process.stdout, for node only.
+ *
+ * @category Message handlers
  */
 export class TerminalMessageHandler extends BaseMessageHandler {
   constructor(options: TerminalMessageHandlerOptions = {}) {
@@ -40,6 +42,7 @@ export class TerminalMessageHandler extends BaseMessageHandler {
   private readonly _showProgress: boolean;
 }
 
+/** @category Message handlers */
 export interface TerminalMessageHandlerOptions {
   /**
    * Whether to show kernel installation progress on process.stdout. Default is `false`.

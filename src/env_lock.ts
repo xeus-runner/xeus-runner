@@ -17,6 +17,8 @@ STANDARD_CHANNELS.standard = STANDARD_CHANNELS['standard-6x'];
  *
  * @param options
  * @returns Environment lock file in JSON format.
+ *
+ * @category Helpers
  */
 export async function createEnvLock(options: {
   channels?: string[];

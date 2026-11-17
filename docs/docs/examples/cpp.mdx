@@ -1,0 +1,53 @@
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# C++
+
+Run a C++ kernel in the browser, using `xtensor`, and show the output in the `target` element.
+
+```html live
+<!DOCTYPE html>
+<html>
+<body>
+  <span id="progress"></span>
+  <div id="target"></div>
+  <script type="module">
+    import { DOMMessageHandler, XeusKernel }
+      from 'https://cdn.jsdelivr.net/npm/@xeus-runner/xeus-runner@VERSION/dist_web/xeus-runner.js';
+
+    const kernel = new XeusKernel({
+      type: 'cpp',
+      packages: ['xtensor'],
+      messageHandler: new DOMMessageHandler({ targetElement: 'target', progressElement: 'progress' }),
+      worker: true
+    });
+    let code = `#include <iostream>
+#include <xtensor/containers/xarray.hpp>
+#include <xtensor/io/xio.hpp>
+#include <xtensor/views/xview.hpp>
+
+std::cout << "C++: " << __cplusplus << std::endl;
+std::cout << "xtensor: " << XTENSOR_VERSION_MAJOR << "." << XTENSOR_VERSION_MINOR << "."
+          << XTENSOR_VERSION_PATCH << std::endl;`;
+    kernel.execute({ code });
+
+    code = `xt::xarray<double> arr1
+  {{1.0, 2.0, 3.0},
+   {2.0, 5.0, 7.0},
+   {2.0, 5.0, 7.0}};
+
+xt::xarray<double> arr2
+  {5.0, 6.0, 7.0};
+
+xt::xarray<double> res = xt::view(arr1, 1) + arr2;
+
+std::cout << res << std::endl;`;
+    kernel.execute({ code });
+  </script>
+</body>
+</html>
+```
+
+<iframe
+  src={useBaseUrl('/live/cpp.html')}
+  style={{ width: '100%', border: 'none' }}
+/>

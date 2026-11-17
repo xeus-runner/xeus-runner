@@ -4,6 +4,8 @@ import type { MessageHandler } from './message_handler';
 /**
  * Base class for message handlers. Methods other than stderr and stdout do nothing, so subclasses
  * only need to override the ones they care about.
+ *
+ * @category Message handlers
  */
 export abstract class BaseMessageHandler implements MessageHandler {
   code(_requestId: string, _language: string, _code: string): void {}

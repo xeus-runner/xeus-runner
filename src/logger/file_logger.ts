@@ -4,6 +4,8 @@ import { LogLevel } from './logger';
 /**
  * Logger to a file, for node only.
  * Default max log level is LogLevel.Info
+ *
+ * @category Loggers
  */
 export class FileLogger implements Logger {
   constructor(options: FileLoggerOptions) {
@@ -27,6 +29,7 @@ export class FileLogger implements Logger {
   private _format: (...msg: any[]) => string;
 }
 
+/** @category Loggers */
 export interface FileLoggerOptions {
   filename: string;
   maxLevel?: LogLevel;
