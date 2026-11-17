@@ -11,8 +11,6 @@ const options = [
 ] as const;
 
 test.describe('Cross-origin import', () => {
-  test.skip(({ browserName }) => browserName !== 'chromium', 'Only runs in chromium');
-
   options.forEach(({ pageOrigin, worker, coi, origin }) => {
     test(`runs, pageOrigin: ${pageOrigin}, worker: ${worker}`, async ({ page }) => {
       await crossOriginNavigate(page, { pageOrigin });

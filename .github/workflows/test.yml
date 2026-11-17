@@ -68,13 +68,23 @@ jobs:
             src/version.ts
 
   test:
-    name: Test ${{ matrix.type }}
+    name: Test ${{ matrix.type }} ${{ matrix.browser }}
     needs: build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        type: [unit, node, web]
+        include:
+          - type: unit
+          - type: node
+          - type: web
+            browser: chromium
+          - type: web
+            browser: firefox
+          - type: web
+            browser: webkit
+    env:
+      BROWSER: ${{ matrix.browser }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -116,7 +126,7 @@ jobs:
       - name: Install playwright
         if: matrix.type == 'web'
         working-directory: test
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Test
         working-directory: test
