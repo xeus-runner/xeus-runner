@@ -3,6 +3,11 @@
 Run `xeus` WebAssembly kernels outside of JupyterLite in TypeScript/JavaScript projects, both in the
 browser and in Node.js.
 
+- Documentation: https://xeus-runner.readthedocs.io
+
+⚠️ Warning: this repository is experimental and does not yet have a stable API. You should pin to a
+specific patch version as the API may change without notice and without following SemVer. ⚠️
+
 ## Kernel languages supported
 
 - [xeus-cpp](https://github.com/compiler-research/xeus-cpp)

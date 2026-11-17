@@ -4,10 +4,13 @@ slug: /
 
 # xeus-runner
 
-Run xeus WebAssembly kernels in TypeScript/JavaScript outside of JupyterLite in a web browser or
-from the command line using Node.js.
+Run **xeus** WebAssembly kernels in TypeScript/JavaScript projects outside of JupyterLite in a web
+browser or from the command line using Node.js.
 
 Documentation here is a work in progress.
+
+⚠️ **Warning: this repository is experimental and does not yet have a stable API. You should pin to
+a specific patch version as the API may change without notice and without following SemVer.** ⚠️
 
 ## Kernel languages supported
 
