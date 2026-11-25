@@ -450,7 +450,6 @@ print(event1.is_set(), event2.is_set())`,
       const output = await page.evaluate(async (worker) => {
         const kernel = new (globalThis as any).XeusKernel({
           type: 'python',
-          channels: ['standard-4x'], // Temporary
           packages: ['datashader', 'pillow'],
           messageHandler: new (globalThis as any).DOMMessageHandler({ targetElement: 'target' }),
           worker,
